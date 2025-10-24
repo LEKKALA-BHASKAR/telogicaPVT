@@ -20,8 +20,8 @@ const fileSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['product', 'annual_report', 'manual', 'other'],
-    default: 'other'
+    required: true
+    // Removed enum validation to allow dynamic categories
   },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,

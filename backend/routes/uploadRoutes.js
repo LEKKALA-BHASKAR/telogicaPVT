@@ -18,7 +18,14 @@ const upload = multer({
 // Upload file (Admin only)
 router.post('/', protect, admin, upload.single('file'), async (req, res) => {
   try {
+    console.log('Upload request received:', {
+      file: !!req.file,
+      body: req.body,
+      user: req.user?._id
+    });
+
     if (!req.file) {
+      console.log('No file provided in request');
       return res.status(400).json({
         success: false,
         message: 'Please upload a file'
@@ -26,45 +33,97 @@ router.post('/', protect, admin, upload.single('file'), async (req, res) => {
     }
     
     const { category } = req.body;
+    console.log('File details:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      category
+    });
     
-    // Determine file type
-    const fileType = req.file.mimetype.includes('image') ? 'image' :
-                     req.file.mimetype.includes('pdf') ? 'pdf' : 'document';
+    // Determine file type - PDFs should be treated as 'raw' not 'image'
+    let resourceType = 'raw';
+    let fileType = 'document';
+    
+    if (req.file.mimetype.includes('image')) {
+      resourceType = 'image';
+      fileType = 'image';
+    } else if (req.file.mimetype.includes('pdf')) {
+      resourceType = 'raw'; // PDFs should use 'raw' resource type
+      fileType = 'pdf';
+    }
+    
+    // Determine category
+    // Remove the validation against predefined categories to allow dynamic sections
+    const fileCategory = category || 'other';
+    
+    console.log('Uploading to Cloudinary with config:', {
+      resource_type: resourceType,
+      folder: fileCategory || 'uploads'
+    });
     
     // Upload to Cloudinary
     const result = await new Promise((resolve, reject) => {
+      // Extract the file extension and name
+      const fileExtension = req.file.originalname.split('.').pop();
+      const fileNameWithoutExtension = req.file.originalname.replace(/\.[^/.]+$/, "");
+      
+      // Create a clean filename (alphanumeric and underscores only)
+      const cleanFileName = fileNameWithoutExtension
+        .replace(/[^a-zA-Z0-9]/g, '_')
+        .replace(/_+/g, '_') // Replace multiple underscores with single underscore
+        .replace(/^_|_$/g, ''); // Remove leading/trailing underscores
+      
+      // Create final filename with extension
+      const finalFileName = cleanFileName + (fileExtension ? `.${fileExtension}` : '');
+      
+      console.log('Uploading file with name:', finalFileName);
+      
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          resource_type: fileType === 'image' ? 'image' : 'raw',
-          folder: category || 'uploads'
+          resource_type: resourceType, // Use correct resource type
+          folder: fileCategory || 'uploads',
+          public_id: finalFileName, // Use the original filename
+          overwrite: true,
+          invalidate: true,
+          access_mode: 'public'
         },
         (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            console.error('Cloudinary config at time of upload:', cloudinary.config());
+            reject(new Error(`Cloudinary upload failed: ${error.message}`));
+          } else {
+            console.log('Cloudinary upload success:', result.secure_url);
+            resolve(result);
+          }
         }
       );
       
       uploadStream.end(req.file.buffer);
     });
     
-    // Save file info to database
+    // Save file info to database (use the original URL)
+    console.log('Saving file to database');
     const file = await File.create({
       name: req.file.originalname,
       url: result.secure_url,
       publicId: result.public_id,
       type: fileType,
-      category: category || 'other',
+      category: fileCategory,
       uploadedBy: req.user._id
     });
+    
+    console.log('File saved successfully:', file._id);
     
     res.json({
       success: true,
       data: file
     });
   } catch (error) {
+    console.error('Upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to upload document'
     });
   }
 });

@@ -40,6 +40,9 @@ const Navbar = () => {
             <Link to="/products" className="text-gray-700 hover:text-violet-600 font-medium transition-colors" data-testid="nav-products-link">
               Products
             </Link>
+            <Link to="/investors" className="text-gray-700 hover:text-violet-600 font-medium transition-colors" data-testid="nav-investors-link">
+              Investors
+            </Link>
             <Link to="/contact" className="text-gray-700 hover:text-violet-600 font-medium transition-colors" data-testid="nav-contact-link">
               Contact
             </Link>
@@ -133,6 +136,9 @@ const Navbar = () => {
               </Link>
               <Link to="/products" className="text-gray-700 hover:text-violet-600 font-medium" onClick={() => setIsOpen(false)}>
                 Products
+              </Link>
+              <Link to="/investors" className="text-gray-700 hover:text-violet-600 font-medium" onClick={() => setIsOpen(false)}>
+                Investors
               </Link>
               <Link to="/contact" className="text-gray-700 hover:text-violet-600 font-medium" onClick={() => setIsOpen(false)}>
                 Contact

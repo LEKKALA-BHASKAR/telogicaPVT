@@ -3,6 +3,7 @@ import Product from '../models/Product.js';
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import File from '../models/File.js';
+import Section from '../models/Section.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import cloudinary from '../config/cloudinary.js';
 import multer from 'multer';
@@ -262,6 +263,137 @@ router.put('/orders/:id', protect, admin, async (req, res) => {
     res.json({
       success: true,
       data: order
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Get all sections
+router.get('/sections', protect, admin, async (req, res) => {
+  try {
+    const sections = await Section.find().sort({ order: 1 });
+    
+    // If no sections exist, create default ones
+    if (sections.length === 0) {
+      const defaultSections = [
+        { name: 'Annual Reports', category: 'annual_report', order: 1 },
+        { name: 'Financial Statements', category: 'financial_statement', order: 2 },
+        { name: 'Corporate Governance', category: 'corporate_governance', order: 3 },
+        { name: 'Investor Presentations', category: 'investor_presentation', order: 4 },
+        { name: 'Regulatory Filings', category: 'regulatory_filing', order: 5 }
+      ];
+      
+      const createdSections = await Section.insertMany(defaultSections);
+      return res.json({
+        success: true,
+        data: createdSections
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: sections
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Create section
+router.post('/sections', protect, admin, async (req, res) => {
+  try {
+    const { name, order } = req.body;
+    
+    // Automatically generate category slug from name if not provided
+    const categorySlug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/(^_|_$)/g, '');
+    
+    const section = await Section.create({
+      name,
+      category: categorySlug,
+      order: order || 0
+    });
+    
+    res.status(201).json({
+      success: true,
+      data: section
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Update section
+router.put('/sections/:id', protect, admin, async (req, res) => {
+  try {
+    const section = await Section.findById(req.params.id);
+    
+    if (!section) {
+      return res.status(404).json({
+        success: false,
+        message: 'Section not found'
+      });
+    }
+    
+    const { name, category, order, isActive } = req.body;
+    
+    if (name !== undefined) section.name = name;
+    if (category !== undefined) section.category = category;
+    if (order !== undefined) section.order = order;
+    if (isActive !== undefined) section.isActive = isActive;
+    
+    await section.save();
+    
+    res.json({
+      success: true,
+      data: section
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Delete section
+router.delete('/sections/:id', protect, admin, async (req, res) => {
+  try {
+    const section = await Section.findById(req.params.id);
+    
+    if (!section) {
+      return res.status(404).json({
+        success: false,
+        message: 'Section not found'
+      });
+    }
+    
+    // Don't allow deletion of the last section
+    const sectionCount = await Section.countDocuments();
+    if (sectionCount <= 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete the last section'
+      });
+    }
+    
+    await Section.findByIdAndDelete(req.params.id);
+    
+    res.json({
+      success: true,
+      message: 'Section deleted'
     });
   } catch (error) {
     res.status(500).json({

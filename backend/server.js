@@ -18,22 +18,35 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
-
-
 // ✅ Remove all CORS protection
 app.use(cors());
 
 // ✅ JSON parser
 app.use(express.json());
 
-// ✅ MongoDB connection
+// ✅ MongoDB connection with additional options
 mongoose.connect(process.env.MONGO_URI, {
   dbName: process.env.DB_NAME,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 })
   .then(() => console.log('✅ MongoDB Connected Successfully'))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
+// Add connection event listeners
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
 
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected');
+});
 
 // ✅ API routes
 app.use('/api/auth', authRoutes);

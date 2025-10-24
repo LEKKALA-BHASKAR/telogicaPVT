@@ -13,10 +13,12 @@ import Checkout from './pages/Checkout';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Investors from './pages/Investors';
 import Dashboard from './pages/admin/Dashboard';
 import ManageProducts from './pages/admin/ManageProducts';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageOrders from './pages/admin/ManageOrders';
+import ManageInvestorDocs from './pages/admin/ManageInvestorDocs';
 import UserOrders from './pages/UserOrders';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
@@ -36,6 +38,7 @@ function App() {
             <Route path="/products" element={<Products />} />
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/investors" element={<Investors />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -75,6 +78,11 @@ function App() {
             <Route path="/admin/orders" element={
               <AdminRoute>
                 <ManageOrders />
+              </AdminRoute>
+            } />
+            <Route path="/admin/investor-docs" element={
+              <AdminRoute>
+                <ManageInvestorDocs />
               </AdminRoute>
             } />
           </Routes>

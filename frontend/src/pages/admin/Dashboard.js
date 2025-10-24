@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link, useLocation } from 'react-router-dom';
 import { TrendingUp, Users, Package, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Dashboard = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -59,10 +61,36 @@ const Dashboard = () => {
     }
   ];
 
+  // Admin navigation links
+  const adminLinks = [
+    { name: 'Dashboard', path: '/admin/dashboard' },
+    { name: 'Manage Products', path: '/admin/products' },
+    { name: 'Manage Users', path: '/admin/users' },
+    { name: 'Manage Orders', path: '/admin/orders' },
+    { name: 'Investor Documents', path: '/admin/investor-docs' }
+  ];
+
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-violet-50 to-white">
       <div className="container mx-auto max-w-7xl">
-        <h1 className="text-5xl font-bold mb-8 gradient-text">Admin Dashboard</h1>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <h1 className="text-5xl font-bold gradient-text">Admin Dashboard</h1>
+          <div className="flex flex-wrap gap-2">
+            {adminLinks.map((link) => (
+              <Link 
+                key={link.path} 
+                to={link.path}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  location.pathname === link.path
+                    ? 'bg-violet-600 text-white'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
