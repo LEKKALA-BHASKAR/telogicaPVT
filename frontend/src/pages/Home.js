@@ -1,244 +1,304 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CheckCircle, Users, Award, Zap, Globe, ShoppingCart, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { ArrowRight, Shield, Zap, Users, Phone, Mail } from 'lucide-react';
 
-const Home = () => {
-  const navigate = useNavigate();
+function Home() {
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  const categories = [
+  const heroImages = [
     {
-      title: 'Telecommunication',
-      description: 'We provide services nation-wide to organizations in business, industry & government.',
-      icon: Zap,
-      color: 'from-violet-500 to-purple-600'
+      url: 'https://images.unsplash.com/photo-1665936653831-211c14d123ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxjb3Jwb3JhdGUlMjB0ZWNobm9sb2d5fGVufDB8fHx8MTc2MTI4OTU2Nnww&ixlib=rb-4.1.0&q=85',
+      title: 'Leading Technology Solutions',
+      subtitle: 'Innovative telecommunications and defense equipment'
     },
     {
-      title: 'Defence',
-      description: 'We are a pioneer in Electronics & communication Technology with proven track record.',
-      icon: Shield,
-      color: 'from-orange-500 to-red-500'
+      url: 'https://images.unsplash.com/photo-1594915440248-1e419eba6611?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHx0ZWxlY29tJTIwZXF1aXBtZW50fGVufDB8fHx8MTc2MTI4OTU3M3ww&ixlib=rb-4.1.0&q=85',
+      title: 'Advanced Testing Equipment',
+      subtitle: 'Precision instruments for fiber and cable diagnostics'
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1717386255773-1e3037c81788?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxtYW51ZmFjdHVyaW5nfGVufDB8fHx8MTc2MTI4OTU3OXww&ixlib=rb-4.1.0&q=85',
+      title: 'Manufacturing Excellence',
+      subtitle: 'Quality production for defense and telecommunications'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
+
+  const features = [
+    {
+      icon: Globe,
+      title: 'Global Reach',
+      description: 'Serving telecommunications and defense sectors across India and beyond'
+    },
+    {
+      icon: Award,
+      title: 'Quality Certified',
+      description: 'ISO certified manufacturing with stringent quality control processes'
+    },
+    {
+      icon: Zap,
+      title: 'Innovation First',
+      description: 'Cutting-edge technology solutions for modern communication needs'
+    },
+    {
+      icon: Users,
+      title: 'Expert Team',
+      description: 'Highly skilled engineers and technicians with decades of experience'
+    }
+  ];
+
+  const services = [
+    {
+      title: 'Telecommunications',
+      description: 'Advanced testing and measuring equipment for telecom infrastructure',
+      image: 'https://images.unsplash.com/photo-1594915854088-2128db6a8db5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHx0ZWxlY29tJTIwZXF1aXBtZW50fGVufDB8fHx8MTc2MTI4OTU3M3ww&ixlib=rb-4.1.0&q=85',
+      link: '/services#telecommunications'
+    },
+    {
+      title: 'Defense',
+      description: 'Specialized equipment and solutions for defense applications',
+      image: 'https://images.unsplash.com/photo-1760013767150-da8e4ded6286?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwzfHx0ZWxlY29tJTIwZXF1aXBtZW50fGVufDB8fHx8MTc2MTI4OTU3M3ww&ixlib=rb-4.1.0&q=85',
+      link: '/services#defense'
     },
     {
       title: 'Manufacturing',
-      description: 'We provide services nation-wide to organizations in business, industry & government.',
-      icon: Users,
-      color: 'from-pink-500 to-rose-600'
+      description: 'Custom manufacturing of test and measurement instruments',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHw0fHxtYW51ZmFjdHVyaW5nfGVufDB8fHx8MTc2MTI4OTU3OXww&ixlib=rb-4.1.0&q=85',
+      link: '/services#manufacturing'
+    }
+  ];
+
+  const stats = [
+    { number: '25+', label: 'Years Experience' },
+    { number: '500+', label: 'Satisfied Clients' },
+    { number: '1000+', label: 'Projects Completed' },
+    { number: '50+', label: 'Product Lines' }
+  ];
+
+  const testimonials = [
+    {
+      name: 'Dr. Rajesh Kumar',
+      role: 'Chief Engineer, BSNL',
+      rating: 5,
+      comment: 'Telogica\'s equipment has been instrumental in modernizing our network infrastructure. Their technical support is exceptional.'
+    },
+    {
+      name: 'Cmdr. Priya Singh',
+      role: 'Naval Communications',
+      rating: 5,
+      comment: 'Reliable, precise, and built to last. Telogica understands the demanding requirements of defense applications.'
+    },
+    {
+      name: 'Amit Sharma',
+      role: 'Project Manager, Airtel',
+      rating: 5,
+      comment: 'Outstanding quality and timely delivery. Telogica has been our trusted partner for network testing solutions.'
     }
   ];
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 overflow-hidden bg-gradient-to-br from-violet-50 via-white to-orange-50">
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-                <span className="gradient-text">Telogica Limited</span>
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Leading provider of Test and Measuring Equipment for Indian Defence and Telecom sectors. 
-                Manufacturing excellence in Fiber, Data and Copper Cable Fault Locators.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/products')}
-                  className="bg-gradient-to-r from-violet-600 to-orange-500 text-white hover:opacity-90 rounded-full px-8"
-                  data-testid="hero-explore-products-btn"
-                >
-                  Explore Products
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => navigate('/contact')}
-                  className="border-violet-600 text-violet-600 hover:bg-violet-50 rounded-full px-8"
-                  data-testid="hero-contact-btn"
-                >
-                  Contact Us
-                </Button>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="relative z-10 float-animation">
-                <img
-                  src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&h=600&fit=crop"
-                  alt="Technology Equipment"
-                  className="rounded-3xl shadow-2xl"
-                />
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-72 h-72 bg-gradient-to-br from-violet-400 to-orange-400 rounded-full blur-3xl opacity-20"></div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="py-20 px-4 bg-white" id="about">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl lg:text-5xl font-bold mb-4"
-            >
-              About <span className="gradient-text">Telogica</span>
-            </motion.h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Synonymous with Indian Defence and Telecom sector
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+      {/* Hero Section with Carousel */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Carousel */}
+        <div className="absolute inset-0">
+          {heroImages.map((slide, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
             >
               <img
-                src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop"
-                alt="About Telogica"
-                className="rounded-2xl shadow-xl"
+                src={slide.url}
+                alt={slide.title}
+                className="w-full h-full object-cover"
               />
-            </motion.div>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
+            </div>
+          ))}
+        </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h3 className="text-3xl font-bold mb-6">Our Story</h3>
-              <p className="text-gray-600 mb-4 leading-relaxed">
-                Telogica Ltd (Formerly Aishwarya Technologies and Telecom Ltd - ATTL) is a designing and 
-                Manufacturing Company producing Test and Measuring Equipment like Fiber, Data and Copper Cable 
-                Fault Locators in India.
-              </p>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                We trade Spectrum Analyzers, Vector Network Analyzers, Signal Generators, Site Analyzers, 
-                BTS Testers, SDH Analyzers, Splicing Machines, OTDR's, Cable Fault Locators, Cable Route 
-                Locators and Electronic Markers and Locating Systems.
-              </p>
-              <Button
-                onClick={() => navigate('/about')}
-                className="bg-violet-600 hover:bg-violet-700 text-white rounded-full"
-                data-testid="learn-more-btn"
-              >
-                Learn More
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </motion.div>
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="animate-fade-in-up">
+            <h1 className="hero-title text-white mb-6" data-testid="hero-title">
+              {heroImages[currentSlide].title}
+            </h1>
+            <p className="hero-subtitle text-gray-200 mb-8 max-w-3xl mx-auto">
+              {heroImages[currentSlide].subtitle}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/products">
+                <Button size="lg" className="btn-primary group" data-testid="explore-products-btn">
+                  Explore Products
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button size="lg" variant="outline" className="btn-secondary bg-white/10 backdrop-blur border-white/30 text-white hover:bg-white hover:text-gray-900">
+                  Get In Touch
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentSlide ? 'bg-white scale-125' : 'bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="section-padding bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose Telogica?</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We combine decades of experience with cutting-edge technology to deliver superior solutions
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center group">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl gradient-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <feature.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Product Categories */}
-      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 to-violet-50">
-        <div className="container mx-auto">
+      {/* Services Preview */}
+      <section className="section-padding bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl lg:text-5xl font-bold mb-4"
-            >
-              Our <span className="gradient-text">Products</span>
-            </motion.h2>
-            <p className="text-lg text-gray-600">Comprehensive solutions for your industry needs</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Core Services</h2>
+            <p className="text-xl text-gray-600">
+              Comprehensive solutions for telecommunications and defense sectors
+            </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {categories.map((category, index) => {
-              const Icon = category.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all cursor-pointer"
-                  onClick={() => navigate('/products')}
-                  data-testid={`category-card-${category.title.toLowerCase()}`}
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <div key={index} className="service-card group cursor-pointer" data-testid={`service-${service.title.toLowerCase()}`}>
+                <div className="relative h-48 mb-6 rounded-2xl overflow-hidden">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                <p className="text-gray-600 mb-6">{service.description}</p>
+                <a
+                  href={service.link}
+                  className="inline-flex items-center text-violet-600 hover:text-orange-500 font-semibold transition-colors"
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mb-6`}>
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4">{category.title}</h3>
-                  <p className="text-gray-600 mb-6">{category.description}</p>
-                  <Button
-                    variant="link"
-                    className="text-violet-600 p-0 h-auto font-semibold"
-                    data-testid={`view-category-btn-${category.title.toLowerCase()}`}
-                  >
-                    View More Products
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </motion.div>
-              );
-            })}
+                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="section-padding gradient-primary text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Our Impact</h2>
+            <p className="text-xl text-white/90">
+              Numbers that reflect our commitment to excellence
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center" data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`}>
+                <div className="text-5xl font-bold mb-2">{stat.number}</div>
+                <div className="text-white/90 text-lg">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="section-padding bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
+            <p className="text-xl text-gray-600">
+              Trusted by leading organizations across India
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="testimonial-card" data-testid={`testimonial-${index}`}>
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-6 italic">"${testimonial.comment}"</p>
+                <div>
+                  <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                  <p className="text-sm text-gray-500">{testimonial.role}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-violet-600 to-orange-500">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              Best Choice to Grow Your Business With Us
-            </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Partner with Telogica for cutting-edge technology solutions
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={() => navigate('/contact')}
-                className="bg-white text-violet-600 hover:bg-gray-100 rounded-full px-8"
-                data-testid="cta-contact-btn"
-              >
-                <Mail className="mr-2 w-5 h-5" />
+      <section className="section-padding bg-gray-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Discover our range of innovative telecommunications and defense solutions.
+            Contact us today to discuss your requirements.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/products">
+              <Button size="lg" className="btn-primary" data-testid="view-products-cta">
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                View Products
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
                 Contact Us
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => (window.location.href = 'tel:+919396610682')}
-                className="border-2 border-white text-white hover:bg-white/10 rounded-full px-8"
-                data-testid="cta-call-btn"
-              >
-                <Phone className="mr-2 w-5 h-5" />
-                Call Now
-              </Button>
-            </div>
-          </motion.div>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
   );
-};
+}
 
 export default Home;

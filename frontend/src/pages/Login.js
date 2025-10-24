@@ -14,9 +14,21 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const result = await login(formData);
-    setLoading(false);
-    if (result.success) navigate('/');
+
+    try {
+      const result = await login(formData);
+      setLoading(false);
+
+      if (result.success) {
+        console.log('✅ Login successful:', result);
+        navigate('/');
+      } else {
+        console.error('❌ Login failed:', result.message);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error('🔥 Error during login:', error);
+    }
   };
 
   return (

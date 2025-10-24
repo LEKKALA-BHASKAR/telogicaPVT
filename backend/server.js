@@ -17,41 +17,25 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.CORS_ORIGINS || '*',
-    methods: ['GET', 'POST']
-  }
-});
 
-// Make io accessible to routes
-app.set('io', io);
 
-// Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGINS || '*',
-  credentials: true
-}));
+
+// ✅ Remove all CORS protection
+app.use(cors());
+
+// ✅ JSON parser
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// MongoDB Connection
+// ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
-  dbName: process.env.DB_NAME
+  dbName: process.env.DB_NAME,
 })
-.then(() => console.log('✅ MongoDB Connected Successfully'))
-.catch((err) => console.error('❌ MongoDB Connection Error:', err));
+  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
-// Socket.IO Connection
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
 
-// API Routes
+
+// ✅ API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -59,17 +43,17 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 
-// Health check
+// ✅ Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Error handling middleware
+// ✅ Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal Server Error'
+    message: err.message || 'Internal Server Error',
   });
 });
 
