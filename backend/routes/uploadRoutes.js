@@ -151,6 +151,68 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get single file by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const file = await File.findById(req.params.id);
+    
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: 'File not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: file
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Download file by ID (Proxy endpoint)
+router.get('/download/:id', async (req, res) => {
+  try {
+    console.log('Download request received for file ID:', req.params.id);
+    
+    const file = await File.findById(req.params.id);
+    
+    if (!file) {
+      console.log('File not found for ID:', req.params.id);
+      return res.status(404).json({
+        success: false,
+        message: 'File not found'
+      });
+    }
+    
+    console.log('Found file:', {
+      name: file.name,
+      url: file.url,
+      type: file.type,
+      publicId: file.publicId
+    });
+    
+    // For Cloudinary files, we can simply redirect to the URL since they're public
+    // But let's make sure to set the right headers for download
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.name)}"`);
+    res.redirect(file.url);
+  } catch (error) {
+    console.error('Download error:', error);
+    // Only send error response if headers haven't been sent yet
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to download file'
+      });
+    }
+  }
+});
+
 // Delete file (Admin only)
 router.delete('/:id', protect, admin, async (req, res) => {
   try {

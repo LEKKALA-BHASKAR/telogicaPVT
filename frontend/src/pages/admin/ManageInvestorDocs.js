@@ -57,29 +57,23 @@ const ManageInvestorDocs = () => {
     }
   };
 
-  const handleDownload = async (url, filename) => {
+  const handleDownload = async (fileId, filename) => {
     try {
-      // Try different approaches to download the file
-      console.log('Attempting to download file:', url);
+      console.log('Downloading file via proxy:', fileId);
       
-      // Method 1: Direct fetch with credentials
-      const response = await fetch(url, {
+      // Use the backend proxy endpoint to download the file
+      const response = await fetch(`${API_URL}/api/upload/download/${fileId}`, {
         method: 'GET',
-        mode: 'cors',
-        credentials: 'omit'
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Download failed with status:', response.status, 'and body:', errorText);
+        throw new Error(`Failed to download file: ${response.status} ${response.statusText}`);
       }
       
       // Get the blob from the response
       const blob = await response.blob();
-      
-      // Check if blob is valid
-      if (blob.size === 0) {
-        throw new Error('Downloaded file is empty');
-      }
       
       // Create a temporary URL for the blob
       const blobUrl = window.URL.createObjectURL(blob);
@@ -98,21 +92,7 @@ const ManageInvestorDocs = () => {
       console.log('Download successful');
     } catch (error) {
       console.error('Download failed:', error);
-      
-      // Method 2: Try with different approach
-      try {
-        // Create a link that opens in a new tab as fallback
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (fallbackError) {
-        console.error('Fallback download also failed:', fallbackError);
-        toast.error('Download failed. The file may be corrupted or unavailable.');
-      }
+      toast.error('Download failed. Please try again.');
     }
   };
 
@@ -427,7 +407,7 @@ const ManageInvestorDocs = () => {
                               <td className="px-6 py-4">
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => handleDownload(doc.url, doc.name)}
+                                    onClick={() => handleDownload(doc._id, doc.name)}
                                     className="p-2 bg-violet-100 text-violet-600 rounded-lg hover:bg-violet-200 transition-colors"
                                     title="Download"
                                   >

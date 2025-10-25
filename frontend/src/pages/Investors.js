@@ -17,7 +17,7 @@ const Investors = () => {
 
   const fetchSections = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/admin/sections`);
+      const res = await axios.get(`${API_URL}/api/admin/sections/public`);
       setSections(res.data.data);
       if (res.data.data.length > 0) {
         setSelectedSection(res.data.data[0]);
@@ -50,61 +50,41 @@ const Investors = () => {
     }
   };
 
-  const handleDownload = async (url, filename) => {
+  const handleDownload = async (fileId, filename) => {
     try {
-      // Try different approaches to download the file
-      console.log('Attempting to download file:', url);
+      console.log('Downloading file:', fileId, filename);
       
-      // Method 1: Direct fetch with credentials
-      const response = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'omit'
-      });
+      // For Cloudinary files, we can directly download them
+      // Get the file info first
+      const response = await axios.get(`${API_URL}/api/upload/${fileId}`);
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-      }
-      
-      // Get the blob from the response
-      const blob = await response.blob();
-      
-      // Check if blob is valid
-      if (blob.size === 0) {
-        throw new Error('Downloaded file is empty');
-      }
-      
-      // Create a temporary URL for the blob
-      const blobUrl = window.URL.createObjectURL(blob);
-      
-      // Create a link element and trigger download
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-      
-      console.log('Download successful');
-    } catch (error) {
-      console.error('Download failed:', error);
-      
-      // Method 2: Try with different approach
-      try {
-        // Create a link that opens in a new tab as fallback
+      if (response.data.success && response.data.data) {
+        const fileUrl = response.data.data.url;
+        console.log('File URL:', fileUrl);
+        
+        // Create a temporary link element and trigger download
         const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
+        link.href = fileUrl;
+        link.download = filename; // This might not work with cross-origin URLs, but let's try
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        console.log('Download triggered');
+      } else {
+        throw new Error('File not found');
+      }
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback: open in new tab
+      try {
+        const response = await axios.get(`${API_URL}/api/upload/${fileId}`);
+        if (response.data.success && response.data.data) {
+          window.open(response.data.data.url, '_blank');
+        }
       } catch (fallbackError) {
-        console.error('Fallback download also failed:', fallbackError);
-        alert('Download failed. The file may be corrupted or unavailable. Please try again or contact support.');
+        alert('Unable to download or open file. Please try again or contact support.');
       }
     }
   };
@@ -186,7 +166,7 @@ const Investors = () => {
                                   <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
                                 </div>
                                 <button
-                                  onClick={() => handleDownload(doc.url, doc.name)}
+                                  onClick={() => handleDownload(doc._id, doc.name)}
                                   className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-800 font-medium"
                                 >
                                   <Download className="w-4 h-4" />

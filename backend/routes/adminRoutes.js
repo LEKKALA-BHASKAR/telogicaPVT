@@ -272,6 +272,40 @@ router.put('/orders/:id', protect, admin, async (req, res) => {
   }
 });
 
+// Get all sections (public endpoint for investors page)
+router.get('/sections/public', async (req, res) => {
+  try {
+    const sections = await Section.find({ isActive: true }).sort({ order: 1 });
+    
+    // If no sections exist, create default ones
+    if (sections.length === 0) {
+      const defaultSections = [
+        { name: 'Annual Reports', category: 'annual_report', order: 1, isActive: true },
+        { name: 'Financial Statements', category: 'financial_statement', order: 2, isActive: true },
+        { name: 'Corporate Governance', category: 'corporate_governance', order: 3, isActive: true },
+        { name: 'Investor Presentations', category: 'investor_presentation', order: 4, isActive: true },
+        { name: 'Regulatory Filings', category: 'regulatory_filing', order: 5, isActive: true }
+      ];
+      
+      const createdSections = await Section.insertMany(defaultSections);
+      return res.json({
+        success: true,
+        data: createdSections
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: sections
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // Get all sections
 router.get('/sections', protect, admin, async (req, res) => {
   try {
