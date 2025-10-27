@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Hero from './Hero';
+import React from "react";
+import Hero from "./Hero";
+import ScrollSnapPage from "./ScrollSnapPage";
 
-function Home() {
+const Home = () => {
   return (
-    <div>
-       <Hero/>
+    <div className="bg-black text-white">
+      <Hero />
+      <ScrollSnapPage /> {/* Sidebar + scroll sections */}
     </div>
   );
-}
+};
 
 export default Home;

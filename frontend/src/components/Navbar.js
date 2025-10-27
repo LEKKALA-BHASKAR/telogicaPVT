@@ -66,27 +66,19 @@ const Navbar = () => {
     { name: 'Contact', path: '/contact' }
   ];
 
-  // Transparent color scheme
+  // Transparent with white text and blue accents
   const navbarBg = isScrolled 
-    ? 'bg-black/15 backdrop-blur-xl border-b border-white/20 shadow-lg' 
+    ? 'bg-black/20 backdrop-blur-md border-b border-white/10' 
     : 'bg-transparent';
   
-  const textColor = isScrolled ? 'text-gray-900' : 'text-white';
-  const secondaryTextColor = isScrolled ? 'text-gray-600' : 'text-white/80';
-  const hoverTextColor = isScrolled ? 'hover:text-blue-600' : 'hover:text-white';
-  const activeTextColor = isScrolled ? 'text-blue-600' : 'text-white';
-  const buttonPrimaryBg = isScrolled 
-    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-    : 'bg-black/20 hover:bg-white/30 text-white backdrop-blur-sm';
-  const buttonSecondaryBg = isScrolled 
-    ? 'bg-black-100 text-gray-900 hover:bg-gray-200' 
-    : 'bg-white/100 hover:bg-white/20 text-white backdrop-blur-sm';
-  const dropdownBg = isScrolled 
-    ? 'bg-black/95 backdrop-blur-xl border border-gray-200' 
-    : 'bg-white/80 backdrop-blur-xl border border-white/20';
-  const mobileMenuBg = isScrolled 
-    ? 'bg-black/95 backdrop-blur-xl border-t border-gray-200' 
-    : 'bg-white/80 backdrop-blur-xl border-t border-white/20';
+  const textColor = 'text-white';
+  const secondaryTextColor = 'text-white/80';
+  const hoverTextColor = 'hover:text-blue-300';
+  const activeTextColor = 'text-blue-300';
+  const buttonPrimaryBg = 'bg-blue-500/80 hover:bg-blue-600 text-white backdrop-blur-sm';
+  const buttonSecondaryBg = 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20';
+  const dropdownBg = 'bg-black/80 backdrop-blur-xl border border-white/20';
+  const mobileMenuBg = 'bg-black/80 backdrop-blur-xl border-t border-white/20';
 
   return (
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${navbarBg}`}>
@@ -141,7 +133,7 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/admin/dashboard')}
-                    className={`${buttonSecondaryBg} border border-white/20 transition-all duration-300`}
+                    className={`${buttonSecondaryBg} transition-all duration-300`}
                   >
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     Dashboard
@@ -150,13 +142,11 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   onClick={() => navigate('/cart')}
-                  className={`${buttonSecondaryBg} border border-white/20 transition-all duration-300 relative`}
+                  className={`${buttonSecondaryBg} transition-all duration-300 relative`}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Cart
-                  <span className={`absolute -top-2 -right-2 w-5 h-5 ${
-                    isScrolled ? 'bg-blue-600' : 'bg-white/80'
-                  } text-xs rounded-full flex items-center justify-center font-bold backdrop-blur-sm`}>
+                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-400 text-xs rounded-full flex items-center justify-center font-bold">
                     3
                   </span>
                 </Button>
@@ -164,7 +154,7 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`${buttonSecondaryBg} border border-white/20 transition-all duration-300`}
+                    className={`${buttonSecondaryBg} transition-all duration-300`}
                   >
                     <User className="w-4 h-4 mr-2" />
                     Account
@@ -172,12 +162,12 @@ const Navbar = () => {
                   </Button>
                   
                   {isDropdownOpen && (
-                    <div className={`absolute right-0 mt-2 w-48 ${dropdownBg} rounded-lg shadow-xl backdrop-blur-xl`}>
+                    <div className={`absolute right-0 mt-2 w-48 ${dropdownBg} rounded-lg shadow-xl`}>
                       <div className="p-3 border-b border-white/20">
-                        <p className={`${isScrolled ? 'text-gray-900' : 'text-white'} font-medium text-sm`}>
+                        <p className="text-white font-medium text-sm">
                           {user?.name || 'User'}
                         </p>
-                        <p className={`${isScrolled ? 'text-gray-600' : 'text-white/60'} text-xs`}>
+                        <p className="text-white/60 text-xs">
                           {user?.email || 'user@example.com'}
                         </p>
                       </div>
@@ -188,11 +178,7 @@ const Navbar = () => {
                             navigate('/profile');
                             setIsDropdownOpen(false);
                           }}
-                          className={`w-full justify-start ${
-                            isScrolled 
-                              ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                              : 'text-white/80 hover:text-white hover:bg-white/10'
-                          } transition-all duration-300`}
+                          className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
                         >
                           <User className="w-4 h-4 mr-2" />
                           Profile
@@ -200,11 +186,7 @@ const Navbar = () => {
                         <Button
                           variant="ghost"
                           onClick={handleLogout}
-                          className={`w-full justify-start ${
-                            isScrolled 
-                              ? 'text-gray-600 hover:text-red-600 hover:bg-red-50' 
-                              : 'text-white/80 hover:text-red-300 hover:bg-white/10'
-                          } transition-all duration-300`}
+                          className="w-full justify-start text-white/80 hover:text-red-300 hover:bg-white/10 transition-all duration-300"
                         >
                           <LogOut className="w-4 h-4 mr-2" />
                           Logout
@@ -219,7 +201,7 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   onClick={() => navigate('/login')}
-                  className={`${buttonSecondaryBg} border border-white/20 transition-all duration-300`}
+                  className={`${buttonSecondaryBg} transition-all duration-300`}
                 >
                   Login
                 </Button>
@@ -256,12 +238,8 @@ const Navbar = () => {
                 to={link.path}
                 className={`block py-3 px-4 rounded-lg font-medium transition-colors duration-300 ${
                   isActive(link.path)
-                    ? `${activeTextColor} ${
-                        isScrolled ? 'bg-gray-100' : 'bg-white/10'
-                      }`
-                    : `${secondaryTextColor} ${hoverTextColor} ${
-                        isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-                      }`
+                    ? `${activeTextColor} bg-white/10`
+                    : `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -281,9 +259,7 @@ const Navbar = () => {
                       navigate('/admin/dashboard');
                       setIsOpen(false);
                     }}
-                    className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} ${
-                      isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-                    } transition-all duration-300`}
+                    className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300`}
                   >
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     Dashboard
@@ -295,15 +271,11 @@ const Navbar = () => {
                     navigate('/cart');
                     setIsOpen(false);
                     }}
-                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} ${
-                    isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-                  } transition-all duration-300 relative`}
+                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300 relative`}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Cart
-                  <span className={`absolute right-4 w-5 h-5 ${
-                    isScrolled ? 'bg-blue-600' : 'bg-white/80'
-                  } text-xs rounded-full flex items-center justify-center font-bold backdrop-blur-sm`}>
+                  <span className="absolute right-4 w-5 h-5 bg-blue-400 text-xs rounded-full flex items-center justify-center font-bold">
                     3
                   </span>
                 </Button>
@@ -313,9 +285,7 @@ const Navbar = () => {
                     navigate('/profile');
                     setIsOpen(false);
                   }}
-                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} ${
-                    isScrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-                  } transition-all duration-300`}
+                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300`}
                 >
                   <User className="w-4 h-4 mr-2" />
                   Profile
@@ -323,11 +293,7 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   onClick={handleLogout}
-                  className={`w-full justify-start ${
-                    isScrolled 
-                      ? 'text-gray-600 hover:text-red-600 hover:bg-red-50' 
-                      : 'text-white/80 hover:text-red-300 hover:bg-white/10'
-                  } transition-all duration-300`}
+                  className="w-full justify-start text-white/80 hover:text-red-300 hover:bg-white/10 transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
@@ -341,7 +307,7 @@ const Navbar = () => {
                     navigate('/login');
                     setIsOpen(false);
                   }}
-                  className={`w-full ${buttonSecondaryBg} border border-white/20 transition-all duration-300`}
+                  className={`w-full ${buttonSecondaryBg} transition-all duration-300`}
                 >
                   Login
                 </Button>
