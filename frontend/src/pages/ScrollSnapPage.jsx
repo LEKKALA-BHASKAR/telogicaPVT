@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ChevronRight, Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network } from "lucide-react";
+import { ChevronRight, Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ScrollSnapPage = () => {
   const [activeSection, setActiveSection] = useState("about");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,6 +29,7 @@ const ScrollSnapPage = () => {
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setIsMobileMenuOpen(false);
   };
 
   const navigateToRoute = (route) => {
@@ -123,8 +125,73 @@ const ScrollSnapPage = () => {
 
   return (
     <div className="flex min-h-screen bg-black">
-      {/* Enhanced Sidebar with colorful design */}
-      <div className="sticky top-0 h-screen w-80 bg-black shadow-lg flex flex-col p-8 border-r border-gray-800">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">T</span>
+            </div>
+            <span className="text-white font-bold text-lg">Telogica</span>
+          </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 text-gray-400 hover:text-white"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-95 backdrop-blur-sm">
+          <div className="pt-20 px-6 pb-6">
+            <nav className="space-y-2">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
+                    activeSection === section.id
+                      ? "bg-gray-900 border border-gray-700"
+                      : "hover:bg-gray-900 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <section.icon className={`w-5 h-5 ${activeSection === section.id ? section.color : 'text-gray-500'}`} />
+                    <div className="flex-1">
+                      <div className={`font-semibold transition-colors ${
+                        activeSection === section.id ? section.color : 'text-gray-300 group-hover:text-white'
+                      }`}>
+                        {section.title}
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {section.subtitle}
+                      </div>
+                    </div>
+                    {activeSection === section.id && (
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </nav>
+            
+            {/* Mobile Contact Info */}
+            <div className="mt-8 pt-6 border-t border-gray-800">
+              <div className="text-gray-400 text-sm space-y-2">
+                <div>+91 9396610682</div>
+                <div>sales@telogica.com</div>
+                <div>Hyderabad, India</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:flex sticky top-0 h-screen w-80 bg-black shadow-lg flex-col p-8 border-r border-gray-800">
         <div className="mb-12">
           <div className="flex items-center space-x-3 mb-2">
             <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
@@ -177,12 +244,12 @@ const ScrollSnapPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto scroll-smooth">
+      <div className="flex-1 overflow-y-auto scroll-smooth lg:ml-0">
         {sections.map((section, index) => (
           <section
             key={section.id}
             id={section.id}
-            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden`}
+            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden pt-16 lg:pt-0`}
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
@@ -194,14 +261,14 @@ const ScrollSnapPage = () => {
               }} />
             </div>
 
-            {/* Floating Icons with colorful animation */}
+            {/* Floating Icons - Reduced on mobile */}
             <div className="absolute inset-0 overflow-hidden">
               {[Cpu, Satellite, Network, Play].map((Icon, i) => {
                 const colors = ['text-pink-500/20', 'text-orange-500/20', 'text-purple-500/20', 'text-green-500/20'];
                 return (
                   <Icon
                     key={i}
-                    className={`absolute ${colors[i]} animate-float`}
+                    className={`absolute ${colors[i]} animate-float hidden sm:block`}
                     size={40}
                     style={{
                       top: `${20 + (i * 20) % 60}%`,
@@ -214,48 +281,48 @@ const ScrollSnapPage = () => {
               })}
             </div>
 
-            <div className="relative z-10 max-w-6xl mx-auto px-8 py-16 animate-fade-in">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16 animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {/* Text Content */}
-                <div className="space-y-8">
+                <div className="space-y-6 lg:space-y-8 order-2 lg:order-1">
                   <div>
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700 mb-6">
+                    <div className="inline-flex items-center px-3 py-1 lg:px-4 lg:py-2 rounded-full bg-gray-900 border border-gray-700 mb-4 lg:mb-6">
                       <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
-                      <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
+                      <span className="text-gray-300 text-xs lg:text-sm font-medium">{section.subtitle}</span>
                     </div>
                     
-                    <h1 className={`text-5xl lg:text-6xl font-bold mb-6 leading-tight ${section.color}`}>
+                    <h1 className={`text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 lg:mb-6 leading-tight ${section.color}`}>
                       {section.title}
                     </h1>
                     
-                    <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                    <p className="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 lg:mb-8 leading-relaxed">
                       {section.description}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 lg:space-y-4">
                     {section.features.map((feature, i) => (
                       <div key={i} className="flex items-center space-x-3">
                         <div className={`w-2 h-2 rounded-full ${section.accent}`} />
-                        <span className="text-gray-300">{feature}</span>
+                        <span className="text-gray-300 text-sm lg:text-base">{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-4">
                     <button
                       onClick={() => navigateToRoute(section.route)}
-                      className={`inline-flex items-center justify-center px-8 py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg`}
+                      className={`inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg text-sm lg:text-base`}
                     >
                       {section.buttonText}
-                      <ArrowRight className="ml-2 w-5 h-5" />
+                      <ArrowRight className="ml-2 w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
                     
                     <button 
                       onClick={() => navigateToRoute('/contact')}
-                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300"
+                      className="inline-flex items-center justify-center px-6 py-3 lg:px-8 lg:py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300 text-sm lg:text-base"
                     >
                       Contact Sales
                     </button>
@@ -263,9 +330,9 @@ const ScrollSnapPage = () => {
                 </div>
 
                 {/* Image and Details Panel */}
-                <div className="space-y-6">
+                <div className="space-y-4 lg:space-y-6 order-1 lg:order-2">
                   {/* Image */}
-                  <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="relative w-full h-48 sm:h-64 lg:h-80 rounded-2xl overflow-hidden shadow-lg">
                     <img
                       src={section.image}
                       alt={section.title}
@@ -274,15 +341,15 @@ const ScrollSnapPage = () => {
                   </div>
 
                   {/* Details Panel */}
-                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-700 p-8 shadow-md">
-                    <h3 className={`text-2xl font-bold mb-6 ${section.color}`}>
+                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-700 p-4 sm:p-6 lg:p-8 shadow-md">
+                    <h3 className={`text-xl sm:text-2xl font-bold mb-4 lg:mb-6 ${section.color}`}>
                       Key Highlights
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-3 lg:space-y-4">
                       {section.details.map((detail, i) => (
                         <div key={i} className="flex items-start space-x-3 group">
-                          <ChevronRight className={`w-5 h-5 mt-0.5 ${section.color} group-hover:translate-x-1 transition-transform`} />
-                          <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors">
+                          <ChevronRight className={`w-4 h-4 lg:w-5 lg:h-5 mt-0.5 ${section.color} group-hover:translate-x-1 transition-transform`} />
+                          <p className="text-gray-300 leading-relaxed text-sm lg:text-base group-hover:text-white transition-colors">
                             {detail}
                           </p>
                         </div>
@@ -290,14 +357,14 @@ const ScrollSnapPage = () => {
                     </div>
                     
                     {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-700">
+                    <div className="grid grid-cols-2 gap-3 lg:gap-4 mt-6 lg:mt-8 pt-4 lg:pt-6 border-t border-gray-700">
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${section.color}`}>15+</div>
-                        <div className="text-gray-400 text-sm">Years Experience</div>
+                        <div className={`text-xl lg:text-2xl font-bold ${section.color}`}>15+</div>
+                        <div className="text-gray-400 text-xs lg:text-sm">Years Experience</div>
                       </div>
                       <div className="text-center">
-                        <div className={`text-2xl font-bold ${section.color}`}>50+</div>
-                        <div className="text-gray-400 text-sm">Projects</div>
+                        <div className={`text-xl lg:text-2xl font-bold ${section.color}`}>50+</div>
+                        <div className="text-gray-400 text-xs lg:text-sm">Projects</div>
                       </div>
                     </div>
                   </div>
@@ -322,6 +389,17 @@ const ScrollSnapPage = () => {
         }
         .animate-fade-in {
           animation: fade-in 0.8s ease-out;
+        }
+        
+        /* Improved scroll behavior for mobile */
+        @media (max-width: 1024px) {
+          html {
+            scroll-snap-type: y mandatory;
+          }
+          section {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+          }
         }
       `}</style>
     </div>
