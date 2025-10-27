@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ScrollSnapPage = () => {
   const [activeSection, setActiveSection] = useState("about");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +30,10 @@ const ScrollSnapPage = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const navigateToRoute = (route) => {
+    navigate(route);
+  };
+
   const sections = [
     {
       id: "about",
@@ -36,11 +42,12 @@ const ScrollSnapPage = () => {
       description: "Leading manufacturer of advanced Test & Measuring Equipment for Defence and Telecom sectors with 15+ years of excellence.",
       features: ["ISO 9001:2015 Certified", "50+ Successful Projects", "24/7 Technical Support"],
       icon: Users,
-      bg: "bg-gradient-to-br from-black via-gray-900 to-black",
+      bg: "bg-black",
       color: "text-pink-500",
       accent: "bg-pink-500",
       buttonBg: "bg-pink-500 hover:bg-pink-600",
       buttonText: "Our Story",
+      route: "/about",
       details: [
         "Established in 2008 as Aishwarya Technologies",
         "Renamed to Telogica Limited in 2023",
@@ -56,11 +63,12 @@ const ScrollSnapPage = () => {
       description: "Advanced defence communication systems, electronic warfare solutions, and radar technology for national security.",
       features: ["Secure Communication", "Radar Systems", "Electronic Warfare"],
       icon: Shield,
-      bg: "bg-gradient-to-br from-orange-900 via-orange-800 to-orange-900",
+      bg: "bg-black",
       color: "text-orange-400",
       accent: "bg-orange-400",
       buttonBg: "bg-orange-500 hover:bg-orange-600",
       buttonText: "Defence Products",
+      route: "/defence",
       details: [
         "Spectrum Analyzers for defence applications",
         "Network Analyzers up to 40GHz",
@@ -76,11 +84,12 @@ const ScrollSnapPage = () => {
       description: "Cutting-edge telecommunications infrastructure and network testing equipment for 5G and beyond.",
       features: ["5G Testing", "Network Analysis", "Field Maintenance"],
       icon: Radio,
-      bg: "bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900",
+      bg: "bg-black",
       color: "text-purple-400",
       accent: "bg-purple-400",
       buttonBg: "bg-purple-500 hover:bg-purple-600",
       buttonText: "Telecom Solutions",
+      route: "/telecom",
       details: [
         "RF and Microwave test equipment",
         "Optical fiber testing solutions",
@@ -96,11 +105,12 @@ const ScrollSnapPage = () => {
       description: "State-of-the-art manufacturing facilities for high-precision electronic components and test equipment.",
       features: ["Quality Manufacturing", "R&D Focus", "Custom Solutions"],
       icon: Factory,
-      bg: "bg-gradient-to-br from-green-900 via-green-800 to-green-900",
+      bg: "bg-black",
       color: "text-green-400",
       accent: "bg-green-400",
       buttonBg: "bg-green-500 hover:bg-green-600",
       buttonText: "Manufacturing Capabilities",
+      route: "/manufacturing",
       details: [
         "In-house design and development",
         "Surface Mount Technology (SMT) line",
@@ -214,7 +224,7 @@ const ScrollSnapPage = () => {
                       <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
                     </div>
                     
-                    <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                    <h1 className={`text-5xl lg:text-6xl font-bold mb-6 leading-tight ${section.color}`}>
                       {section.title}
                     </h1>
                     
@@ -236,14 +246,17 @@ const ScrollSnapPage = () => {
                   {/* CTA Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button
-                      onClick={() => scrollToSection(sections[(index + 1) % sections.length].id)}
+                      onClick={() => navigateToRoute(section.route)}
                       className={`inline-flex items-center justify-center px-8 py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg`}
                     >
                       {section.buttonText}
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </button>
                     
-                    <button className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300">
+                    <button 
+                      onClick={() => navigateToRoute('/contact')}
+                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300"
+                    >
                       Contact Sales
                     </button>
                   </div>

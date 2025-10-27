@@ -23,6 +23,7 @@ import UserOrders from './pages/UserOrders';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import { Toaster } from './components/ui/sonner';
+import ProductsPage from './pages/ProductsPage';
 import './App.css';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
             <Route path="/investors" element={<Investors />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/products" element={<ProductsPage />} />
             
             {/* Protected Routes */}
             <Route path="/cart" element={
