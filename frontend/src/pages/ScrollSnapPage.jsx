@@ -36,8 +36,10 @@ const ScrollSnapPage = () => {
       description: "Leading manufacturer of advanced Test & Measuring Equipment for Defence and Telecom sectors with 15+ years of excellence.",
       features: ["ISO 9001:2015 Certified", "50+ Successful Projects", "24/7 Technical Support"],
       icon: Users,
-      bg: "bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100",
-      color: "text-blue-600",
+      bg: "bg-gradient-to-br from-black via-gray-900 to-black",
+      color: "text-pink-500",
+      accent: "bg-pink-500",
+      buttonBg: "bg-pink-500 hover:bg-pink-600",
       buttonText: "Our Story",
       details: [
         "Established in 2008 as Aishwarya Technologies",
@@ -45,7 +47,7 @@ const ScrollSnapPage = () => {
         "Specialized in RF and Microwave technology",
         "Serving defence and telecom sectors nationwide"
       ],
-      image: "https://images.unsplash.com/photo-1516321310764-8d9b6f3b1f0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" // Placeholder image
+      image: "https://images.unsplash.com/photo-1516321310764-8d9b6f3b1f0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
     {
       id: "defence",
@@ -54,8 +56,10 @@ const ScrollSnapPage = () => {
       description: "Advanced defence communication systems, electronic warfare solutions, and radar technology for national security.",
       features: ["Secure Communication", "Radar Systems", "Electronic Warfare"],
       icon: Shield,
-      bg: "bg-gradient-to-br from-blue-100 via-gray-50 to-blue-50",
-      color: "text-cyan-600",
+      bg: "bg-gradient-to-br from-orange-900 via-orange-800 to-orange-900",
+      color: "text-orange-400",
+      accent: "bg-orange-400",
+      buttonBg: "bg-orange-500 hover:bg-orange-600",
       buttonText: "Defence Products",
       details: [
         "Spectrum Analyzers for defence applications",
@@ -63,7 +67,7 @@ const ScrollSnapPage = () => {
         "Cable Fault Locators for field operations",
         "Customized solutions for armed forces"
       ],
-      image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" // Placeholder image
+      image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
     {
       id: "telecom",
@@ -72,8 +76,10 @@ const ScrollSnapPage = () => {
       description: "Cutting-edge telecommunications infrastructure and network testing equipment for 5G and beyond.",
       features: ["5G Testing", "Network Analysis", "Field Maintenance"],
       icon: Radio,
-      bg: "bg-gradient-to-br from-purple-100 via-gray-50 to-indigo-50",
-      color: "text-purple-600",
+      bg: "bg-gradient-to-br from-purple-900 via-purple-800 to-purple-900",
+      color: "text-purple-400",
+      accent: "bg-purple-400",
+      buttonBg: "bg-purple-500 hover:bg-purple-600",
       buttonText: "Telecom Solutions",
       details: [
         "RF and Microwave test equipment",
@@ -81,7 +87,7 @@ const ScrollSnapPage = () => {
         "Wireless communication testers",
         "Network performance monitoring"
       ],
-      image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" // Placeholder image
+      image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     },
     {
       id: "manufacturing",
@@ -90,8 +96,10 @@ const ScrollSnapPage = () => {
       description: "State-of-the-art manufacturing facilities for high-precision electronic components and test equipment.",
       features: ["Quality Manufacturing", "R&D Focus", "Custom Solutions"],
       icon: Factory,
-      bg: "bg-gradient-to-br from-emerald-100 via-gray-50 to-teal-50",
-      color: "text-emerald-600",
+      bg: "bg-gradient-to-br from-green-900 via-green-800 to-green-900",
+      color: "text-green-400",
+      accent: "bg-green-400",
+      buttonBg: "bg-green-500 hover:bg-green-600",
       buttonText: "Manufacturing Capabilities",
       details: [
         "In-house design and development",
@@ -99,22 +107,22 @@ const ScrollSnapPage = () => {
         "Environmental testing laboratory",
         "Quality assurance and calibration"
       ],
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" // Placeholder image
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
     }
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Enhanced Sidebar */}
-      <div className="sticky top-0 h-screen w-80 bg-gray-50 shadow-lg flex flex-col p-8">
+    <div className="flex min-h-screen bg-black">
+      {/* Enhanced Sidebar with colorful design */}
+      <div className="sticky top-0 h-screen w-80 bg-black shadow-lg flex flex-col p-8 border-r border-gray-800">
         <div className="mb-12">
           <div className="flex items-center space-x-3 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">T</span>
             </div>
-            <span className="text-gray-800 font-bold text-xl">Telogica</span>
+            <span className="text-white font-bold text-xl">Telogica</span>
           </div>
-          <p className="text-gray-600 text-sm">Precision Engineering Solutions</p>
+          <p className="text-gray-400 text-sm">Precision Engineering Solutions</p>
         </div>
 
         <nav className="space-y-2 flex-1">
@@ -124,15 +132,15 @@ const ScrollSnapPage = () => {
               onClick={() => scrollToSection(section.id)}
               className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
                 activeSection === section.id
-                  ? "bg-blue-100 border border-blue-200"
-                  : "hover:bg-gray-100 border border-transparent"
+                  ? "bg-gray-900 border border-gray-700"
+                  : "hover:bg-gray-900 border border-transparent"
               }`}
             >
               <div className="flex items-center space-x-3">
                 <section.icon className={`w-5 h-5 ${activeSection === section.id ? section.color : 'text-gray-500'}`} />
                 <div className="flex-1">
                   <div className={`font-semibold transition-colors ${
-                    activeSection === section.id ? section.color : 'text-gray-700 group-hover:text-gray-900'
+                    activeSection === section.id ? section.color : 'text-gray-300 group-hover:text-white'
                   }`}>
                     {section.title}
                   </div>
@@ -141,7 +149,7 @@ const ScrollSnapPage = () => {
                   </div>
                 </div>
                 {activeSection === section.id && (
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
                 )}
               </div>
             </button>
@@ -149,8 +157,8 @@ const ScrollSnapPage = () => {
         </nav>
 
         {/* Contact Info */}
-        <div className="pt-6 border-t border-gray-200">
-          <div className="text-gray-600 text-sm space-y-2">
+        <div className="pt-6 border-t border-gray-800">
+          <div className="text-gray-400 text-sm space-y-2">
             <div>+91 9396610682</div>
             <div>sales@telogica.com</div>
             <div>Hyderabad, India</div>
@@ -169,28 +177,31 @@ const ScrollSnapPage = () => {
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0" style={{
-                backgroundImage: `radial-gradient(circle at 25% 25%, #000000 1px, transparent 1px),
-                                radial-gradient(circle at 75% 75%, #000000 1px, transparent 1px)`,
+                backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
+                                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
                 backgroundSize: '50px 50px',
                 backgroundPosition: '0 0, 25px 25px'
               }} />
             </div>
 
-            {/* Floating Icons */}
+            {/* Floating Icons with colorful animation */}
             <div className="absolute inset-0 overflow-hidden">
-              {[Cpu, Satellite, Network, Play].map((Icon, i) => (
-                <Icon
-                  key={i}
-                  className="absolute text-gray-500/10 animate-float"
-                  size={40}
-                  style={{
-                    top: `${20 + (i * 20) % 60}%`,
-                    left: `${15 + (i * 25) % 70}%`,
-                    animationDelay: `${i * 3}s`,
-                    animationDuration: `${15 + i * 5}s`
-                  }}
-                />
-              ))}
+              {[Cpu, Satellite, Network, Play].map((Icon, i) => {
+                const colors = ['text-pink-500/20', 'text-orange-500/20', 'text-purple-500/20', 'text-green-500/20'];
+                return (
+                  <Icon
+                    key={i}
+                    className={`absolute ${colors[i]} animate-float`}
+                    size={40}
+                    style={{
+                      top: `${20 + (i * 20) % 60}%`,
+                      left: `${15 + (i * 25) % 70}%`,
+                      animationDelay: `${i * 3}s`,
+                      animationDuration: `${15 + i * 5}s`
+                    }}
+                  />
+                );
+              })}
             </div>
 
             <div className="relative z-10 max-w-6xl mx-auto px-8 py-16 animate-fade-in">
@@ -198,16 +209,16 @@ const ScrollSnapPage = () => {
                 {/* Text Content */}
                 <div className="space-y-8">
                   <div>
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 border border-gray-200 mb-6">
-                      <div className={`w-2 h-2 rounded-full ${section.color.replace('text-', 'bg-')} mr-2 animate-pulse`} />
-                      <span className="text-gray-700 text-sm font-medium">{section.subtitle}</span>
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700 mb-6">
+                      <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
+                      <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
                     </div>
                     
-                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
+                    <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                       {section.title}
                     </h1>
                     
-                    <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                    <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                       {section.description}
                     </p>
                   </div>
@@ -216,8 +227,8 @@ const ScrollSnapPage = () => {
                   <div className="space-y-4">
                     {section.features.map((feature, i) => (
                       <div key={i} className="flex items-center space-x-3">
-                        <div className={`w-2 h-2 rounded-full ${section.color.replace('text-', 'bg-')}`} />
-                        <span className="text-gray-600">{feature}</span>
+                        <div className={`w-2 h-2 rounded-full ${section.accent}`} />
+                        <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -226,13 +237,13 @@ const ScrollSnapPage = () => {
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button
                       onClick={() => scrollToSection(sections[(index + 1) % sections.length].id)}
-                      className="inline-flex items-center justify-center px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-blue-400/30"
+                      className={`inline-flex items-center justify-center px-8 py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg`}
                     >
                       {section.buttonText}
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </button>
                     
-                    <button className="inline-flex items-center justify-center px-8 py-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl border border-gray-200 transition-all duration-300">
+                    <button className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300">
                       Contact Sales
                     </button>
                   </div>
@@ -250,7 +261,7 @@ const ScrollSnapPage = () => {
                   </div>
 
                   {/* Details Panel */}
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-8 shadow-md">
+                  <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl border border-gray-700 p-8 shadow-md">
                     <h3 className={`text-2xl font-bold mb-6 ${section.color}`}>
                       Key Highlights
                     </h3>
@@ -258,7 +269,7 @@ const ScrollSnapPage = () => {
                       {section.details.map((detail, i) => (
                         <div key={i} className="flex items-start space-x-3 group">
                           <ChevronRight className={`w-5 h-5 mt-0.5 ${section.color} group-hover:translate-x-1 transition-transform`} />
-                          <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors">
+                          <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors">
                             {detail}
                           </p>
                         </div>
@@ -266,14 +277,14 @@ const ScrollSnapPage = () => {
                     </div>
                     
                     {/* Stats */}
-                    <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-200">
+                    <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-gray-700">
                       <div className="text-center">
                         <div className={`text-2xl font-bold ${section.color}`}>15+</div>
-                        <div className="text-gray-500 text-sm">Years Experience</div>
+                        <div className="text-gray-400 text-sm">Years Experience</div>
                       </div>
                       <div className="text-center">
                         <div className={`text-2xl font-bold ${section.color}`}>50+</div>
-                        <div className="text-gray-500 text-sm">Projects</div>
+                        <div className="text-gray-400 text-sm">Projects</div>
                       </div>
                     </div>
                   </div>
