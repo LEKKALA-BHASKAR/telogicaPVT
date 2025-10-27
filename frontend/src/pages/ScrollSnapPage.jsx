@@ -56,7 +56,7 @@ const ScrollSnapPage = () => {
         "Specialized in RF and Microwave technology",
         "Serving defence and telecom sectors nationwide"
       ],
-      image: "https://images.unsplash.com/photo-1516321310764-8d9b6f3b1f0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: "https://scontent.fcdp1-1.fna.fbcdn.net/v/t39.30808-6/454947021_825253096373273_2071655228525396527_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=VZsYBnhZWbEQ7kNvwHUXctN&_nc_oc=AdlFU0ypLkXz1Th7UL2rssIG_2YHA5dzc3Up8L3onVX0T44Vfvu1dyUwzIsy0Dcv9SB5LskDd_dKMSGJEVxYZJY-&_nc_zt=23&_nc_ht=scontent.fcdp1-1.fna&_nc_gid=2QGYrn6H2j63nsTNampbVw&oh=00_AfePAldZXxPo60rMIX_9-dOvoW2i6CCO4ygUr7pGwvAWqA&oe=69052E82"
     },
     {
       id: "defence",
@@ -77,7 +77,7 @@ const ScrollSnapPage = () => {
         "Cable Fault Locators for field operations",
         "Customized solutions for armed forces"
       ],
-      image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1717749789408-f6f73c9e6aac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"
     },
     {
       id: "telecom",
@@ -98,7 +98,7 @@ const ScrollSnapPage = () => {
         "Wireless communication testers",
         "Network performance monitoring"
       ],
-      image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: "https://media.istockphoto.com/id/1602617670/photo/satellite-dish-antenna-communication-technology-concept.jpg?s=612x612&w=0&k=20&c=XjMfP8m2WEykJGAcWOMAmIJI3MWvFBnxDdKXI6ufYVE="
     },
     {
       id: "manufacturing",
@@ -119,7 +119,7 @@ const ScrollSnapPage = () => {
         "Environmental testing laboratory",
         "Quality assurance and calibration"
       ],
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+      image: "https://media.istockphoto.com/id/2155877725/photo/male-and-female-engineers-in-neat-work-clothes-prepare-and-control-the-production-system-of.jpg?s=612x612&w=0&k=20&c=6E6nQfie8dZIROGrqe9vO4ADz68Sw67LIjC_neaDg6Q="
     }
   ];
 
@@ -152,14 +152,14 @@ const ScrollSnapPage = () => {
                 <button
                   key={section.id}
                   onClick={() => scrollToSection(section.id)}
-                  className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
+                  className={`w-full text-left p-3 rounded-xl transition-all duration-300 group ${
                     activeSection === section.id
                       ? "bg-gray-900 border border-gray-700"
                       : "hover:bg-gray-900 border border-transparent"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <section.icon className={`w-5 h-5 ${activeSection === section.id ? section.color : 'text-gray-500'}`} />
+                    <section.icon className={`w-4 h-4 ${activeSection === section.id ? section.color : 'text-gray-500'}`} />
                     <div className="flex-1">
                       <div className={`font-semibold transition-colors ${
                         activeSection === section.id ? section.color : 'text-gray-300 group-hover:text-white'
@@ -177,15 +177,6 @@ const ScrollSnapPage = () => {
                 </button>
               ))}
             </nav>
-            
-            {/* Mobile Contact Info */}
-            <div className="mt-8 pt-6 border-t border-gray-800">
-              <div className="text-gray-400 text-sm space-y-2">
-                <div>+91 9396610682</div>
-                <div>sales@telogica.com</div>
-                <div>Hyderabad, India</div>
-              </div>
-            </div>
           </div>
         </div>
       )}
