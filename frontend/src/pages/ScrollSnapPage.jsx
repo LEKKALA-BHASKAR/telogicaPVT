@@ -15,7 +15,6 @@ const ScrollSnapPage = () => {
     {
       id: "about",
       title: "About Telogica",
-      subtitle: "Technology Innovators Since 2008",
       description: "Leading manufacturer of advanced Test & Measuring Equipment for Defence and Telecom sectors with 15+ years of excellence.",
       features: ["ISO 9001:2015 Certified", "50+ Successful Projects", "24/7 Technical Support"],
       icon: Users,
@@ -30,7 +29,6 @@ const ScrollSnapPage = () => {
     {
       id: "defence",
       title: "Defence Solutions",
-      subtitle: "Mission-Critical Systems",
       description: "Advanced defence communication systems, electronic warfare solutions, and radar technology for national security.",
       features: ["Secure Communication", "Radar Systems", "Electronic Warfare"],
       icon: Shield,
@@ -45,7 +43,6 @@ const ScrollSnapPage = () => {
     {
       id: "telecom",
       title: "Telecommunication",
-      subtitle: "Next-Gen Network Solutions",
       description: "Cutting-edge telecommunications infrastructure and network testing equipment for 5G and beyond.",
       features: ["5G Testing", "Network Analysis", "Field Maintenance"],
       icon: Radio,
@@ -60,7 +57,6 @@ const ScrollSnapPage = () => {
     {
       id: "manufacturing",
       title: "Manufacturing",
-      subtitle: "Precision Engineering",
       description: "State-of-the-art manufacturing facilities for high-precision electronic components and test equipment.",
       features: ["Quality Manufacturing", "R&D Focus", "Custom Solutions"],
       icon: Factory,
@@ -75,94 +71,101 @@ const ScrollSnapPage = () => {
   ];
 
   // Enable strict scroll snapping and active section detection
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+useEffect(() => {
+  const container = containerRef.current;
+  if (!container) return;
 
-    const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const windowHeight = container.clientHeight;
-      
-      // Calculate which section is currently in view
-      const currentSectionIndex = Math.round(scrollTop / windowHeight);
-      if (sections[currentSectionIndex]) {
-        setActiveSection(sections[currentSectionIndex].id);
-      }
-    };
+  let ticking = false;
 
-    const handleWheel = (e) => {
-      if (isScrolling) return;
-      
+  const handleScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = container.scrollTop;
+        const sectionHeight = container.clientHeight;
+
+        // Find the closest section based on scroll position
+        const index = Math.round(scrollTop / sectionHeight);
+        const visibleSection = sections[index];
+        if (visibleSection && visibleSection.id !== activeSection) {
+          setActiveSection(visibleSection.id);
+        }
+
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
+
+
+
+const handleWheel = (e) => {
+    if (isScrolling) return;
+
+    e.preventDefault();
+    setIsScrolling(true);
+    const currentIndex = sections.findIndex(s => s.id === activeSection);
+    let nextIndex = currentIndex;
+
+    if (e.deltaY > 0) {
+      nextIndex = Math.min(currentIndex + 1, sections.length - 1);
+    } else {
+      nextIndex = Math.max(currentIndex - 1, 0);
+    }
+
+    if (nextIndex !== currentIndex) {
+      scrollToSection(sections[nextIndex].id);
+    }
+
+    clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 900);
+  };
+
+ const handleKeyDown = (e) => {
+    if (isScrolling) return;
+
+    const currentIndex = sections.findIndex(s => s.id === activeSection);
+    let nextIndex = currentIndex;
+
+    if (e.key === "ArrowDown" || e.key === "PageDown") {
+      nextIndex = Math.min(currentIndex + 1, sections.length - 1);
+    } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+      nextIndex = Math.max(currentIndex - 1, 0);
+    } else if (e.key === "Home") {
+      nextIndex = 0;
+    } else if (e.key === "End") {
+      nextIndex = sections.length - 1;
+    }
+
+    if (nextIndex !== currentIndex) {
       e.preventDefault();
       setIsScrolling(true);
+      scrollToSection(sections[nextIndex].id);
 
-      // Fixed: Removed the incorrect -1 from the current index calculation
-      const currentIndex = sections.findIndex(section => section.id === activeSection);
-
-      let nextIndex;
-
-      if (e.deltaY > 0) {
-        // Scroll down
-        nextIndex = Math.min(currentIndex + 1, sections.length - 1);
-      } else {
-        // Scroll up
-        nextIndex = Math.max(currentIndex - 1, 0);
-      }
-
-      if (nextIndex !== currentIndex) {
-        scrollToSection(sections[nextIndex].id);
-      }
-
-      // Reset scrolling lock after animation
       clearTimeout(scrollTimeoutRef.current);
       scrollTimeoutRef.current = setTimeout(() => {
         setIsScrolling(false);
-      }, 800);
-    };
+      }, 900);
+    }
+  };
 
-    const handleKeyDown = (e) => {
-      if (isScrolling) return;
-
-      const currentIndex = sections.findIndex(section => section.id === activeSection);
-      let nextIndex;
-
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault();
-        nextIndex = Math.min(currentIndex + 1, sections.length - 1);
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        nextIndex = Math.max(currentIndex - 1, 0);
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        nextIndex = 0;
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        nextIndex = sections.length - 1;
-      }
-
-      if (nextIndex !== undefined && nextIndex !== currentIndex) {
-        setIsScrolling(true);
-        scrollToSection(sections[nextIndex].id);
-        
-        clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = setTimeout(() => {
-          setIsScrolling(false);
-        }, 800);
-      }
-    };
+  
 
     // Add scroll event listener for active section detection
-    container.addEventListener('scroll', handleScroll);
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown);
+  container.addEventListener("scroll", handleScroll, { passive: true });
+  container.addEventListener("wheel", handleWheel, { passive: false });
+  window.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-      container.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
-      clearTimeout(scrollTimeoutRef.current);
-    };
-  }, [activeSection, isScrolling]);
+
+  return () => {
+    container.removeEventListener("scroll", handleScroll);
+    container.removeEventListener("wheel", handleWheel);
+    window.removeEventListener("keydown", handleKeyDown);
+    clearTimeout(scrollTimeoutRef.current);
+  };
+}, [activeSection, isScrolling]);
+
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -184,21 +187,6 @@ const ScrollSnapPage = () => {
     navigate(route);
   };
 
-  const scrollToNext = () => {
-    const currentIndex = sections.findIndex(section => section.id === activeSection);
-    const nextIndex = Math.min(currentIndex + 1, sections.length - 1);
-    if (nextIndex !== currentIndex) {
-      scrollToSection(sections[nextIndex].id);
-    }
-  };
-
-  const scrollToPrev = () => {
-    const currentIndex = sections.findIndex(section => section.id === activeSection);
-    const prevIndex = Math.max(currentIndex - 1, 0);
-    if (prevIndex !== currentIndex) {
-      scrollToSection(sections[prevIndex].id);
-    }
-  };
 
   return (
     <div className="flex min-h-screen bg-black overflow-hidden">
@@ -243,9 +231,6 @@ const ScrollSnapPage = () => {
                       }`}>
                         {section.title}
                       </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        {section.subtitle}
-                      </div>
                     </div>
                     {activeSection === section.id && (
                       <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
@@ -260,17 +245,7 @@ const ScrollSnapPage = () => {
 
       {/* Desktop Sidebar - Now properly updates with scroll */}
       <div className="hidden lg:flex sticky top-0 h-screen w-80 bg-black shadow-lg flex-col p-8 border-r border-gray-800 z-30">
-        <div className="mb-12">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">T</span>
-            </div>
-            <span className="text-white font-bold text-xl">Telogica</span>
-          </div>
-          <p className="text-gray-400 text-sm">Precision Engineering Solutions</p>
-        </div>
-
-        <nav className="space-y-2 flex-1">
+        <nav className="space-y-1 flex-1">
           {sections.map((section) => (
             <button
               key={section.id}
@@ -289,9 +264,6 @@ const ScrollSnapPage = () => {
                   }`}>
                     {section.title}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {section.subtitle}
-                  </div>
                 </div>
                 {activeSection === section.id && (
                   <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
@@ -300,15 +272,6 @@ const ScrollSnapPage = () => {
             </button>
           ))}
         </nav>
-
-        {/* Contact Info */}
-        <div className="pt-6 border-t border-gray-800">
-          <div className="text-gray-400 text-sm space-y-2">
-            <div>+91 9396610682</div>
-            <div>sales@telogica.com</div>
-            <div>Hyderabad, India</div>
-          </div>
-        </div>
       </div>
 
       {/* Main Content with Strict Scroll Snap */}
@@ -316,7 +279,7 @@ const ScrollSnapPage = () => {
         ref={containerRef}
         className="flex-1 overflow-y-auto lg:ml-0 snap-y snap-mandatory"
         style={{ 
-          height: '100vh',
+          height: '90vh',
           scrollBehavior: 'smooth'
         }}
       >
@@ -331,8 +294,8 @@ const ScrollSnapPage = () => {
               <div className="absolute inset-0" style={{
                 backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
                                 radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
-                backgroundSize: '50px 50px',
-                backgroundPosition: '0 0, 25px 25px'
+                backgroundSize: '45px 45px',
+                backgroundPosition: '0 0, 22px 23px'
               }} />
             </div>
 
@@ -356,31 +319,7 @@ const ScrollSnapPage = () => {
               })}
             </div>
 
-            {/* Scroll Navigation Arrows */}
-            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 z-20 hidden lg:flex flex-col gap-4">
-              <button
-                onClick={scrollToPrev}
-                disabled={activeSection === sections[0].id}
-                className={`p-3 rounded-full border transition-all ${
-                  activeSection === sections[0].id 
-                    ? 'border-gray-600 text-gray-600 cursor-not-allowed' 
-                    : 'border-gray-400 text-gray-400 hover:border-white hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <ChevronUp size={20} />
-              </button>
-              <button
-                onClick={scrollToNext}
-                disabled={activeSection === sections[sections.length - 1].id}
-                className={`p-3 rounded-full border transition-all ${
-                  activeSection === sections[sections.length - 1].id
-                    ? 'border-gray-600 text-gray-600 cursor-not-allowed'
-                    : 'border-gray-400 text-gray-400 hover:border-white hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <ChevronDown size={20} />
-              </button>
-            </div>
+
 
             {/* Mobile Scroll Indicator */}
             <div className="lg:hidden absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
@@ -401,11 +340,6 @@ const ScrollSnapPage = () => {
                 {/* Text Content - Left Side */}
                 <div className="space-y-8 lg:space-y-12 flex flex-col justify-center h-full">
                   <div className="space-y-6">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700">
-                      <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
-                      <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
-                    </div>
-                    
                     <h1 className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight ${section.color}`}>
                       {section.title}
                     </h1>
