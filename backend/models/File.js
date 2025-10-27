@@ -15,13 +15,11 @@ const fileSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['image', 'pdf', 'document'],
     required: true
   },
   category: {
     type: String,
     required: true
-    // Removed enum validation to allow dynamic categories
   },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
