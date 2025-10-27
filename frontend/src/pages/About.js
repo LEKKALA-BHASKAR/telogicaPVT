@@ -1,284 +1,277 @@
-import React, { useState, useEffect } from 'react';
-import { Award, Users, Globe, Zap, Target, Eye, Calendar, ChevronRight, Sparkles, ArrowRight, CheckCircle, Star, TrendingUp, Lightbulb, Shield, Clock, Award as AwardIcon, BarChart3, Heart, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Cpu, 
+  Satellite, 
+  Shield, 
+  Network,
+  ArrowRight,
+  Play,
+  Factory,
+  Users,
+  Radio,
+  ChevronRight,
+  Target,
+  Zap,
+  Eye,
+  Calendar,
+  BarChart3,
+  CheckCircle,
+  Lightbulb,
+  Layers,
+  Globe
+} from 'lucide-react';
 
 function About() {
-  const [activeMilestone, setActiveMilestone] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
+  const [activeTimeline, setActiveTimeline] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  const milestones = [
+  // Company Evolution Timeline
+  const evolution = [
     {
-      year: '1999',
-      title: 'Company Founded',
-      description: 'Aishwarya Technologies and Telecom Ltd (ATTL) was established with a vision to serve the telecommunications sector.',
-      color: 'from-red-500 to-pink-500'
-    },
-    {
-      year: '2005',
-      title: 'Defense Partnership',
-      description: 'Expanded into defense sector, becoming a trusted supplier of testing equipment to Indian Armed Forces.',
-      color: 'from-orange-500 to-yellow-500'
+      year: '2008',
+      title: 'Foundation Era',
+      description: 'Established as Aishwarya Technologies with focus on telecommunications testing equipment',
+      icon: Network,
+      color: 'from-blue-500 to-cyan-500'
     },
     {
       year: '2012',
-      title: 'ISO Certification',
-      description: 'Achieved ISO 9001:2008 certification for quality management systems and manufacturing processes.',
-      color: 'from-yellow-500 to-green-500'
+      title: 'Defense Integration',
+      description: 'Began supplying advanced testing equipment to Indian defense organizations',
+      icon: Shield,
+      color: 'from-green-500 to-emerald-500'
     },
     {
       year: '2018',
-      title: 'Technology Upgrade',
-      description: 'Major technology upgrade with state-of-the-art manufacturing facility and R&D capabilities.',
-      color: 'from-green-500 to-teal-500'
+      title: 'Technology Expansion',
+      description: 'Expanded into RF and Microwave technology with state-of-the-art manufacturing',
+      icon: Satellite,
+      color: 'from-purple-500 to-pink-500'
     },
     {
-      year: '2020',
-      title: 'Rebranding',
-      description: 'Rebranded to Telogica Limited, reflecting our commitment to technological excellence and innovation.',
-      color: 'from-teal-500 to-blue-500'
-    },
-    {
-      year: '2024',
-      title: 'Digital Transformation',
-      description: 'Launched comprehensive digital platform and expanded e-commerce capabilities for global reach.',
-      color: 'from-blue-500 to-indigo-500'
+      year: '2023',
+      title: 'Strategic Rebranding',
+      description: 'Rebranded to Telogica Limited, marking a new era of technological innovation',
+      icon: Cpu,
+      color: 'from-orange-500 to-red-500'
     }
   ];
 
-  const values = [
+  // Core Technology Pillars
+  const pillars = [
+    {
+      icon: Radio,
+      title: 'RF & Microwave',
+      description: 'Advanced radio frequency and microwave testing solutions for defense and telecom applications',
+      gradient: 'from-blue-500 to-cyan-500',
+      features: ['Spectrum Analysis', 'Signal Testing', 'Frequency Measurement']
+    },
+    {
+      icon: Network,
+      title: 'Network Systems',
+      description: 'Comprehensive network testing equipment for fiber optic and copper cable infrastructure',
+      gradient: 'from-purple-500 to-pink-500',
+      features: ['Fiber Optic Testing', 'Cable Fault Location', 'Network Analysis']
+    },
+    {
+      icon: Factory,
+      title: 'Precision Manufacturing',
+      description: 'State-of-the-art manufacturing facilities with rigorous quality control processes',
+      gradient: 'from-green-500 to-emerald-500',
+      features: ['SMT Technology', 'Quality Assurance', 'Custom Solutions']
+    }
+  ];
+
+  // Key Statistics
+  const statistics = [
+    { value: '15+', label: 'Years of Technological Excellence', icon: Calendar },
+    { value: '500+', label: 'Defense & Telecom Clients', icon: Users },
+    { value: '50+', label: 'Advanced Product Variants', icon: BarChart3 },
+    { value: '1000+', label: 'Systems Deployed Nationwide', icon: CheckCircle }
+  ];
+
+  // Leadership Philosophy
+  const philosophy = [
     {
       icon: Target,
-      title: 'Precision',
-      description: 'We deliver precise, accurate, and reliable testing solutions that meet the highest industry standards.',
-      color: 'from-red-500 to-pink-500'
+      title: 'Mission',
+      content: 'To design and manufacture cutting-edge test and measurement equipment that sets new standards in telecommunications and defense sectors, ensuring reliability and precision in every deployment.',
+      gradient: 'from-blue-500 to-cyan-500'
+    },
+    {
+      icon: Eye,
+      title: 'Vision',
+      content: 'To be the foremost technology partner for defense and telecommunications organizations globally, recognized for innovation, quality, and unwavering commitment to technological advancement.',
+      gradient: 'from-purple-500 to-pink-500'
     },
     {
       icon: Zap,
       title: 'Innovation',
-      description: 'Continuous innovation drives our product development, keeping us at the forefront of technology.',
-      color: 'from-orange-500 to-yellow-500'
-    },
-    {
-      icon: Users,
-      title: 'Partnership',
-      description: 'We build long-term partnerships with our clients, understanding their unique requirements and challenges.',
-      color: 'from-green-500 to-teal-500'
-    },
-    {
-      icon: Award,
-      title: 'Excellence',
-      description: 'Commitment to excellence in every aspect of our business, from manufacturing to customer service.',
-      color: 'from-blue-500 to-indigo-500'
+      content: 'Continuous research and development drives our evolution, ensuring we remain at the forefront of testing technology for next-generation communication systems.',
+      gradient: 'from-orange-500 to-red-500'
     }
-  ];
-
-  const leadership = [
-    {
-      name: 'Mr. Rajesh Agarwal',
-      role: 'Managing Director',
-      description: 'With over 25 years of experience in telecommunications and defense sectors, Mr. Agarwal leads our strategic vision and business development.',
-      color: 'from-red-500 to-pink-500'
-    },
-    {
-      name: 'Dr. Priya Sharma',
-      role: 'Chief Technology Officer',
-      description: 'Dr. Sharma brings cutting-edge technical expertise and innovation leadership, driving our R&D initiatives and product development.',
-      color: 'from-orange-500 to-yellow-500'
-    },
-    {
-      name: 'Mr. Amit Kumar',
-      role: 'Chief Operations Officer',
-      description: 'Leading our manufacturing and quality operations, Mr. Kumar ensures excellence in production and delivery of our products.',
-      color: 'from-green-500 to-teal-500'
-    }
-  ];
-
-  const stats = [
-    { number: '25+', label: 'Years of Excellence', icon: Calendar },
-    { number: '500+', label: 'Happy Clients', icon: Users },
-    { number: '1000+', label: 'Projects Completed', icon: CheckCircle },
-    { number: '50+', label: 'Product Variants', icon: BarChart3 }
-  ];
-
-  const certifications = [
-    { title: 'ISO 9001:2015', subtitle: 'Quality Management', icon: Award },
-    { title: 'ISO 14001', subtitle: 'Environmental Management', icon: Globe },
-    { title: 'OHSAS 18001', subtitle: 'Safety Management', icon: Shield },
-    { title: 'CE Marking', subtitle: 'European Compliance', icon: CheckCircle }
   ];
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-red-400 to-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div className="absolute top-40 right-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-reverse"></div>
-        <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-gradient-to-br from-green-400 to-teal-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div className="absolute bottom-40 right-1/3 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-reverse"></div>
+    <div className="min-h-screen bg-black text-white overflow-hidden" ref={containerRef}>
+      {/* Scroll Progress Indicator */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-gray-800 z-50">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      {/* Animated Background Grid */}
+      <div className="fixed inset-0 z-0 opacity-20">
+        <div 
+          className="absolute inset-0 transition-all duration-1000"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+            backgroundPosition: `${mousePosition.x * 0.02}px ${mousePosition.y * 0.02}px`
+          }}
+        />
+      </div>
+
+      {/* Floating Tech Elements */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        {[Cpu, Satellite, Network, Play].map((Icon, i) => (
+          <Icon
+            key={i}
+            className="absolute text-blue-500/10 animate-float"
+            size={60}
+            style={{
+              top: `${20 + (i * 25) % 70}%`,
+              left: `${10 + (i * 30) % 80}%`,
+              animationDelay: `${i * 5}s`,
+              animationDuration: `${20 + i * 10}s`
+            }}
+          />
+        ))}
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden">
-        {/* Rainbow Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500 opacity-90"></div>
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
         
-        {/* Animated Overlay */}
-        <div className="absolute inset-0 bg-black/20"></div>
-        
-        {/* Animated Shapes */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full animate-pulse-slow"></div>
-          <div className="absolute top-20 right-20 w-24 h-24 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-10 right-1/4 w-28 h-28 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '3s' }}></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-fade-in-up">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-6">
-              <Sparkles className="h-4 w-4 text-white mr-2" />
-              <span className="text-sm font-medium text-white">About Our Company</span>
+        <div className="relative z-10 max-w-6xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <Cpu className="h-12 w-12 text-white" />
             </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white" data-testid="about-hero-title">
-              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-200">Telogica</span>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                Telogica
+              </span>
             </h1>
-            
-            <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed">
-              Formerly Aishwarya Technologies and Telecom Ltd (ATTL), we are synonymous with Indian Defence and Telecom sector. 
-              We design and manufacture Test and Measuring Equipment for Fiber, Data and Copper Cable Fault Locators.
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Pioneering advanced test and measurement solutions for defense and telecommunications sectors. 
+              Formerly Aishwarya Technologies, now leading technological innovation since 2008.
             </p>
-            
-            <div className="mt-10 flex justify-center">
-              <a href="#mission" className="inline-flex items-center px-6 py-3 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 group">
-                Discover Our Story
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+            <button className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg font-semibold flex items-center justify-center transition-transform hover:scale-105">
+              Explore Our Technology
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </button>
+            <button className="px-8 py-4 border border-gray-600 rounded-lg font-semibold hover:border-blue-400 transition-colors">
+              View Product Portfolio
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <div className="animate-bounce">
+            <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-gray-400 rounded-full mt-2" />
             </div>
           </div>
         </div>
-        
-        {/* Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="w-full h-24 fill-white" viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,50 C360,100 720,0 1440,50 L1440,100 L0,100 Z"></path>
-          </svg>
-        </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white relative z-10">
+      {/* Statistics Section */}
+      <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {statistics.map((stat, index) => (
               <div key={index} className="text-center group">
-                <div className={`w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${
-                  index === 0 ? 'from-red-500 to-pink-500' :
-                  index === 1 ? 'from-orange-500 to-yellow-500' :
-                  index === 2 ? 'from-green-500 to-teal-500' :
-                  'from-blue-500 to-indigo-500'
-                } flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <stat.icon className="h-10 w-10 text-white" />
+                <div className="relative">
+                  <div className="text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    {stat.value}
+                  </div>
+                  <div className="text-gray-400 text-sm leading-relaxed">{stat.label}</div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Mission and Vision */}
-      <section id="mission" className="py-20 bg-gradient-to-br from-gray-50 to-white relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-12">
-              <div className="group">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="h-6 w-6 text-white" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
-                </div>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  To be the leading provider of innovative testing and measuring equipment for telecommunications and defense sectors, 
-                  delivering superior quality products that enable our clients to build and maintain robust communication networks.
-                </p>
-              </div>
-              
-              <div className="group">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                    <Eye className="h-6 w-6 text-white" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900">Our Vision</h2>
-                </div>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  To become a globally recognized technology company that shapes the future of telecommunications through 
-                  continuous innovation, exceptional quality, and unwavering commitment to customer success.
-                </p>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500 rounded-3xl opacity-20 blur-xl"></div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                <div className="aspect-w-16 aspect-h-9 mb-6 rounded-2xl overflow-hidden">
-                  <div className="w-full h-64 bg-gradient-to-br from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <div className="text-6xl font-bold mb-2">Telogica</div>
-                      <div className="text-xl">Innovation in Technology</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 text-center">
-                    <div className="text-2xl font-bold text-red-600">25+</div>
-                    <div className="text-sm text-gray-600">Years Experience</div>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-600">500+</div>
-                    <div className="text-sm text-gray-600">Happy Clients</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Company Values */}
-      <section className="py-20 bg-white relative z-10">
+      {/* Technology Pillars */}
+      <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-100 via-orange-100 via-yellow-100 via-green-100 via-teal-100 via-blue-100 via-indigo-100 to-purple-100 backdrop-blur-sm border border-gray-200 mb-6">
-              <Heart className="h-4 w-4 text-red-500 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Our Values</span>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Core Values</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              The principles that guide every decision we make and every product we create
+            <h2 className="text-4xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                Core Technology Domains
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Specialized solutions driving innovation in defense and telecommunications infrastructure
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <div key={index} className="group relative" data-testid={`value-${value.title.toLowerCase()}`}>
-                <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2"></div>
-                <div className="relative bg-white rounded-2xl p-8 border border-gray-100 h-full">
-                  <div className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${value.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <value.icon className="h-10 w-10 text-white" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pillars.map((pillar, index) => (
+              <div key={index} className="group relative">
+                <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-gray-800 group-hover:border-blue-500/50 transition-all duration-500 h-full">
+                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${pillar.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <pillar.icon className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">{value.title}</h3>
-                  <p className="text-gray-600 leading-relaxed text-center">{value.description}</p>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-4">{pillar.title}</h3>
+                  <p className="text-gray-400 mb-6 leading-relaxed">{pillar.description}</p>
+                  
+                  <div className="space-y-2">
+                    {pillar.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center text-gray-300">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-3" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={`absolute inset-0 bg-gradient-to-r ${pillar.gradient} rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
                 </div>
               </div>
             ))}
@@ -286,66 +279,82 @@ function About() {
         </div>
       </section>
 
-      {/* Company Timeline */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-100 via-orange-100 via-yellow-100 via-green-100 via-teal-100 via-blue-100 via-indigo-100 to-purple-100 backdrop-blur-sm border border-gray-200 mb-6">
-              <Clock className="h-4 w-4 text-blue-500 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Our Journey</span>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Journey</h2>
-            <p className="text-xl text-gray-600">
-              Over two decades of innovation and growth in telecommunications technology
-            </p>
-          </div>
-          
-          {/* Timeline Navigation */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
-            {milestones.map((milestone, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveMilestone(index)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  activeMilestone === index
-                    ? 'bg-gradient-to-r ' + milestone.color + ' text-white shadow-lg'
-                    : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                {milestone.year}
-              </button>
+      {/* Company Philosophy */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {philosophy.map((item, index) => (
+              <div key={index} className="group">
+                <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-gray-800 h-full">
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${item.gradient} flex items-center justify-center mb-6`}>
+                    <item.icon className="h-7 w-7 text-white" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{item.content}</p>
+
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${item.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500`} />
+                </div>
+              </div>
             ))}
           </div>
-          
-          {/* Timeline Content */}
+        </div>
+      </section>
+
+      {/* Evolution Timeline */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Our Evolution
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              A journey of technological advancement and strategic growth
+            </p>
+          </div>
+
           <div className="relative">
-            {/* Rainbow Timeline Line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500 h-full"></div>
+            {/* Timeline Line */}
+            <div className="absolute left-8 lg:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 transform lg:-translate-x-1/2" />
             
             <div className="space-y-12">
-              {milestones.map((milestone, index) => (
+              {evolution.map((era, index) => (
                 <div 
-                  key={index} 
-                  className={`flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} transition-all duration-700 ${
-                    activeMilestone === index ? 'opacity-100 translate-y-0' : 'opacity-50 translate-y-4'
-                  }`} 
-                  data-testid={`milestone-${milestone.year}`}
+                  key={index}
+                  className={`flex items-start lg:items-center ${
+                    index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                  } lg:gap-16`}
+                  onMouseEnter={() => setActiveTimeline(index)}
                 >
-                  <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
-                    <div className={`bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
-                      activeMilestone === index ? 'ring-2 ring-offset-2 ring-' + (index === 0 ? 'red' : index === 1 ? 'orange' : index === 2 ? 'yellow' : index === 3 ? 'green' : index === 4 ? 'blue' : 'indigo') + '-500' : ''
+                  {/* Content */}
+                  <div className={`flex-1 ${
+                    index % 2 === 0 ? 'lg:text-right lg:pr-16' : 'lg:pl-16'
+                  }`}>
+                    <div className={`bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-gray-800 transition-all duration-300 ${
+                      activeTimeline === index ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : ''
                     }`}>
-                      <div className={`text-2xl font-bold bg-gradient-to-r ${milestone.color} bg-clip-text text-transparent mb-2`}>{milestone.year}</div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">{milestone.title}</h3>
-                      <p className="text-gray-600">{milestone.description}</p>
+                      <div className={`text-2xl font-bold mb-2 bg-gradient-to-r ${era.color} bg-clip-text text-transparent`}>
+                        {era.year}
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-3">{era.title}</h3>
+                      <p className="text-gray-400 leading-relaxed">{era.description}</p>
                     </div>
                   </div>
-                  
-                  <div className="relative flex items-center justify-center w-12 h-12 bg-white rounded-full border-4 border-white shadow-lg z-10">
-                    <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${milestone.color}`}></div>
+
+                  {/* Timeline Node */}
+                  <div className="relative flex-shrink-0 w-16 h-16 flex items-center justify-center">
+                    <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${era.color} ${
+                      activeTimeline === index ? 'animate-pulse' : ''
+                    }`} />
+                    <div className="relative w-12 h-12 bg-black rounded-full border-2 border-gray-800 flex items-center justify-center">
+                      <era.icon className="h-6 w-6 text-white" />
+                    </div>
                   </div>
-                  
-                  <div className="w-1/2"></div>
+
+                  {/* Spacer */}
+                  <div className="flex-1 lg:block hidden" />
                 </div>
               ))}
             </div>
@@ -353,142 +362,78 @@ function About() {
         </div>
       </section>
 
-      {/* Leadership Team */}
-      <section className="py-20 bg-white relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-100 via-orange-100 via-yellow-100 via-green-100 via-teal-100 via-blue-100 via-indigo-100 to-purple-100 backdrop-blur-sm border border-gray-200 mb-6">
-              <Users className="h-4 w-4 text-green-500 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Leadership</span>
+      {/* Global Impact */}
+      <section className="py-20 relative">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-12 border border-gray-800">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+              <Globe className="h-10 w-10 text-white" />
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Leadership Team</h2>
-            <p className="text-xl text-gray-600">
-              Meet the visionaries driving Telogica's success and innovation
+            
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Nationwide Technological Impact
+            </h2>
+            
+            <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Serving defense and telecommunications sectors across India with reliable, 
+              cutting-edge testing solutions that ensure communication infrastructure integrity.
             </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {leadership.map((leader, index) => (
-              <div key={index} className="group relative" data-testid={`leader-${index}`}>
-                <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2"></div>
-                <div className="relative bg-white rounded-3xl p-8 border border-gray-100 h-full">
-                  <div className="relative mb-6">
-                    <div className={`w-32 h-32 mx-auto rounded-full bg-gradient-to-br ${leader.color} flex items-center justify-center text-white text-4xl font-bold group-hover:scale-110 transition-transform duration-300`}>
-                      {leader.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">{leader.name}</h3>
-                  <p className={`text-transparent bg-clip-text bg-gradient-to-r ${leader.color} font-semibold mb-4 text-center`}>{leader.role}</p>
-                  <p className="text-gray-600 leading-relaxed text-center">{leader.description}</p>
-                </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
+              <div>
+                <div className="text-2xl font-bold text-blue-400 mb-2">Defense</div>
+                <div className="text-gray-400">Strategic Partner</div>
               </div>
-            ))}
+              <div>
+                <div className="text-2xl font-bold text-purple-400 mb-2">Telecom</div>
+                <div className="text-gray-400">Infrastructure Support</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-cyan-400 mb-2">Research</div>
+                <div className="text-gray-400">R&D Innovation</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-400 mb-2">Quality</div>
+                <div className="text-gray-400">ISO Certified</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Certifications and Awards */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-100 via-orange-100 via-yellow-100 via-green-100 via-teal-100 via-blue-100 via-indigo-100 to-purple-100 backdrop-blur-sm border border-gray-200 mb-6">
-              <Award className="h-4 w-4 text-yellow-500 mr-2" />
-              <span className="text-sm font-medium text-gray-700">Certifications</span>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Certifications & Recognition</h2>
-            <p className="text-xl text-gray-600">
-              Our commitment to quality and excellence is recognized by industry standards
+      {/* Final CTA */}
+      <section className="py-20 relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-12 border border-gray-800">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to Advance Your Technology Infrastructure?
+            </h2>
+            
+            <p className="text-xl text-gray-400 mb-8 leading-relaxed">
+              Partner with Telogica for cutting-edge testing solutions that drive reliability and performance in your communication systems.
             </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {certifications.map((cert, index) => (
-              <div key={index} className="group relative" data-testid={`certification-${index}`}>
-                <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2"></div>
-                <div className="relative bg-white rounded-2xl p-6 border border-gray-100 h-full text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${
-                    index === 0 ? 'from-red-500 to-pink-500' :
-                    index === 1 ? 'from-orange-500 to-yellow-500' :
-                    index === 2 ? 'from-green-500 to-teal-500' :
-                    'from-blue-500 to-indigo-500'
-                  } flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <cert.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{cert.title}</h3>
-                  <p className="text-sm text-gray-600">{cert.subtitle}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Contact CTA */}
-      <section className="py-20 relative overflow-hidden">
-        {/* Rainbow Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500"></div>
-        
-        {/* Animated Overlay */}
-        <div className="absolute inset-0 bg-black/20"></div>
-        
-        {/* Animated Shapes */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full animate-pulse-slow"></div>
-          <div className="absolute top-20 right-20 w-24 h-24 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-10 right-1/4 w-28 h-28 bg-white/10 rounded-full animate-pulse-slow" style={{ animationDelay: '3s' }}></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20">
-            <h2 className="text-4xl font-bold text-white mb-6">Let's Build the Future Together</h2>
-            <p className="text-xl text-white/90 mb-8">
-              Ready to partner with us? Get in touch to discuss your telecommunications and defense equipment needs.
-            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/contact" className="inline-flex items-center px-8 py-4 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 group">
-                Contact Us Today
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
-              <a href="/products" className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300 group">
-                View Our Products
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </a>
+              <button className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg font-semibold flex items-center justify-center transition-transform hover:scale-105">
+                Start Conversation
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </button>
+              
+              <button className="px-8 py-4 border border-gray-600 rounded-lg font-semibold hover:border-blue-400 transition-colors">
+                Download Brochure
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Add custom animations to global CSS */}
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(180deg); }
         }
-        @keyframes float-reverse {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(20px) rotate(-180deg); }
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.1; transform: scale(1); }
-          50% { opacity: 0.2; transform: scale(1.05); }
-        }
-        @keyframes fade-in-up {
-          0% { opacity: 0; transform: translateY(30px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
         .animate-float {
-          animation: float 20s ease-in-out infinite;
-        }
-        .animate-float-reverse {
-          animation: float-reverse 25s ease-in-out infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 8s ease-in-out infinite;
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 1s ease-out;
+          animation: float 20s infinite linear;
         }
       `}</style>
     </div>
