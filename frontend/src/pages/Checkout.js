@@ -11,7 +11,9 @@ const Checkout = () => {
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
-
+  useEffect(()=>{
+    window.scrollTo(0,0);
+  },[]);
   useEffect(() => {
     fetchCart();
     loadRazorpayScript();

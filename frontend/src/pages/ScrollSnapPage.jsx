@@ -1,73 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network, Menu, X } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid"; // For unique IDs
 
 const ScrollSnapPage = () => {
-  const [activeSection, setActiveSection] = useState("about");
+  const [activeSection, setActiveSection] = useState("defence");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isComponentVisible, setIsComponentVisible] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
+  const containerRef = useRef(null);
+  const componentRef = useRef(null); // Ref for the entire component
+  const instanceId = useRef(uuidv4()); // Unique ID for this instance
 
-  // Check if we're on the home page
-  const isHomePage = location.pathname === "/";
-
-  // Scroll handling with offset for mobile header
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll('section[id]');
-      const scrollPos = window.scrollY + 100; // Small offset for better detection
-
-      sections.forEach((section) => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        const sectionId = section.getAttribute('id');
-
-        if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-          setActiveSection(sectionId);
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Scroll to section with mobile header offset
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const headerOffset = window.innerWidth < 1024 ? 64 : 0; // pt-16 = 64px
-      const elementPosition = element.offsetTop - headerOffset;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: "smooth",
-      });
-      setActiveSection(id);
-      setIsMobileMenuOpen(false);
-    }
-  };
-
-  const navigateToRoute = (route) => {
-    navigate(route);
-  };
-
+  // Sections with unique IDs
   const sections = [
     {
-      id: "about",
-      title: "About Telogica",
-      description: "Leading manufacturer of advanced Test & Measuring Equipment for Defence and Telecom sectors with 15+ years of excellence.",
-      features: ["ISO 9001:2015 Certified", "50+ Successful Projects", "24/7 Technical Support"],
-      icon: Users,
-      bg: "bg-black",
-      color: "text-pink-500",
-      accent: "bg-pink-500",
-      buttonBg: "bg-pink-500 hover:bg-pink-600",
-      buttonText: "Our Story",
-      route: "/about",
-      image: "https://scontent.fcdp1-1.fna.fbcdn.net/v/t39.30808-6/454947021_825253096373273_2071655228525396527_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=VZsYBnhZWbEQ7kNvwHUXctN&_nc_oc=AdlFU0ypLkXz1Th7UL2rssIG_2YHA5dzc3Up8L3onVX0T44Vfvu1dyUwzIsy0Dcv9SB5LskDd_dKMSGJEVxYZJY-&_nc_zt=23&_nc_ht=scontent.fcdp1-1.fna&_nc_gid=2QGYrn6H2j63nsTNampbVw&oh=00_AfePAldZXxPo60rMIX_9-dOvoW2i6CCO4ygUr7pGwvAWqA&oe=69052E82",
-    },
-    {
-      id: "defence",
+      id: `defence-${instanceId.current}`,
+      baseId: "defence",
       title: "Defence Solutions",
       description: "Advanced defence communication systems, electronic warfare solutions, and radar technology for national security.",
       features: ["Secure Communication", "Radar Systems", "Electronic Warfare"],
@@ -81,7 +30,8 @@ const ScrollSnapPage = () => {
       image: "https://images.unsplash.com/photo-1717749789408-f6f73c9e6aac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
     },
     {
-      id: "telecom",
+      id: `telecom-${instanceId.current}`,
+      baseId: "telecom",
       title: "Telecommunication",
       description: "Cutting-edge telecommunications infrastructure and network testing equipment for 5G and beyond.",
       features: ["5G Testing", "Network Analysis", "Field Maintenance"],
@@ -95,7 +45,8 @@ const ScrollSnapPage = () => {
       image: "https://media.istockphoto.com/id/1602617670/photo/satellite-dish-antenna-communication-technology-concept.jpg?s=612x612&w=0&k=20&c=XjMfP8m2WEykJGAcWOMAmIJI3MWvFBnxDdKXI6ufYVE=",
     },
     {
-      id: "manufacturing",
+      id: `manufacturing-${instanceId.current}`,
+      baseId: "manufacturing",
       title: "Manufacturing",
       description: "State-of-the-art manufacturing facilities for high-precision electronic components and test equipment.",
       features: ["Quality Manufacturing", "R&D Focus", "Custom Solutions"],
@@ -110,10 +61,80 @@ const ScrollSnapPage = () => {
     },
   ];
 
+  // Detect if component is in view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsComponentVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 } // Trigger when 10% of component is visible
+    );
+
+    if (componentRef.current) {
+      observer.observe(componentRef.current);
+    }
+
+    return () => {
+      if (componentRef.current) {
+        observer.unobserve(componentRef.current);
+      }
+    };
+  }, []);
+
+  // Scroll handling with IntersectionObserver for active section
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.getAttribute("id");
+            const baseId = sections.find((s) => s.id === sectionId)?.baseId;
+            if (baseId && baseId !== activeSection) {
+              setActiveSection(baseId);
+            }
+          }
+        });
+      },
+      { root: container, threshold: 0.5 } // Trigger when 50% of section is visible
+    );
+
+    const sectionElements = container.querySelectorAll('section[id]');
+    sectionElements.forEach((section) => observer.observe(section));
+
+    return () => {
+      sectionElements.forEach((section) => observer.unobserve(section));
+    };
+  }, [activeSection]);
+
+  // Scroll to section with offset
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element && containerRef.current) {
+      const headerOffset = window.innerWidth < 1024 ? 64 : 0; // pt-16 = 64px
+      const elementPosition = element.offsetTop - headerOffset;
+      containerRef.current.scrollTo({
+        top: elementPosition,
+        behavior: "smooth",
+      });
+      const baseId = sections.find((s) => s.id === id)?.baseId;
+      if (baseId) setActiveSection(baseId);
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const navigateToRoute = (route) => {
+    navigate(route);
+  };
+
   return (
-    <div className="flex min-h-screen bg-black">
-      {/* Mobile Header - Only show on home page */}
-      {isHomePage && (
+    <div ref={componentRef} className="relative flex min-h-screen bg-black">
+      {/* Mobile Header - Only show when component is visible */}
+      {isComponentVisible && (
         <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800">
           <div className="flex items-center justify-between p-3">
             <div className="flex items-center space-x-2">
@@ -132,8 +153,8 @@ const ScrollSnapPage = () => {
         </div>
       )}
 
-      {/* Mobile Menu Overlay - Only show on home page */}
-      {isHomePage && isMobileMenuOpen && (
+      {/* Mobile Menu Overlay - Only show when component is visible */}
+      {isComponentVisible && isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-95 backdrop-blur-sm">
           <div className="pt-16 px-4 pb-4">
             <nav className="space-y-1">
@@ -142,13 +163,15 @@ const ScrollSnapPage = () => {
                   key={section.id}
                   onClick={() => scrollToSection(section.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 ${
-                    activeSection === section.id
+                    activeSection === section.baseId
                       ? `${section.accent} text-white`
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <section.icon className={`w-4 h-4 ${activeSection === section.id ? "text-white" : "text-gray-400"}`} />
+                    <section.icon
+                      className={`w-4 h-4 ${activeSection === section.baseId ? "text-white" : "text-gray-400"}`}
+                    />
                     <span className="font-medium text-sm">{section.title}</span>
                   </div>
                 </button>
@@ -158,8 +181,8 @@ const ScrollSnapPage = () => {
         </div>
       )}
 
-      {/* Desktop Sidebar - Only show on home page */}
-      {isHomePage && (
+      {/* Desktop Sidebar - Only show when component is visible */}
+      {isComponentVisible && (
         <div className="hidden lg:flex fixed top-1/2 left-4 w-56 bg-black/90 backdrop-blur-sm rounded-xl py-6 px-4 transform -translate-y-1/2 z-30">
           <nav className="flex flex-col items-center space-y-2 w-full">
             {sections.map((section) => (
@@ -167,13 +190,15 @@ const ScrollSnapPage = () => {
                 key={section.id}
                 onClick={() => scrollToSection(section.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 ${
-                  activeSection === section.id
+                  activeSection === section.baseId
                     ? `${section.accent} text-white`
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
                 <div className="flex items-center space-x-2">
-                  <section.icon className={`w-4 h-4 ${activeSection === section.id ? "text-white" : "text-gray-400"}`} />
+                  <section.icon
+                    className={`w-4 h-4 ${activeSection === section.baseId ? "text-white" : "text-gray-400"}`}
+                  />
                   <span className="font-medium text-sm">{section.title}</span>
                 </div>
               </button>
@@ -183,12 +208,16 @@ const ScrollSnapPage = () => {
       )}
 
       {/* Main Content */}
-      <div className={`flex-1 overflow-y-auto scroll-smooth ${isHomePage ? '' : 'w-full'}`}>
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto scroll-smooth snap-y snap-mandatory lg:ml-60"
+        style={{ height: "100vh" }}
+      >
         {sections.map((section) => (
           <section
             key={section.id}
             id={section.id}
-            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden ${isHomePage ? 'pt-16 lg:pt-0 snap-start' : 'pt-0'}`}
+            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden pt-16 lg:pt-0 snap-start`}
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
@@ -203,8 +232,8 @@ const ScrollSnapPage = () => {
               />
             </div>
 
-            {/* Floating Icons - Only show on home page */}
-            {isHomePage && (
+            {/* Floating Icons - Only show when component is visible */}
+            {isComponentVisible && (
               <div className="absolute inset-0 overflow-hidden">
                 {[Cpu, Satellite, Network, Play].map((Icon, i) => (
                   <Icon
@@ -294,40 +323,34 @@ const ScrollSnapPage = () => {
         ))}
       </div>
 
-<style jsx>{`
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-15px);
-    }
-  }
-
-  .animate-float {
-    animation: float 10s infinite ease-in-out;
-  }
-
-  /* ✅ Scroll snapping only inside ScrollSnapPage */
-  .scroll-snap-container {
-    scroll-snap-type: y mandatory;
-  }
-
-  .scroll-snap-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-
-  /* Hide scrollbar */
-  .overflow-y-auto::-webkit-scrollbar {
-    display: none;
-  }
-  .overflow-y-auto {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-`}</style>
-
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
+        }
+        .animate-float {
+          animation: float 10s infinite ease-in-out;
+        }
+        /* Scroll snapping */
+        .snap-y {
+          scroll-snap-type: y mandatory;
+        }
+        .snap-start {
+          scroll-snap-align: start;
+        }
+        /* Hide scrollbar */
+        .overflow-y-auto::-webkit-scrollbar {
+          display: none;
+        }
+        .overflow-y-auto {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };

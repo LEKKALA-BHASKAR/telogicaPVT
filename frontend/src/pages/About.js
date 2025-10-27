@@ -27,6 +27,10 @@ function About() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef(null);
 
+  useEffect(()=>{
+    window.scrollTo(0,0);
+  },[]);
+  
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -22,6 +22,9 @@ function Contact() {
       [name]: value
     }));
   };
+    useEffect(()=>{
+      window.scrollTo(0,0);
+    },[]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
