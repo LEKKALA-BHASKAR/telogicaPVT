@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import { Button } from '../components/ui/button';
-import { toast } from 'sonner';
-import { ShoppingCart, FileText, Package, ChevronLeft, ChevronRight } from 'lucide-react';
-import io from 'socket.io-client';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "../components/ui/button";
+import { toast } from "sonner";
+import {
+  ShoppingCart,
+  FileText,
+  Package,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import io from "socket.io-client";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -19,25 +25,25 @@ const ProductDetails = () => {
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-  // Animation variants
   const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
   useEffect(() => {
     fetchProduct();
 
-    // Socket.IO for real-time stock updates
     const socket = io(API_URL);
-    socket.on('stockUpdate', (data) => {
+    socket.on("stockUpdate", (data) => {
       if (data.productId === id) {
         setProduct((prev) => (prev ? { ...prev, stock: data.stock } : null));
         if (data.stock < quantity) {
           setQuantity(data.stock || 1);
-          if (data.stock === 0) {
-            toast.warning('Product is out of stock');
-          }
+          if (data.stock === 0) toast.warning("Product is out of stock");
         }
       }
     });
@@ -48,25 +54,26 @@ const ProductDetails = () => {
   const fetchProduct = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/products/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       setProduct(res.data.data);
       setLoading(false);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to load product');
+      toast.error(error.response?.data?.message || "Failed to load product");
       setLoading(false);
     }
   };
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
-      toast.error('Please login to add items to cart');
-      navigate('/login');
+      toast.error("Please login to add items to cart");
+      navigate("/login");
       return;
     }
-
     if (quantity <= 0 || quantity > product.stock) {
-      toast.error('Invalid quantity');
+      toast.error("Invalid quantity");
       return;
     }
 
@@ -74,154 +81,159 @@ const ProductDetails = () => {
       await axios.post(
         `${API_URL}/api/products/cart/add`,
         { productId: id, quantity },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      toast.success('Added to cart!');
+      toast.success("Added to cart!");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add to cart');
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
   };
 
   const handleImageChange = (direction) => {
     if (!product.images || product.images.length === 0) return;
-    if (direction === 'next') {
+    if (direction === "next") {
       setSelectedImage((prev) => (prev + 1) % product.images.length);
     } else {
-      setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+      setSelectedImage(
+        (prev) => (prev - 1 + product.images.length) % product.images.length
+      );
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
           <p className="text-gray-400 text-sm">Loading product...</p>
         </div>
       </div>
     );
-  }
 
-  if (!product) {
+  if (!product)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
-        <p className="text-gray-400 text-sm">Product not found</p>
+      <div className="min-h-screen flex items-center justify-center bg-black text-gray-400">
+        Product not found.
       </div>
     );
-  }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden pt-20 pb-12 px-4">
-      {/* Subtle Background */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-80" />
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: `radial-gradient(circle, #ffffff 1px, transparent 1px)`, backgroundSize: '30px 30px' }} />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-900 text-white pt-24 pb-16 px-4 font-sans overflow-hidden">
       <div className="container mx-auto max-w-7xl relative z-10">
-        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" initial="hidden" animate="visible" variants={fadeInUp}>
-          {/* Images */}
-          <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700/50">
-            <div className="relative mb-4">
-              {product.images && product.images.length > 0 ? (
-                <div className="aspect-square overflow-hidden rounded-lg">
-                  <img
-                    src={product.images[selectedImage].url}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                    data-testid="product-image"
-                  />
-                  {product.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => handleImageChange('prev')}
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-900/50 p-2 rounded-full hover:bg-gray-800"
-                      >
-                        <ChevronLeft className="w-5 h-5 text-gray-300" />
-                      </button>
-                      <button
-                        onClick={() => handleImageChange('next')}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-900/50 p-2 rounded-full hover:bg-gray-800"
-                      >
-                        <ChevronRight className="w-5 h-5 text-gray-300" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="aspect-square bg-gray-900/50 rounded-lg flex items-center justify-center">
-                  <Package className="w-16 h-16 text-gray-500" />
-                </div>
-              )}
-              {product.images && product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2 mt-3">
-                  {product.images.map((img, idx) => (
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+        >
+          {/* Product Image Section */}
+          <div className="relative bg-gray-900/40 rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
+            {product.images && product.images.length > 0 ? (
+              <div className="relative">
+                <img
+                  src={product.images[selectedImage].url}
+                  alt={product.title}
+                  className="w-full h-[480px] md:h-[520px] object-contain bg-black p-4 rounded-3xl"
+                />
+                {product.images.length > 1 && (
+                  <>
                     <button
-                      key={idx}
-                      onClick={() => setSelectedImage(idx)}
-                      className={`aspect-square rounded-lg overflow-hidden border-2 ${
-                        selectedImage === idx ? 'border-purple-400' : 'border-gray-700/50'
-                      } hover:border-purple-400/30`}
+                      onClick={() => handleImageChange("prev")}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-gray-900/60 hover:bg-gray-800/80 p-2 rounded-full"
                     >
-                      <img src={img.url} alt="" className="w-full h-full object-cover" />
+                      <ChevronLeft className="text-white w-6 h-6" />
                     </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <button
+                      onClick={() => handleImageChange("next")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-gray-900/60 hover:bg-gray-800/80 p-2 rounded-full"
+                    >
+                      <ChevronRight className="text-white w-6 h-6" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="h-[480px] flex items-center justify-center bg-gray-900/50 rounded-3xl">
+                <Package className="w-20 h-20 text-gray-500" />
+              </div>
+            )}
+
+            {product.images?.length > 1 && (
+              <div className="flex justify-center mt-4 gap-3">
+                {product.images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedImage(idx)}
+                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
+                      selectedImage === idx
+                        ? "border-purple-500 scale-105"
+                        : "border-gray-700 hover:border-purple-400/50"
+                    }`}
+                  >
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Details */}
-          <div className="space-y-4">
+          {/* Product Details Section */}
+          <div className="space-y-6">
             <div>
-              <span className="text-xs font-semibold text-purple-400" data-testid="product-category">
+              <span className="text-sm font-semibold text-purple-400 uppercase tracking-wider">
                 {product.category}
               </span>
-              <h1 className="text-3xl font-semibold text-white mt-1 mb-3" data-testid="product-detail-title">
+              <h1 className="text-4xl font-bold mt-2 mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 {product.title}
               </h1>
-              <p className="text-gray-400 text-sm leading-relaxed" data-testid="product-description">
+              <p className="text-gray-300 leading-relaxed text-sm md:text-base">
                 {product.description}
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-semibold text-green-400" data-testid="product-detail-price">
+            <div className="flex items-center gap-4">
+              <span className="text-3xl font-semibold text-green-400">
                 ₹{product.price?.toLocaleString()}
               </span>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                   product.stock > 0
-                    ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                    : 'bg-red-500/20 text-red-400 border-red-500/30'
+                    ? "bg-green-500/10 text-green-400 border-green-400/40"
+                    : "bg-red-500/10 text-red-400 border-red-400/40"
                 }`}
-                data-testid="product-stock-status"
               >
-                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                {product.stock > 0
+                  ? `${product.stock} in stock`
+                  : "Out of stock"}
               </span>
             </div>
 
+            {/* Quantity & Add to Cart */}
             {product.stock > 0 && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Quantity</label>
-                  <div className="flex items-center gap-2">
+                  <label className="text-xs text-gray-400 mb-1 block">
+                    Quantity
+                  </label>
+                  <div className="flex items-center gap-3">
                     <Button
                       variant="outline"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 rounded-full bg-gray-900/50 border-gray-700 text-gray-300 hover:bg-gray-800"
-                      data-testid="decrease-quantity-btn"
+                      className="w-10 h-10 bg-gray-900 border border-gray-700 rounded-full text-white hover:bg-gray-800"
                     >
                       -
                     </Button>
-                    <span className="text-base font-semibold w-12 text-center" data-testid="quantity-display">
-                      {quantity}
-                    </span>
+                    <span className="text-lg font-semibold">{quantity}</span>
                     <Button
                       variant="outline"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                      className="w-10 h-10 rounded-full bg-gray-900/50 border-gray-700 text-gray-300 hover:bg-gray-800"
-                      data-testid="increase-quantity-btn"
+                      onClick={() =>
+                        setQuantity(Math.min(product.stock, quantity + 1))
+                      }
+                      className="w-10 h-10 bg-gray-900 border border-gray-700 rounded-full text-white hover:bg-gray-800"
                     >
                       +
                     </Button>
@@ -231,8 +243,7 @@ const ProductDetails = () => {
                 <Button
                   size="lg"
                   onClick={handleAddToCart}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-sm text-white rounded-full hover:shadow-lg hover:scale-105 transition-all"
-                  data-testid="add-to-cart-btn"
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-sm text-white hover:scale-105 transition-all shadow-lg"
                 >
                   <ShoppingCart className="mr-2 w-4 h-4" />
                   Add to Cart
@@ -241,44 +252,52 @@ const ProductDetails = () => {
             )}
 
             {/* Specifications */}
-            {product.specifications && Array.from(product.specifications).length > 0 && (
-              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
-                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  Specifications
-                </h3>
-                <div className="space-y-2">
-                  {Array.from(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between text-xs">
-                      <span className="text-gray-400">{key}:</span>
-                      <span className="text-white">{value}</span>
-                    </div>
-                  ))}
+            {product.specifications &&
+              Object.entries(product.specifications).length > 0 && (
+                <div className="bg-gray-900/40 p-5 rounded-2xl border border-gray-800">
+                  <h3 className="text-lg font-semibold mb-3 text-white">
+                    Specifications
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {Object.entries(product.specifications).map(
+                      ([key, value]) => (
+                        <div
+                          key={key}
+                          className="flex justify-between bg-gray-800/50 px-3 py-2 rounded-lg"
+                        >
+                          <span className="text-gray-400 capitalize">
+                            {key}
+                          </span>
+                          <span className="text-gray-200">{value}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* PDFs */}
             {product.pdfs && product.pdfs.length > 0 && (
-              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
-                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
+              <div className="bg-gray-900/40 p-5 rounded-2xl border border-gray-800">
+                <h3 className="text-lg font-semibold mb-3 text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-purple-400" />
                   Product Manuals
                 </h3>
-                <div className="space-y-2">
+                <ul className="space-y-2">
                   {product.pdfs.map((pdf, idx) => (
-                    <a
-                      key={idx}
-                      href={pdf.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-xs text-purple-400 hover:underline"
-                      data-testid={`pdf-link-${idx}`}
-                    >
-                      <FileText className="w-3 h-3" />
-                      {pdf.name}
-                    </a>
+                    <li key={idx}>
+                      <a
+                        href={pdf.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-purple-400 hover:underline text-sm"
+                      >
+                        <FileText className="w-4 h-4" />
+                        {pdf.name}
+                      </a>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
           </div>

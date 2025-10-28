@@ -20,7 +20,8 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
+  const [cartCount, setCartCount] = useState(0);
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,6 +56,21 @@ const Navbar = () => {
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+  useEffect(() => {
+    fetchCartCount();
+  }, []);
+
+  const fetchCartCount = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/products/cart/items`);
+      const cartItems = res.data.data || [];
+      const totalCount = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+      setCartCount(totalCount);
+    } catch (error) {
+      console.error('Failed to fetch cart count:', error);
+      setCartCount(0);
+    }
   };
 
   const navLinks = [
@@ -130,36 +146,77 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/admin/dashboard')}
-                    className={`${buttonSecondaryBg} transition-all duration-300`}
-                  >
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </Button>
+<Button
+  variant="ghost"
+  onClick={() => navigate('/admin/dashboard')}
+  className={`
+    w-full flex items-center justify-between 
+    bg-gray-900 text-white 
+    rounded-xl px-4 py-3 
+    shadow-md shadow-gray-800/50
+    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+    transition-all duration-300
+  `}
+>
+  <div className="flex items-center gap-2">
+    <LayoutDashboard className="w-5 h-5 text-blue-400" />
+    <span className="font-medium">Dashboard</span>
+  </div>
+</Button>
+
                 )}
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/cart')}
-                  className={`${buttonSecondaryBg} transition-all duration-300 relative`}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Cart
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-400 text-xs rounded-full flex items-center justify-center font-bold">
-                    3
-                  </span>
-                </Button>
+<Button
+  variant="ghost"
+  onClick={() => {
+    navigate('/cart');
+    setIsOpen(false);
+  }}
+  className={`
+    w-full flex items-center justify-between 
+    bg-gray-900 text-white 
+    rounded-xl px-4 py-3 
+    shadow-md shadow-gray-800/50
+    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+    transition-all duration-300
+  `}
+>
+  <div className="flex items-center gap-2">
+    <ShoppingCart className="w-5 h-5 text-blue-400" />
+    <span className="font-medium">Cart</span>
+  </div>
+
+  {cartCount > 0 && (
+    <span className="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+      {cartCount > 99 ? '99+' : cartCount}
+    </span>
+  )}
+</Button>
+
                 <div className="relative" ref={dropdownRef}>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`${buttonSecondaryBg} transition-all duration-300`}
-                  >
-                    <User className="w-4 h-4 mr-2" />
-                    Account
-                    <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                  </Button>
+                 <Button
+  variant="ghost"
+  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+  className={`
+    w-full flex items-center justify-between 
+    bg-gray-900 text-white 
+    rounded-xl px-4 py-3 
+    shadow-md shadow-gray-800/50
+    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+    transition-all duration-300
+  `}
+>
+  <div className="flex items-center gap-2">
+    <User className="w-5 h-5 text-blue-400" />
+    <span className="font-medium">Account</span>
+  </div>
+
+  <ChevronDown
+    className={`w-5 h-5 ml-2 text-gray-400 transition-transform ${
+      isDropdownOpen ? 'rotate-180 text-blue-400' : ''
+    }`}
+  />
+</Button>
+
                   
                   {isDropdownOpen && (
                     <div className={`absolute right-0 mt-2 w-48 ${dropdownBg} rounded-lg shadow-xl`}>
@@ -265,20 +322,22 @@ const Navbar = () => {
                     Dashboard
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    navigate('/cart');
-                    setIsOpen(false);
-                    }}
-                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300 relative`}
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Cart
-                  <span className="absolute right-4 w-5 h-5 bg-blue-400 text-xs rounded-full flex items-center justify-center font-bold">
-                    3
-                  </span>
-                </Button>
+    <Button
+      variant="ghost"
+      onClick={() => {
+        navigate('/cart');
+        setIsOpen(false);
+      }}
+      className={`w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-white/10 transition-all duration-300 relative group`}
+    >
+      <ShoppingCart className="w-4 h-4 mr-2" />
+      Cart
+      {cartCount > 0 && (
+        <span className="absolute right-4 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold transform group-hover:scale-110 transition-transform duration-200">
+          {cartCount > 99 ? '99+' : cartCount}
+        </span>
+      )}
+    </Button>
                 <Button
                   variant="ghost"
                   onClick={() => {

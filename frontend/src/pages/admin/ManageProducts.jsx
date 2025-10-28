@@ -182,13 +182,32 @@ const ManageProducts = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
       const product = res.data.data;
+      
+      // Handle specifications properly - check if it's already an object or needs conversion
+      let specsString = "";
+      if (product.specifications) {
+        try {
+          // If specifications is already an object, stringify it
+          if (typeof product.specifications === 'object') {
+            specsString = JSON.stringify(product.specifications, null, 2);
+          } else {
+            // If it's a string, try to parse it first to validate it's valid JSON
+            const parsedSpecs = JSON.parse(product.specifications);
+            specsString = JSON.stringify(parsedSpecs, null, 2);
+          }
+        } catch (e) {
+          console.error("Error parsing specifications:", e);
+          specsString = "{}"; // Default to empty object if parsing fails
+        }
+      }
+      
       setFormData({
         title: product.title,
         description: product.description,
         category: product.category,
         price: product.price,
         stock: product.stock,
-        specifications: JSON.stringify(Object.fromEntries(product.specifications || new Map()), null, 2),
+        specifications: specsString,
         featured: product.featured || false,
         images: [], // Files need to be re-uploaded
         pdfs: []    // Files need to be re-uploaded
@@ -461,7 +480,7 @@ const ManageProducts = () => {
                 </div>
 
                 {/* Specifications Preview */}
-                {product.specifications && Array.from(product.specifications).length > 0 && (
+                {product.specifications && Object.keys(product.specifications).length > 0 && (
                   <div className="mt-3">
                     <button
                       onClick={() => setExpandedProduct(expandedProduct === product._id ? null : product._id)}
@@ -472,7 +491,7 @@ const ManageProducts = () => {
                     </button>
                     {expandedProduct === product._id && (
                       <div className="mt-2 p-2 bg-gray-900/50 rounded border border-gray-700">
-                        {Array.from(product.specifications).map(([key, value]) => (
+                        {Object.entries(product.specifications).map(([key, value]) => (
                           <div key={key} className="flex justify-between text-xs">
                             <span className="text-gray-400">{key}:</span>
                             <span className="text-white">{value}</span>
@@ -490,7 +509,7 @@ const ManageProducts = () => {
                     <div className="flex flex-wrap gap-2">
                       {product.pdfs.map((pdf, index) => (
                         <a key={index} href={pdf.url} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-400 hover:underline flex items-center gap-1">
-                          <FileText className="w-3 h-3" /> {pdf.name}
+                          <FileText className="w-3 h-3" /> {pdf.name || `Document ${index + 1}`}
                         </a>
                       ))}
                     </div>
