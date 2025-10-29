@@ -247,17 +247,9 @@ const FeaturedProductsSection = () => {
                       >
                         <Button
                           size="sm"
-                          onClick={() => addToCart(product._id)}
-                          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg"
-                        >
-                          <ShoppingCart className="w-4 h-4 mr-1" />
-                          Add
-                        </Button>
-                        <Button
-                          size="sm"
                           variant="outline"
                           asChild
-                          className="border-gray-600 text-gray-200 hover:bg-gray-800"
+                          className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg"
                         >
                           <Link to={`/products/${product._id}`}>
                             <Eye className="w-4 h-4 mr-1" />

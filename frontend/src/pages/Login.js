@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
@@ -6,6 +6,9 @@ import { Input } from '../components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Sparkles, Smartphone, Wifi, Server } from 'lucide-react';
 
 const Login = () => {
+  useEffect(()=>{
+    window.scrollTo(0,0);
+  },[])
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
@@ -34,6 +37,8 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
+      <br/>
+      <br/>
       {/* Animated Background */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Gradient Orbs */}

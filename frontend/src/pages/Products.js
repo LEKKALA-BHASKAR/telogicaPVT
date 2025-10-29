@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import {
   Search,
@@ -13,7 +14,7 @@ import {
   Package,
   Star,
   TrendingUp,
-  ShoppingCart,
+  Eye,
 } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -30,7 +31,7 @@ const Products = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [featuredOnly, setFeaturedOnly] = useState(false);
-  const [addingToCart, setAddingToCart] = useState({});
+  const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -62,31 +63,9 @@ const Products = () => {
     }
   };
 
-  const addToCart = async (productId, productName) => {
-    setAddingToCart(prev => ({ ...prev, [productId]: true }));
-    
-    try {
-      await axios.post(`${API_URL}/api/products/cart/add`, { 
-        productId, 
-        quantity: 1 
-      });
-      
-      toast.success(`"${productName}" added to cart`);
-      
-      // Trigger cart update event for other components
-      window.dispatchEvent(new Event('cartUpdated'));
-      
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error(error.response?.data?.message || 'Failed to add product to cart');
-    } finally {
-      setAddingToCart(prev => ({ ...prev, [productId]: false }));
-    }
-  };
-
-  const quickAddToCart = async (product, e) => {
+  const viewProduct = (productId, e) => {
     e.stopPropagation(); // Prevent card click event
-    await addToCart(product._id, product.title);
+    navigate(`/products/${productId}`);
   };
 
   const clearFilters = () => {
@@ -119,16 +98,14 @@ const Products = () => {
     visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } },
   };
 
-  // Enhanced ProductCard component with Add to Cart
-  const EnhancedProductCard = ({ product, viewMode, onAddToCart }) => {
-    const isAdding = addingToCart[product._id];
-    
+  // Enhanced ProductCard component with View button
+  const EnhancedProductCard = ({ product, viewMode, onViewProduct }) => {
     return (
       <motion.div
-        className={`group relative bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-xl hover:shadow-2xl hover:border-purple-500/30 transition-all duration-300 overflow-hidden ${
-          viewMode === 'list' ? 'flex' : 'flex flex-col'
+        className={`relative bg-gradient-to-br from-black-900/80 to-blue-800/80 backdrop-blur-xl rounded-2xl border border-blue-700/50 shadow-lg transition-all duration-300 overflow-hidden ${
+  viewMode === 'list' ? 'flex' : 'flex flex-col'
         }`}
-        whileHover={{ y: -5 }}
+        onClick={() => onViewProduct(product._id, { stopPropagation: () => {} })}
       >
         {/* Product Image */}
         <div className={`relative ${
@@ -140,37 +117,14 @@ const Products = () => {
             <img
               src={product.images[0].url}
               alt={product.title}
-              className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-contain p-4 transition-transform duration-500 "
             />
           ) : (
             <div className="w-full h-full bg-gray-700 flex items-center justify-center">
               <Package className="w-12 h-12 text-gray-500" />
             </div>
           )}
-          
-          {/* Overlay with Quick Actions */}
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button
-                size="sm"
-                onClick={(e) => onAddToCart(product, e)}
-                disabled={isAdding}
-                className="flex-1 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border-0 transition-all duration-300"
-              >
-                {isAdding ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full w-4 h-4 border-b-2 border-white"></div>
-                    Adding...
-                  </div>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Add to Cart
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
+
 
           {/* Featured Badge */}
           {product.featured && (
@@ -199,7 +153,7 @@ const Products = () => {
           viewMode === 'list' ? 'flex flex-col justify-between' : ''
         }`}>
           <div>
-            <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 group-hover:text-purple-300 transition-colors">
+            <h3 className="font-bold text-white text-lg mb-2 line-clamp-2  transition-colors">
               {product.title}
             </h3>
             <p className="text-gray-400 text-sm mb-3 line-clamp-2">
@@ -238,31 +192,14 @@ const Products = () => {
               {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
             </div>
           </div>
+<Button
+  onClick={(e) => onViewProduct(product._id, e)}
+  className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-400 text-white hover:opacity-90 transition-all duration-300"
+>
+  <Eye className="w-4 h-4 mr-2" />
+  View Details
+</Button>
 
-          {/* Add to Cart Button - Visible on mobile and when not hovering */}
-          <Button
-            onClick={(e) => onAddToCart(product, e)}
-            disabled={isAdding || product.stock === 0}
-            className={`w-full mt-4 ${
-              product.stock === 0 
-                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg'
-            } transition-all duration-300 lg:hidden group-hover:flex`}
-          >
-            {isAdding ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full w-4 h-4 border-b-2 border-white"></div>
-                Adding...
-              </div>
-            ) : product.stock === 0 ? (
-              'Out of Stock'
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Add to Cart
-              </>
-            )}
-          </Button>
         </div>
       </motion.div>
     );
@@ -519,7 +456,7 @@ const Products = () => {
                       <EnhancedProductCard
                         product={product}
                         viewMode={viewMode}
-                        onAddToCart={quickAddToCart}
+                        onViewProduct={viewProduct}
                       />
                     </motion.div>
                   ))}

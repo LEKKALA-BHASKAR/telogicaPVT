@@ -1,23 +1,44 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network, Menu, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronRight, Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid"; // For unique IDs
 
 const ScrollSnapPage = () => {
-  const [activeSection, setActiveSection] = useState("defence");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isComponentVisible, setIsComponentVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState("about");
   const navigate = useNavigate();
-  const containerRef = useRef(null);
-  const componentRef = useRef(null); // Ref for the entire component
-  const instanceId = useRef(uuidv4()); // Unique ID for this instance
 
-  // Sections with unique IDs
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('section[id]');
+      const scrollPos = window.scrollY + 100;
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        const sectionId = section.getAttribute('id');
+
+        if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+          setActiveSection(sectionId);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const navigateToRoute = (route) => {
+    navigate(route);
+  };
+
   const sections = [
     {
-      id: `defence-${instanceId.current}`,
-      baseId: "defence",
+      id: "defence",
       title: "Defence Solutions",
+      subtitle: "Mission-Critical Systems",
       description: "Advanced defence communication systems, electronic warfare solutions, and radar technology for national security.",
       features: ["Secure Communication", "Radar Systems", "Electronic Warfare"],
       icon: Shield,
@@ -27,12 +48,12 @@ const ScrollSnapPage = () => {
       buttonBg: "bg-orange-500 hover:bg-orange-600",
       buttonText: "Defence Products",
       route: "/defence",
-      image: "https://images.unsplash.com/photo-1717749789408-f6f73c9e6aac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
+      image: "https://images.unsplash.com/photo-1717749789408-f6f73c9e6aac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"
     },
     {
-      id: `telecom-${instanceId.current}`,
-      baseId: "telecom",
+      id: "telecom",
       title: "Telecommunication",
+      subtitle: "Next-Gen Network Solutions",
       description: "Cutting-edge telecommunications infrastructure and network testing equipment for 5G and beyond.",
       features: ["5G Testing", "Network Analysis", "Field Maintenance"],
       icon: Radio,
@@ -42,12 +63,18 @@ const ScrollSnapPage = () => {
       buttonBg: "bg-purple-500 hover:bg-purple-600",
       buttonText: "Telecom Solutions",
       route: "/telecom",
-      image: "https://media.istockphoto.com/id/1602617670/photo/satellite-dish-antenna-communication-technology-concept.jpg?s=612x612&w=0&k=20&c=XjMfP8m2WEykJGAcWOMAmIJI3MWvFBnxDdKXI6ufYVE=",
+      details: [
+        "RF and Microwave test equipment",
+        "Optical fiber testing solutions",
+        "Wireless communication testers",
+        "Network performance monitoring"
+      ],
+      image: "https://media.istockphoto.com/id/1602617670/photo/satellite-dish-antenna-communication-technology-concept.jpg?s=612x612&w=0&k=20&c=XjMfP8m2WEykJGAcWOMAmIJI3MWvFBnxDdKXI6ufYVE="
     },
     {
-      id: `manufacturing-${instanceId.current}`,
-      baseId: "manufacturing",
+      id: "manufacturing",
       title: "Manufacturing",
+      subtitle: "Precision Engineering",
       description: "State-of-the-art manufacturing facilities for high-precision electronic components and test equipment.",
       features: ["Quality Manufacturing", "R&D Focus", "Custom Solutions"],
       icon: Factory,
@@ -57,264 +84,158 @@ const ScrollSnapPage = () => {
       buttonBg: "bg-green-500 hover:bg-green-600",
       buttonText: "Manufacturing Capabilities",
       route: "/manufacturing",
-      image: "https://media.istockphoto.com/id/2155877725/photo/male-and-female-engineers-in-neat-work-clothes-prepare-and-control-the-production-system-of.jpg?s=612x612&w=0&k=20&c=6E6nQfie8dZIROGrqe9vO4ADz68Sw67LIjC_neaDg6Q=",
-    },
+      details: [
+        "In-house design and development",
+        "Surface Mount Technology (SMT) line",
+        "Environmental testing laboratory",
+        "Quality assurance and calibration"
+      ],
+      image: "https://media.istockphoto.com/id/2155877725/photo/male-and-female-engineers-in-neat-work-clothes-prepare-and-control-the-production-system-of.jpg?s=612x612&w=0&k=20&c=6E6nQfie8dZIROGrqe9vO4ADz68Sw67LIjC_neaDg6Q="
+    }
   ];
 
-  // Detect if component is in view
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsComponentVisible(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.1 } // Trigger when 10% of component is visible
-    );
-
-    if (componentRef.current) {
-      observer.observe(componentRef.current);
-    }
-
-    return () => {
-      if (componentRef.current) {
-        observer.unobserve(componentRef.current);
-      }
-    };
-  }, []);
-
-  // Scroll handling with IntersectionObserver for active section
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const sectionId = entry.target.getAttribute("id");
-            const baseId = sections.find((s) => s.id === sectionId)?.baseId;
-            if (baseId && baseId !== activeSection) {
-              setActiveSection(baseId);
-            }
-          }
-        });
-      },
-      { root: container, threshold: 0.5 } // Trigger when 50% of section is visible
-    );
-
-    const sectionElements = container.querySelectorAll('section[id]');
-    sectionElements.forEach((section) => observer.observe(section));
-
-    return () => {
-      sectionElements.forEach((section) => observer.unobserve(section));
-    };
-  }, [activeSection]);
-
-  // Scroll to section with offset
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element && containerRef.current) {
-      const headerOffset = window.innerWidth < 1024 ? 64 : 0; // pt-16 = 64px
-      const elementPosition = element.offsetTop - headerOffset;
-      containerRef.current.scrollTo({
-        top: elementPosition,
-        behavior: "smooth",
-      });
-      const baseId = sections.find((s) => s.id === id)?.baseId;
-      if (baseId) setActiveSection(baseId);
-      setIsMobileMenuOpen(false);
-    }
-  };
-
-  const navigateToRoute = (route) => {
-    navigate(route);
-  };
-
   return (
-    <div ref={componentRef} className="relative flex min-h-screen bg-black">
-      {/* Mobile Header - Only show when component is visible */}
-      {isComponentVisible && (
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800">
-          <div className="flex items-center justify-between p-3">
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 bg-gradient-to-br from-pink-500 to-purple-500 rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
-              </div>
-              <span className="text-white font-bold text-base">Telogica</span>
-            </div>
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-gray-400 hover:text-white"
+    <div className="flex min-h-screen bg-black">
+{/* Centered Sidebar (merged with background) */}
+<div className="sticky top-0 h-screen w-80 flex items-center justify-center">
+  <nav className="space-y-3 w-full px-6">
+    {sections.map((section) => (
+      <button
+        key={section.id}
+        onClick={() => scrollToSection(section.id)}
+        className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
+          activeSection === section.id
+            ? "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-indigo-700/30 shadow-md"
+            : "hover:bg-gray-900/40 border border-transparent"
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <section.icon
+            className={`w-5 h-5 ${
+              activeSection === section.id
+                ? section.color
+                : "text-gray-500 group-hover:text-gray-300"
+            }`}
+          />
+          <div className="flex-1">
+            <div
+              className={`font-semibold transition-colors ${
+                activeSection === section.id
+                  ? section.color
+                  : "text-gray-300 group-hover:text-white"
+              }`}
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+              {section.title}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              {section.subtitle}
+            </div>
           </div>
+          {activeSection === section.id && (
+            <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
+          )}
         </div>
-      )}
+      </button>
+    ))}
+  </nav>
+</div>
 
-      {/* Mobile Menu Overlay - Only show when component is visible */}
-      {isComponentVisible && isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-95 backdrop-blur-sm">
-          <div className="pt-16 px-4 pb-4">
-            <nav className="space-y-1">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => scrollToSection(section.id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 ${
-                    activeSection === section.baseId
-                      ? `${section.accent} text-white`
-                      : "text-gray-300 hover:bg-gray-800"
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <section.icon
-                      className={`w-4 h-4 ${activeSection === section.baseId ? "text-white" : "text-gray-400"}`}
-                    />
-                    <span className="font-medium text-sm">{section.title}</span>
-                  </div>
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Sidebar - Only show when component is visible */}
-      {isComponentVisible && (
-        <div className="hidden lg:flex fixed top-1/2 left-4 w-56 bg-black/90 backdrop-blur-sm rounded-xl py-6 px-4 transform -translate-y-1/2 z-30">
-          <nav className="flex flex-col items-center space-y-2 w-full">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => scrollToSection(section.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 ${
-                  activeSection === section.baseId
-                    ? `${section.accent} text-white`
-                    : "text-gray-300 hover:bg-gray-800"
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <section.icon
-                    className={`w-4 h-4 ${activeSection === section.baseId ? "text-white" : "text-gray-400"}`}
-                  />
-                  <span className="font-medium text-sm">{section.title}</span>
-                </div>
-              </button>
-            ))}
-          </nav>
-        </div>
-      )}
 
       {/* Main Content */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto scroll-smooth snap-y snap-mandatory lg:ml-60"
-        style={{ height: "100vh" }}
-      >
-        {sections.map((section) => (
+      <div className="flex-1 overflow-y-auto scroll-smooth">
+        {sections.map((section, index) => (
           <section
             key={section.id}
             id={section.id}
-            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden pt-16 lg:pt-0 snap-start`}
+            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden`}
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
-                                  radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
-                  backgroundSize: "40px 40px",
-                  backgroundPosition: "0 0, 20px 20px",
-                }}
-              />
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
+                                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
+                backgroundSize: '50px 50px',
+                backgroundPosition: '0 0, 25px 25px'
+              }} />
             </div>
 
-            {/* Floating Icons - Only show when component is visible */}
-            {isComponentVisible && (
-              <div className="absolute inset-0 overflow-hidden">
-                {[Cpu, Satellite, Network, Play].map((Icon, i) => (
+            {/* Floating Icons with colorful animation */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[Cpu, Satellite, Network, Play].map((Icon, i) => {
+                const colors = ['text-pink-500/20', 'text-orange-500/20', 'text-purple-500/20', 'text-green-500/20'];
+                return (
                   <Icon
                     key={i}
-                    className={`absolute text-${section.color.replace("text-", "")}/20 animate-float hidden sm:block`}
-                    size={32}
+                    className={`absolute ${colors[i]} animate-float`}
+                    size={40}
                     style={{
                       top: `${20 + (i * 20) % 60}%`,
                       left: `${15 + (i * 25) % 70}%`,
-                      animationDelay: `${i * 2}s`,
-                      animationDuration: `${12 + i * 3}s`,
+                      animationDelay: `${i * 3}s`,
+                      animationDuration: `${15 + i * 5}s`
                     }}
                   />
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
 
-            <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center h-full">
-                {/* Text Content - Left Side */}
-                <div className="space-y-6 flex flex-col justify-center h-full">
-                  <div className="space-y-4">
-                    <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${section.color}`}>
+            <div className="relative z-10 max-w-6xl mx-auto px-8 py-16 animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Text Content */}
+                <div className="space-y-8">
+                  <div>
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700 mb-6">
+                      <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
+                      <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
+                    </div>
+                    
+                    <h1 className={`text-5xl lg:text-6xl font-bold mb-6 leading-tight ${section.color}`}>
                       {section.title}
                     </h1>
-                    <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-xl">
+                    
+                    <p className="text-xl text-gray-300 mb-8 leading-relaxed">
                       {section.description}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {section.features.map((feature, i) => (
                       <div key={i} className="flex items-center space-x-3">
                         <div className={`w-2 h-2 rounded-full ${section.accent}`} />
-                        <span className="text-gray-300 text-sm">{feature}</span>
+                        <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-3">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button
                       onClick={() => navigateToRoute(section.route)}
-                      className={`inline-flex items-center justify-center px-6 py-3 ${section.buttonBg} text-white font-medium rounded-lg transition-all duration-200 hover:-translate-y-0.5 text-sm`}
+                      className={`inline-flex items-center justify-center px-8 py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg`}
                     >
                       {section.buttonText}
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                      <ArrowRight className="ml-2 w-5 h-5" />
                     </button>
-                    <button
-                      onClick={() => navigateToRoute("/contact")}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all duration-200 text-sm"
+                    
+                    <button 
+                      onClick={() => navigateToRoute('/contact')}
+                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300"
                     >
                       Contact Sales
                     </button>
                   </div>
                 </div>
 
-                {/* Image - Right Side */}
-                <div className="flex items-center justify-center h-full">
-                  <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden">
+                {/* Image and Details Panel */}
+                <div className="space-y-6">
+                  {/* Image */}
+                  <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-lg">
                     <img
                       src={section.image}
                       alt={section.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-between text-sm">
-                      <div className="text-center">
-                        <div className={`font-bold ${section.color}`}>15+</div>
-                        <div className="text-gray-300 text-xs">Years</div>
-                      </div>
-                      <div className="text-center">
-                        <div className={`font-bold ${section.color}`}>50+</div>
-                        <div className="text-gray-300 text-xs">Projects</div>
-                      </div>
-                      <div className="text-center">
-                        <div className={`font-bold ${section.color}`}>24/7</div>
-                        <div className="text-gray-300 text-xs">Support</div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -325,30 +246,18 @@ const ScrollSnapPage = () => {
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-15px);
-          }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
         }
         .animate-float {
-          animation: float 10s infinite ease-in-out;
+          animation: float 20s infinite linear;
         }
-        /* Scroll snapping */
-        .snap-y {
-          scroll-snap-type: y mandatory;
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .snap-start {
-          scroll-snap-align: start;
-        }
-        /* Hide scrollbar */
-        .overflow-y-auto::-webkit-scrollbar {
-          display: none;
-        }
-        .overflow-y-auto {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out;
         }
       `}</style>
     </div>

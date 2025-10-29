@@ -26,6 +26,8 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
+      <br/>
+      <br/>
       {/* Animated Background */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Gradient Orbs */}
