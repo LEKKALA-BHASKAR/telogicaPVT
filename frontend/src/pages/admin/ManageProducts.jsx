@@ -440,7 +440,7 @@ const ManageProducts = () => {
               {/* Product Image */}
               <div className="relative">
                 {product.images?.[0]?.url ? (
-                  <img src={product.images[0].url} alt={product.title} className="w-full h-40 object-cover rounded-t-lg" />
+                  <img src={product.images[0].url} alt={product.title} className="w-full h-[250px] md:h-[250px] object-contain bg-black p-4 rounded-3xl" />
                 ) : (
                   <div className="w-full h-40 bg-gray-900/50 rounded-t-lg flex items-center justify-center">
                     <Package className="w-10 h-10 text-gray-500" />
