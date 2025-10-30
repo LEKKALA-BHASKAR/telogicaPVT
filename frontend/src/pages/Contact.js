@@ -393,24 +393,7 @@ function Contact() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="section-padding bg-gradient-to-r from-purple-900 to-violet-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Your Project?</h2>
-          <p className="text-xl text-white/90 mb-8">
-            Let's discuss your requirements and find the perfect solution for your needs.
-            Our experts are standing by to help you succeed.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-purple-900 hover:bg-gray-100 px-6 py-3 rounded-xl font-semibold">
-              Schedule a Call
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-900 px-6 py-3 rounded-xl font-semibold">
-              Request Quote
-            </Button>
-          </div>
-        </div>
-      </section>
+      
     </div>
   );
 }
