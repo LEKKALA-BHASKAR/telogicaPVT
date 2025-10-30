@@ -781,8 +781,6 @@ const ManageInvestorDocs = () => {
                                   <>
                                     <h3 className="font-semibold text-white truncate">{doc.name}</h3>
                                     <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
-                                      <span>{(doc.size / 1024).toFixed(1)} KB</span>
-                                      <span>•</span>
                                       <div className="flex items-center gap-1">
                                         <Calendar className="w-3 h-3" />
                                         {new Date(doc.createdAt).toLocaleDateString()}

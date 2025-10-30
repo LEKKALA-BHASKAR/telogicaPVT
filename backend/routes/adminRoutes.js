@@ -151,9 +151,18 @@ router.get('/sections/public', async (req, res) => {
   try {
     const sections = await Section.find({ isActive: true }).sort({ order: 1 });
     
+    // Add document count to each section
+    const sectionsWithCounts = await Promise.all(sections.map(async (section) => {
+      const documentCount = await File.countDocuments({ category: section.category });
+      return {
+        ...section.toObject(),
+        documentCount
+      };
+    }));
+    
     res.json({
       success: true,
-      data: sections
+      data: sectionsWithCounts
     });
   } catch (error) {
     res.status(500).json({
@@ -168,9 +177,18 @@ router.get('/sections', protect, admin, async (req, res) => {
   try {
     const sections = await Section.find().sort({ order: 1 });
     
+    // Add document count to each section
+    const sectionsWithCounts = await Promise.all(sections.map(async (section) => {
+      const documentCount = await File.countDocuments({ category: section.category });
+      return {
+        ...section.toObject(),
+        documentCount
+      };
+    }));
+    
     res.json({
       success: true,
-      data: sections
+      data: sectionsWithCounts
     });
   } catch (error) {
     res.status(500).json({
