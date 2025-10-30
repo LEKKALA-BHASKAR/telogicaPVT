@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const ScrollSnapPage = () => {
   const [activeSection, setActiveSection] = useState("defence");
-  const [mobileActiveSection, setMobileActiveSection] = useState("defence");
   const navigate = useNavigate();
   const mobileContentRef = useRef(null);
 
@@ -216,19 +215,26 @@ const ScrollSnapPage = () => {
         </div>
       </div>
 
-      {/* Mobile Version - Without Header Navigation */}
+      {/* Mobile Version - Original Layout with Strict Scrolling */}
       <div className="md:hidden w-full">
-        {/* Mobile Content with Smooth Scrolling */}
+        {/* Mobile Content with Strict Section Navigation */}
         <div 
-          className="h-screen overflow-y-scroll snap-y snap-mandatory scroll-smooth"
+          ref={mobileContentRef}
+          className="h-screen overflow-y-scroll snap-y snap-mandatory"
+          style={{ scrollSnapType: 'y mandatory' }}
         >
-          {sections.map((section) => (
+          {sections.map((section, index) => (
             <div 
               key={section.id} 
               id={`mobile-${section.id}`}
-              className="snap-start min-h-screen w-full py-8 px-4 flex flex-col"
+              className="snap-start snap-always min-h-screen w-full py-8 px-4 flex flex-col"
+              style={{ 
+                scrollSnapAlign: 'start',
+                scrollSnapStop: 'always',
+                height: '100vh'
+              }}
             >
-              <div className="max-w-lg mx-auto w-full flex flex-col flex-1">
+              <div className="max-w-lg mx-auto w-full flex flex-col h-full">
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-900 border border-gray-700 mb-4">
                   <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
                   <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
