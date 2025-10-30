@@ -26,6 +26,15 @@ const fileSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  isExternalLink: {
+    type: Boolean,
+    default: false
+  },
+  linkType: {
+    type: String,
+    enum: ['cloudinary', 'drive'],
+    required: function() { return this.isExternalLink; }
+  },
   createdAt: {
     type: Date,
     default: Date.now

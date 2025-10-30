@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Trash2, Download, FileText, Calendar, Plus, Edit, Save, X, FolderOpen, Search, Filter, MoreVertical, Eye, Share2 } from 'lucide-react';
+import { Upload, Trash2, Download, FileText, Calendar, Plus, Edit, Save, X, FolderOpen, Search, Filter, MoreVertical, Eye, Share2, Link, HardDrive } from 'lucide-react';
 
 const ManageInvestorDocs = () => {
   const [documents, setDocuments] = useState([]);
@@ -14,6 +14,9 @@ const ManageInvestorDocs = () => {
   const [showAddSection, setShowAddSection] = useState(false);
   const [sectionForm, setSectionForm] = useState({ name: '', category: '' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddDocForm, setShowAddDocForm] = useState(false);
+  const [docForm, setDocForm] = useState({ name: '', url: '', category: '' });
+  const [linkType, setLinkType] = useState('cloudinary'); // 'cloudinary' or 'drive'
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -96,7 +99,18 @@ const ManageInvestorDocs = () => {
 
     setUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    
+    // Determine the correct field name based on file type
+    if (file.type.startsWith('image/')) {
+      formData.append('images', file);
+    } else if (file.type === 'application/pdf') {
+      formData.append('pdfs', file);
+    } else {
+      toast.error('Invalid file type. Only images and PDFs are allowed.');
+      setUploading(false);
+      return;
+    }
+    
     formData.append('category', selectedSection.category);
 
     try {
@@ -115,6 +129,31 @@ const ManageInvestorDocs = () => {
       toast.error(`Upload failed: ${errorMessage}`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleAddDocument = async (e) => {
+    e.preventDefault();
+    if (!docForm.name || !docForm.url || !selectedSection) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_URL}/api/upload/external-link`, {
+        name: docForm.name,
+        url: docForm.url,
+        category: selectedSection.category,
+        linkType: linkType // 'cloudinary' or 'drive'
+      });
+      
+      toast.success('Document added successfully');
+      fetchDocuments();
+      setDocForm({ name: '', url: '', category: '' });
+      setShowAddDocForm(false);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to add document';
+      toast.error(`Error: ${errorMessage}`);
     }
   };
 
@@ -232,20 +271,145 @@ const ManageInvestorDocs = () => {
             <p className="text-gray-400 text-lg">Manage and organize your investor reports and documents</p>
           </div>
           
-          <label className={`bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-3 rounded-xl cursor-pointer flex items-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
-            uploading || !selectedSection ? 'opacity-50 cursor-not-allowed' : ''
-          }`}>
-            <Upload className="mr-2 w-5 h-5" />
-            {uploading ? 'Uploading...' : 'Upload Document'}
-            <input 
-              type="file" 
-              className="hidden" 
-              onChange={handleFileUpload}
-              accept=".pdf,.doc,.docx,.xlsx,.pptx"
-              disabled={uploading || !selectedSection}
-            />
-          </label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <label className={`bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-3 rounded-xl cursor-pointer flex items-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+              uploading || !selectedSection ? 'opacity-50 cursor-not-allowed' : ''
+            }`}>
+              <Upload className="mr-2 w-5 h-5" />
+              {uploading ? 'Uploading...' : 'Upload Document'}
+              <input 
+                type="file" 
+                className="hidden" 
+                onChange={handleFileUpload}
+                accept=".pdf,.doc,.docx,.xlsx,.pptx"
+                disabled={uploading || !selectedSection}
+              />
+            </label>
+            
+            <button 
+              onClick={() => {
+                setShowAddDocForm(true);
+                setLinkType('cloudinary');
+              }}
+              className={`bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-xl flex items-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+                !selectedSection ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={!selectedSection}
+            >
+              <Link className="mr-2 w-5 h-5" />
+              Add External Link
+            </button>
+          </div>
         </div>
+
+        {/* Add Document Form Modal */}
+        {showAddDocForm && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-900 rounded-2xl border border-gray-700/50 shadow-xl w-full max-w-md">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-white">Add External Document</h3>
+                  <button 
+                    onClick={() => {
+                      setShowAddDocForm(false);
+                      setDocForm({ name: '', url: '', category: '' });
+                    }}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <form onSubmit={handleAddDocument}>
+                  <div className="space-y-4">
+                    {/* Link Type Selector */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Link Type</label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setLinkType('cloudinary')}
+                          className={`flex-1 py-2 rounded-lg border transition-colors ${
+                            linkType === 'cloudinary'
+                              ? 'bg-blue-500/20 border-blue-500 text-blue-400'
+                              : 'bg-gray-800 border-gray-600 text-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <Cloud className="w-4 h-4" />
+                            Cloudinary
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLinkType('drive')}
+                          className={`flex-1 py-2 rounded-lg border transition-colors ${
+                            linkType === 'drive'
+                              ? 'bg-green-500/20 border-green-500 text-green-400'
+                              : 'bg-gray-800 border-gray-600 text-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-2">
+                            <HardDrive className="w-4 h-4" />
+                            Drive
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Document Name</label>
+                      <input
+                        type="text"
+                        value={docForm.name}
+                        onChange={(e) => setDocForm({...docForm, name: e.target.value})}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                        placeholder="Enter document name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        {linkType === 'cloudinary' ? 'Cloudinary URL' : 'Drive URL'}
+                      </label>
+                      <input
+                        type="url"
+                        value={docForm.url}
+                        onChange={(e) => setDocForm({...docForm, url: e.target.value})}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                        placeholder={linkType === 'cloudinary' ? 'https://res.cloudinary.com/...' : 'https://drive.google.com/...'}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        {linkType === 'cloudinary' 
+                          ? 'Make sure the file is set to public access in Cloudinary' 
+                          : 'Ensure the Drive file has public sharing enabled'}
+                      </p>
+                    </div>
+                    
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddDocForm(false);
+                          setDocForm({ name: '', url: '', category: '' });
+                        }}
+                        className="flex-1 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex-1 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        Add Document
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
           {/* Sidebar - Categories */}
@@ -437,6 +601,15 @@ const ManageInvestorDocs = () => {
                                     <Calendar className="w-3 h-3" />
                                     {new Date(doc.createdAt).toLocaleDateString()}
                                   </div>
+                                  {doc.isExternalLink && (
+                                    <span className={`px-2 py-1 rounded text-xs ${
+                                      doc.linkType === 'cloudinary' 
+                                        ? 'bg-blue-500/20 text-blue-400' 
+                                        : 'bg-green-500/20 text-green-400'
+                                    }`}>
+                                      {doc.linkType === 'cloudinary' ? 'Cloudinary' : 'Drive'}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -497,5 +670,12 @@ const ManageInvestorDocs = () => {
     </div>
   );
 };
+
+// Simple Cloud icon component since it's not imported
+const Cloud = ({ className }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4 4 0 003 15z" />
+  </svg>
+);
 
 export default ManageInvestorDocs;
