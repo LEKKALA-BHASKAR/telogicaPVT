@@ -304,14 +304,22 @@ function Contact() {
                 </p>
               </div>
 
-              <div className="bg-gray-900 rounded-2xl h-96 mb-8 flex items-center justify-center relative overflow-hidden border border-gray-800">
+              <a href="https://www.google.com/maps/place/Empire+Square/@17.428364,78.413965,20z/data=!4m6!3m5!1s0x3bcb9133bf9c894d:0xd7b13a6084ea8a26!8m2!3d17.4283635!4d78.4139652!16s%2Fg%2F12637bnb4?hl=en&entry=ttu&g_ep=EgoyMDI1MTAyNy4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" className="block bg-gray-900 rounded-2xl h-96 mb-8 relative overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-colors">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-violet-500/10"></div>
-                <div className="text-center z-10">
-                  <MapPin className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-                  <p className="text-white font-semibold text-xl">Interactive Map</p>
-                  <p className="text-sm text-gray-400">Hyderabad Head Office Location</p>
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.047545197043!2d78.4117765759369!3d17.42836350244475!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9133bf9c894d%3A0xd7b13a6084ea8a26!2sEmpire%20Square!5e0!3m2!1sen!2sin!4v1730720809254!5m2!1sen!2sin" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen="" 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Telogica Head Office Location"
+                ></iframe>
+                <div className="absolute bottom-4 left-4 bg-black/70 px-3 py-2 rounded-lg">
+                  <p className="text-white text-sm font-medium">Click to open in Google Maps</p>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>
