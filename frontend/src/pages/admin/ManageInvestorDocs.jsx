@@ -37,6 +37,8 @@ const ManageInvestorDocs = () => {
       setSections(res.data.data);
       if (res.data.data.length > 0 && !selectedSection) {
         setSelectedSection(res.data.data[0]);
+      } else if (res.data.data.length === 0) {
+        setSelectedSection(null);
       }
     } catch (error) {
       toast.error('Failed to load sections');
@@ -258,11 +260,6 @@ const ManageInvestorDocs = () => {
   };
 
   const deleteSection = async (id) => {
-    if (sections.length <= 1) {
-      toast.error('You must have at least one section');
-      return;
-    }
-
     if (!window.confirm('Are you sure you want to delete this section? All documents in this section will remain but will not be categorized.')) {
       return;
     }
@@ -281,7 +278,7 @@ const ManageInvestorDocs = () => {
     doc.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (sections.length === 0 && loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center pt-24">
         <div className="flex flex-col items-center space-y-4">
@@ -539,117 +536,163 @@ const ManageInvestorDocs = () => {
               </div>
               
               <div className="p-4">
-                <div className="space-y-2">
-                  {sections.map((section) => (
-                    <div key={section._id} className="group relative">
-                      {editingSection === section._id ? (
-                        <div className="space-y-3 p-3 bg-gray-800/50 rounded-xl border border-purple-500/30">
-                          <input
-                            type="text"
-                            value={sectionForm.name}
-                            onChange={(e) => setSectionForm({...sectionForm, name: e.target.value})}
-                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                            placeholder="Section name"
-                            autoFocus
-                          />
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => saveSection(section._id)}
-                              className="flex-1 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                            >
-                              <Save className="w-4 h-4 inline mr-1" />
-                              Save
-                            </button>
-                            <button
-                              onClick={cancelEditing}
-                              className="flex-1 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                            >
-                              <X className="w-4 h-4 inline mr-1" />
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center group">
-                          <button
-                            className={`flex-1 text-left p-3 rounded-xl transition-all duration-300 ${
-                              selectedSection?._id === section._id
-                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30 shadow-lg'
-                                : 'text-gray-300 hover:bg-gray-700/50 hover:text-white border border-transparent'
-                            }`}
-                            onClick={() => setSelectedSection(section)}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium">{section.name}</span>
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                selectedSection?._id === section._id
-                                  ? 'bg-purple-500 text-white'
-                                  : 'bg-gray-700 text-gray-300'
-                              }`}>
-                                {section.documentCount || 0}
-                              </span>
+                {sections.length > 0 ? (
+                  <div className="space-y-2">
+                    {sections.map((section) => (
+                      <div key={section._id} className="group relative">
+                        {editingSection === section._id ? (
+                          <div className="space-y-3 p-3 bg-gray-800/50 rounded-xl border border-purple-500/30">
+                            <input
+                              type="text"
+                              value={sectionForm.name}
+                              onChange={(e) => setSectionForm({...sectionForm, name: e.target.value})}
+                              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                              placeholder="Section name"
+                              autoFocus
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => saveSection(section._id)}
+                                className="flex-1 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                              >
+                                <Save className="w-4 h-4 inline mr-1" />
+                                Save
+                              </button>
+                              <button
+                                onClick={cancelEditing}
+                                className="flex-1 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                              >
+                                <X className="w-4 h-4 inline mr-1" />
+                                Cancel
+                              </button>
                             </div>
-                          </button>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex ml-2">
-                            <button
-                              onClick={() => startEditingSection(section)}
-                              className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
-                              title="Edit"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteSection(section._id)}
-                              className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  
-                  {showAddSection ? (
-                    <div className="space-y-3 pt-2 p-3 bg-gray-800/50 rounded-xl border border-purple-500/30">
-                      <input
-                        type="text"
-                        value={sectionForm.name}
-                        onChange={(e) => setSectionForm({...sectionForm, name: e.target.value})}
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                        placeholder="New category name"
-                        autoFocus
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={addNewSection}
-                          className="flex-1 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
-                        >
-                          <Plus className="w-4 h-4 mr-1" />
-                          Add
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowAddSection(false);
-                            setSectionForm({ name: '', category: '' });
-                          }}
-                          className="flex-1 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                          Cancel
-                        </button>
+                        ) : (
+                          <div className="flex items-center group">
+                            <button
+                              className={`flex-1 text-left p-3 rounded-xl transition-all duration-300 ${
+                                selectedSection?._id === section._id
+                                  ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30 shadow-lg'
+                                  : 'text-gray-300 hover:bg-gray-700/50 hover:text-white border border-transparent'
+                              }`}
+                              onClick={() => setSelectedSection(section)}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{section.name}</span>
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  selectedSection?._id === section._id
+                                    ? 'bg-purple-500 text-white'
+                                    : 'bg-gray-700 text-gray-300'
+                                }`}>
+                                  {section.documentCount || 0}
+                                </span>
+                              </div>
+                            </button>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex ml-2">
+                              <button
+                                onClick={() => startEditingSection(section)}
+                                className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                title="Edit"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteSection(section._id)}
+                                className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowAddSection(true)}
-                      className="w-full flex items-center justify-center gap-2 p-3 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl border border-dashed border-gray-600 hover:border-purple-400 transition-all duration-300"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add New Category
-                    </button>
-                  )}
-                </div>
+                    ))}
+                    
+                    {showAddSection ? (
+                      <div className="space-y-3 pt-2 p-3 bg-gray-800/50 rounded-xl border border-purple-500/30">
+                        <input
+                          type="text"
+                          value={sectionForm.name}
+                          onChange={(e) => setSectionForm({...sectionForm, name: e.target.value})}
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                          placeholder="New category name"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={addNewSection}
+                            className="flex-1 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowAddSection(false);
+                              setSectionForm({ name: '', category: '' });
+                            }}
+                            className="flex-1 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowAddSection(true)}
+                        className="w-full flex items-center justify-center gap-2 p-3 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 rounded-xl border border-dashed border-gray-600 hover:border-purple-400 transition-all duration-300"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add New Category
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FolderOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-400 mb-2">No Categories</h3>
+                    <p className="text-gray-500 text-sm mb-4">Add a new category to get started</p>
+                    {showAddSection ? (
+                      <div className="space-y-3 p-3 bg-gray-800/50 rounded-xl border border-purple-500/30">
+                        <input
+                          type="text"
+                          value={sectionForm.name}
+                          onChange={(e) => setSectionForm({...sectionForm, name: e.target.value})}
+                          className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                          placeholder="New category name"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={addNewSection}
+                            className="flex-1 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowAddSection(false);
+                              setSectionForm({ name: '', category: '' });
+                            }}
+                            className="flex-1 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowAddSection(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Category
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

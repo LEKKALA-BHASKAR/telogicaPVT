@@ -151,23 +151,6 @@ router.get('/sections/public', async (req, res) => {
   try {
     const sections = await Section.find({ isActive: true }).sort({ order: 1 });
     
-    // If no sections exist, create default ones
-    if (sections.length === 0) {
-      const defaultSections = [
-        { name: 'Annual Reports', category: 'annual_report', order: 1, isActive: true },
-        { name: 'Financial Statements', category: 'financial_statement', order: 2, isActive: true },
-        { name: 'Corporate Governance', category: 'corporate_governance', order: 3, isActive: true },
-        { name: 'Investor Presentations', category: 'investor_presentation', order: 4, isActive: true },
-        { name: 'Regulatory Filings', category: 'regulatory_filing', order: 5, isActive: true }
-      ];
-      
-      const createdSections = await Section.insertMany(defaultSections);
-      return res.json({
-        success: true,
-        data: createdSections
-      });
-    }
-    
     res.json({
       success: true,
       data: sections
@@ -184,23 +167,6 @@ router.get('/sections/public', async (req, res) => {
 router.get('/sections', protect, admin, async (req, res) => {
   try {
     const sections = await Section.find().sort({ order: 1 });
-    
-    // If no sections exist, create default ones
-    if (sections.length === 0) {
-      const defaultSections = [
-        { name: 'Annual Reports', category: 'annual_report', order: 1 },
-        { name: 'Financial Statements', category: 'financial_statement', order: 2 },
-        { name: 'Corporate Governance', category: 'corporate_governance', order: 3 },
-        { name: 'Investor Presentations', category: 'investor_presentation', order: 4 },
-        { name: 'Regulatory Filings', category: 'regulatory_filing', order: 5 }
-      ];
-      
-      const createdSections = await Section.insertMany(defaultSections);
-      return res.json({
-        success: true,
-        data: createdSections
-      });
-    }
     
     res.json({
       success: true,
@@ -285,15 +251,6 @@ router.delete('/sections/:id', protect, admin, async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Section not found'
-      });
-    }
-    
-    // Don't allow deletion of the last section
-    const sectionCount = await Section.countDocuments();
-    if (sectionCount <= 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot delete the last section'
       });
     }
     

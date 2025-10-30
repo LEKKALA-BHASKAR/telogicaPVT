@@ -22,6 +22,8 @@ const Investors = () => {
       setSections(res.data.data);
       if (res.data.data.length > 0) {
         setSelectedSection(res.data.data[0]);
+      } else {
+        setSelectedSection(null);
       }
     } catch (error) {
       console.error('Failed to load sections', error);
