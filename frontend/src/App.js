@@ -23,9 +23,13 @@ import UserOrders from './pages/UserOrders';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import { Toaster } from './components/ui/sonner';
+import { GlobalContactForm } from './components';
+import { HelpCircle } from 'lucide-react';
 import './App.css';
 
 function App() {
+  const [showContactForm, setShowContactForm] = useState(false);
+
   return (
     <AuthProvider>
       <div className="App">
@@ -89,6 +93,38 @@ function App() {
         </main>
         <Footer />
         <Toaster position="top-right" richColors />
+        
+        {/* Floating Help Icon */}
+        <button
+          onClick={() => setShowContactForm(true)}
+          className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-purple-600 to-violet-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50 group"
+          aria-label="Contact us"
+        >
+          <HelpCircle className="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300" />
+        </button>
+        
+        {/* Contact Form Modal */}
+        {showContactForm && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-900 rounded-2xl border border-gray-700/50 shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-2xl font-bold text-white">Contact Us</h3>
+                  <button 
+                    onClick={() => setShowContactForm(false)}
+                    className="text-gray-400 hover:text-white"
+                    aria-label="Close"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <GlobalContactForm />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthProvider>
   );
