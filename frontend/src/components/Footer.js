@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -10,11 +10,13 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg mr-3">
-                <span className="text-white font-bold text-lg">A</span>
-              </div>
+              <img 
+                src="/logohead.png" 
+                alt="Telogica Ltd" 
+                className="w-12 h-12 mr-3"
+              />
               <span className="text-2xl font-bold text-white">
-                Aishwarya Tech Tele
+                Telogica Ltd
               </span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
@@ -60,22 +62,38 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                <span className="text-gray-300 text-sm">
-                  Empire Square, Plot No 233-A, 234 & 235, 3rd Fl, Rd No 36,<br />
-                  Jubilee Hills, Hyderabad-500033
-                </span>
+                <div className="text-gray-300 text-sm">
+                  <div className="font-semibold text-white">Corporate</div>
+                  <div className="font-semibold text-white">TELOGICA LIMITED</div>
+                  <div>Empire Square, Plot No 233-A, 234 & 235,</div>
+                  <div>3rd Fl, Rd No 36, Jubilee Hills,</div>
+                  <div>Hyderabad- 500 033, Telangana, India</div>
+                </div>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-300 text-sm">
-                  +91 9396610682
-                </span>
+                <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <div className="text-gray-300 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span>+91 9396610682</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span>+91- 40-27531324 to 26</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span>+91-40-27535423</span>
+                  </div>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-300 text-sm">
-                  sales@telogica.com
-                </span>
+                <div className="text-gray-300 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span>sales@telogica.com</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span>support@telogica.com</span>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
@@ -85,20 +103,23 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-6 text-white">
               Connect With Us
             </h3>
-            <div className="flex gap-3 mb-6">
+            <div className="flex gap-4 mb-6">
               {[
-                { icon: Facebook, label: 'Facebook', href: '#' },
-                { icon: Twitter, label: 'Twitter', href: '#' },
-                { icon: Linkedin, label: 'LinkedIn', href: '#' },
-                { icon: Instagram, label: 'Instagram', href: '#' }
+                { icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/aishwaryatechtele', color: 'text-blue-600' },
+                { icon: Twitter, label: 'Twitter', href: '#', color: 'text-blue-400' },
+                { icon: Linkedin, label: 'LinkedIn', href: '#', color: 'text-blue-700' },
+                { icon: Instagram, label: 'Instagram', href: '#', color: 'text-pink-500' },
+                { icon: Youtube, label: 'YouTube', href: 'https://www.youtube.com/user/aishwaryatechtele', color: 'text-red-600' }
               ].map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center transition-colors duration-300 border border-gray-600 hover:border-blue-500"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${social.color} hover:opacity-80 transition-opacity duration-300`}
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4 text-gray-300" />
+                  <social.icon className="w-6 h-6" />
                 </a>
               ))}
             </div>
