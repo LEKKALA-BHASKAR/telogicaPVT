@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Download, FileText, Calendar, Eye, ExternalLink, Loader, CheckCircle, AlertCircle, FolderOpen, FileDown, Share2, Filter, Search, Grid, List } from 'lucide-react';
+import { FileText, Calendar, Eye } from 'lucide-react';
 
 const Investors = () => {
   const [documents, setDocuments] = useState([]);
   const [sections, setSections] = useState([]);
   const [selectedSection, setSelectedSection] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState({});
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [searchTerm, setSearchTerm] = useState('');
-  const [downloadStatus, setDownloadStatus] = useState({});
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -54,75 +51,17 @@ const Investors = () => {
     }
   };
 
-  const handleDownload = async (fileId, filename) => {
+  const openDocument = async (fileId) => {
     try {
-      // Set downloading state for this specific file
-      setDownloading(prev => ({ ...prev, [fileId]: true }));
-      setDownloadStatus(prev => ({ ...prev, [fileId]: 'loading' }));
-      
-      console.log('Downloading file:', fileId, filename);
-      
-      // Get the file info
       const response = await axios.get(`${API_URL}/api/upload/${fileId}`);
       
       if (response.data.success && response.data.data) {
         const fileUrl = response.data.data.url;
-        console.log('File URL:', fileUrl);
-        
-        // Create a temporary link element and trigger download
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.download = filename;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Also open the PDF in a new tab
         window.open(fileUrl, '_blank');
-        
-        console.log('Download and open triggered');
-        
-        // Update status to success
-        setDownloadStatus(prev => ({ ...prev, [fileId]: 'success' }));
-        
-        // Reset status after 3 seconds
-        setTimeout(() => {
-          setDownloadStatus(prev => ({ ...prev, [fileId]: null }));
-        }, 3000);
-      } else {
-        throw new Error('File not found');
       }
     } catch (error) {
-      console.error('Download failed:', error);
-      setDownloadStatus(prev => ({ ...prev, [fileId]: 'error' }));
-      
-      // Fallback: open in new tab
-      try {
-        const response = await axios.get(`${API_URL}/api/upload/${fileId}`);
-        if (response.data.success && response.data.data) {
-          window.open(response.data.data.url, '_blank');
-          
-          // Update status to success even for fallback
-          setDownloadStatus(prev => ({ ...prev, [fileId]: 'success' }));
-          
-          // Reset status after 3 seconds
-          setTimeout(() => {
-            setDownloadStatus(prev => ({ ...prev, [fileId]: null }));
-          }, 3000);
-        }
-      } catch (fallbackError) {
-        alert('Unable to download or open file. Please try again or contact support.');
-        setDownloadStatus(prev => ({ ...prev, [fileId]: 'error' }));
-        
-        // Reset error status after 3 seconds
-        setTimeout(() => {
-          setDownloadStatus(prev => ({ ...prev, [fileId]: null }));
-        }, 3000);
-      }
-    } finally {
-      // Reset downloading state
-      setDownloading(prev => ({ ...prev, [fileId]: false }));
+      console.error('Failed to open document:', error);
+      alert('Unable to open document. Please try again.');
     }
   };
 
@@ -133,58 +72,62 @@ const Investors = () => {
 
   const getSectionColor = (index) => {
     const colors = [
-      'from-red-500 via-orange-500 to-yellow-500',
-      'from-yellow-500 via-green-500 to-teal-500',
-      'from-teal-500 via-blue-500 to-indigo-500',
-      'from-indigo-500 via-purple-500 to-pink-500',
-      'from-pink-500 via-red-500 to-orange-500'
+      'from-purple-600 to-pink-500',
+      'from-blue-600 to-cyan-500',
+      'from-green-600 to-teal-500',
+      'from-yellow-600 to-orange-500',
+      'from-red-600 to-pink-600'
     ];
     return colors[index % colors.length];
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-red-400 to-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div className="absolute top-40 right-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-reverse"></div>
-        <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-gradient-to-br from-green-400 to-teal-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
-        <div className="absolute bottom-40 right-1/3 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-reverse"></div>
+    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-0 left-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-24 pb-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-100 via-orange-100 via-yellow-100 via-green-100 via-teal-100 via-blue-100 via-indigo-100 to-purple-100 backdrop-blur-sm border border-gray-200 mb-6">
-            <FolderOpen className="h-4 w-4 text-purple-600 mr-2" />
-            <span className="text-sm font-medium text-gray-700">Investor Portal</span>
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-purple-900/50 to-pink-900/50 backdrop-blur-sm border border-purple-500/30 mb-6">
+            <FileText className="h-5 w-5 text-purple-400 mr-2" />
+            <span className="text-sm font-medium text-purple-300">Investor Portal</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Investor <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500">Reports</span>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Investor
+            </span>
+            <span className="block mt-2 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+              Documents
+            </span>
           </h1>
           
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
             Access our comprehensive financial reports and investor documentation
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="w-full lg:w-1/4">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-              <div className="bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-teal-500 via-blue-500 via-indigo-500 to-purple-500 p-6">
-                <h2 className="text-xl font-bold text-white">Report Categories</h2>
+        <div className="flex gap-8">
+          {/* Sidebar - Moved further left with fixed width */}
+          <div className="w-80 flex-shrink-0">
+            <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6">
+                <h2 className="text-xl font-bold text-white">Document Categories</h2>
               </div>
               <div className="p-4">
                 <ul className="space-y-2">
                   {sections.map((section, index) => (
                     <li key={section._id}>
                       <button
-                        className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${
+                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
                           selectedSection?._id === section._id
-                            ? 'bg-gradient-to-r ' + getSectionColor(index) + ' text-white font-semibold shadow-md transform scale-105'
-                            : 'text-gray-700 hover:bg-gray-100 hover:shadow-sm'
+                            ? 'bg-gradient-to-r ' + getSectionColor(index) + ' text-white font-semibold shadow-lg transform scale-105'
+                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white hover:shadow-sm'
                         }`}
                         onClick={() => setSelectedSection(section)}
                       >
@@ -198,15 +141,15 @@ const Investors = () => {
           </div>
 
           {/* Main Content */}
-          <div className="w-full lg:w-3/4">
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+          <div className="flex-1">
+            <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-xl overflow-hidden">
               {selectedSection ? (
                 <>
-                  <div className="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-200">
+                  <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4 border-b border-gray-700/50">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">{selectedSection.name}</h2>
-                        <p className="text-gray-600">
+                        <h2 className="text-2xl font-bold text-white">{selectedSection.name}</h2>
+                        <p className="text-gray-400">
                           {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} available
                         </p>
                       </div>
@@ -214,30 +157,14 @@ const Investors = () => {
                       <div className="flex items-center gap-2">
                         {/* Search Bar */}
                         <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                           <input
                             type="text"
                             placeholder="Search documents..."
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
-                        </div>
-                        
-                        {/* View Mode Toggle */}
-                        <div className="flex bg-gray-100 rounded-lg p-1">
-                          <button
-                            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
-                            onClick={() => setViewMode('grid')}
-                          >
-                            <Grid className="h-4 w-4 text-gray-600" />
-                          </button>
-                          <button
-                            className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
-                            onClick={() => setViewMode('list')}
-                          >
-                            <List className="h-4 w-4 text-gray-600" />
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -246,97 +173,53 @@ const Investors = () => {
                   <div className="p-6">
                     {loading ? (
                       <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
                       </div>
                     ) : filteredDocuments.length > 0 ? (
-                      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-4'}>
+                      <div className="space-y-3">
                         {filteredDocuments.map((doc, index) => (
-                          <div key={doc._id} className={`group relative overflow-hidden rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 ${
-                            viewMode === 'list' ? 'p-4 flex items-center gap-4' : 'p-6'
-                          }`}>
+                          <div 
+                            key={doc._id} 
+                            className="group relative overflow-hidden rounded-xl border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 p-4 flex items-center justify-between cursor-pointer bg-gray-800/30"
+                            onClick={() => openDocument(doc._id)}
+                          >
                             {/* Background Gradient */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${getSectionColor(index)} opacity-5`}></div>
                             
-                            <div className="relative z-10 flex items-start gap-4">
+                            <div className="relative z-10 flex items-center gap-4 flex-1 min-w-0">
                               <div className="flex-shrink-0">
-                                <div className={`w-12 h-12 bg-gradient-to-br ${getSectionColor(index)} rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
-                                  <FileText className="w-6 h-6 text-white" />
+                                <div className={`w-10 h-10 bg-gradient-to-br ${getSectionColor(index)} rounded-lg flex items-center justify-center`}>
+                                  <FileText className="w-5 h-5 text-white" />
                                 </div>
                               </div>
                               
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-gray-900 mb-2 truncate">{doc.name}</h3>
-                                <div className="flex items-center text-sm text-gray-500 mb-3">
-                                  <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                                  <span>{new Date(doc.createdAt).toLocaleDateString()}</span>
-                                </div>
-                                
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() => handleDownload(doc._id, doc.name)}
-                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                                      downloadStatus[doc._id] === 'success' 
-                                        ? 'bg-green-100 text-green-700' 
-                                        : downloadStatus[doc._id] === 'error'
-                                        ? 'bg-red-100 text-red-700'
-                                        : 'bg-gradient-to-r ' + getSectionColor(index) + ' text-white hover:shadow-md'
-                                    }`}
-                                    disabled={downloading[doc._id]}
-                                  >
-                                    {downloading[doc._id] ? (
-                                      <>
-                                        <Loader className="w-4 h-4 animate-spin" />
-                                        Processing...
-                                      </>
-                                    ) : downloadStatus[doc._id] === 'success' ? (
-                                      <>
-                                        <CheckCircle className="w-4 h-4" />
-                                        Downloaded
-                                      </>
-                                    ) : downloadStatus[doc._id] === 'error' ? (
-                                      <>
-                                        <AlertCircle className="w-4 h-4" />
-                                        Try Again
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Download className="w-4 h-4" />
-                                        Download & Open
-                                      </>
-                                    )}
-                                  </button>
-                                  
-                                  <button
-                                    onClick={() => {
-                                      axios.get(`${API_URL}/api/upload/${doc._id}`)
-                                        .then(res => {
-                                          if (res.data.success && res.data.data) {
-                                            window.open(res.data.data.url, '_blank');
-                                          }
-                                        })
-                                        .catch(err => console.error('Failed to open file:', err));
-                                    }}
-                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-300"
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                    Preview
-                                  </button>
-                                </div>
+                                <h3 className="font-semibold text-white truncate">{doc.name}</h3>
+                              </div>
+                              
+                              <div className="flex-shrink-0">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openDocument(doc._id);
+                                  }}
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white border border-purple-500/30 hover:shadow-lg transition-all duration-300"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                  View
+                                </button>
                               </div>
                             </div>
-                            
-                            {/* Hover Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                          <FileText className="w-12 h-12 text-gray-400" />
+                      <div className="text-center py-16">
+                        <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700/50">
+                          <FileText className="w-12 h-12 text-gray-600" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">No documents available</h3>
-                        <p className="text-gray-600">
+                        <h3 className="text-xl font-semibold text-white mb-2">No documents available</h3>
+                        <p className="text-gray-500 max-w-md mx-auto">
                           {searchTerm 
                             ? `No documents matching "${searchTerm}" found in ${selectedSection.name}.`
                             : `There are currently no documents in the ${selectedSection.name} section.`
@@ -347,7 +230,7 @@ const Investors = () => {
                   </div>
                 </>
               ) : (
-                <div className="p-12 text-center">
+                <div className="p-16 text-center">
                   <p className="text-gray-500">No categories available</p>
                 </div>
               )}
@@ -355,24 +238,6 @@ const Investors = () => {
           </div>
         </div>
       </div>
-
-      {/* Add custom animations to global CSS */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        @keyframes float-reverse {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(20px) rotate(-180deg); }
-        }
-        .animate-float {
-          animation: float 20s ease-in-out infinite;
-        }
-        .animate-float-reverse {
-          animation: float-reverse 25s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 };
