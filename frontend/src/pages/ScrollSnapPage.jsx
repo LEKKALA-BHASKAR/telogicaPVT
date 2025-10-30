@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, Shield, Radio, Factory, Users, ArrowRight, Play, Cpu, Satellite, Network } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ScrollSnapPage = () => {
-  const [activeSection, setActiveSection] = useState("defence");
+  const [activeSection, setActiveSection] = useState("about");
   const navigate = useNavigate();
-  const mobileContentRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = document.querySelectorAll('.content-section');
-      const scrollPos = window.scrollY + 200;
+      const sections = document.querySelectorAll('section[id]');
+      const scrollPos = window.scrollY + 100;
 
       sections.forEach(section => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.clientHeight;
-        const sectionId = section.getAttribute('data-section');
+        const sectionId = section.getAttribute('id');
 
         if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
           setActiveSection(sectionId);
@@ -28,10 +27,7 @@ const ScrollSnapPage = () => {
   }, []);
 
   const scrollToSection = (id) => {
-    const section = document.querySelector(`[data-section="${id}"]`);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   const navigateToRoute = (route) => {
@@ -100,194 +96,152 @@ const ScrollSnapPage = () => {
 
   return (
     <div className="flex min-h-screen bg-black">
-      {/* Desktop Version - Unchanged */}
-      <div className="hidden md:flex">
-        {/* Sticky Sidebar */}
-        <div className="sticky top-0 h-screen w-80 flex items-center justify-center overflow-hidden">
-          <nav className="space-y-3 w-full px-6">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => scrollToSection(section.id)}
-                className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
-                  activeSection === section.id
-                    ? "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-indigo-700/30 shadow-md"
-                    : "hover:bg-gray-900/40 border border-transparent"
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <section.icon
-                    className={`w-5 h-5 ${
-                      activeSection === section.id
-                        ? section.color
-                        : "text-gray-500 group-hover:text-gray-300"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <div
-                      className={`font-semibold transition-colors ${
-                        activeSection === section.id
-                          ? section.color
-                          : "text-gray-300 group-hover:text-white"
-                      }`}
-                    >
-                      {section.title}
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      {section.subtitle}
-                    </div>
-                  </div>
-                  {activeSection === section.id && (
-                    <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
-                  )}
-                </div>
-              </button>
-            ))}
-          </nav>
+{/* Centered Sidebar (merged with background) */}
+<div className="sticky top-0 h-screen w-80 flex items-center justify-center">
+  <nav className="space-y-3 w-full px-6">
+    {sections.map((section) => (
+      <button
+        key={section.id}
+        onClick={() => scrollToSection(section.id)}
+        className={`w-full text-left p-4 rounded-xl transition-all duration-300 group ${
+          activeSection === section.id
+            ? "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-indigo-700/30 shadow-md"
+            : "hover:bg-gray-900/40 border border-transparent"
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <section.icon
+            className={`w-5 h-5 ${
+              activeSection === section.id
+                ? section.color
+                : "text-gray-500 group-hover:text-gray-300"
+            }`}
+          />
+          <div className="flex-1">
+            <div
+              className={`font-semibold transition-colors ${
+                activeSection === section.id
+                  ? section.color
+                  : "text-gray-300 group-hover:text-white"
+              }`}
+            >
+              {section.title}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              {section.subtitle}
+            </div>
+          </div>
+          {activeSection === section.id && (
+            <div className={`w-2 h-2 rounded-full animate-pulse ${section.accent}`} />
+          )}
         </div>
+      </button>
+    ))}
+  </nav>
+</div>
 
-        {/* Main Content Area with Sticky Image */}
-        <div className="flex-1 flex">
-          {/* Scrollable Content (Reduced space) */}
-          <div className="flex-1 overflow-y-auto scroll-smooth px-4 py-16">
-            {sections.map((section, index) => (
-              <div
-                key={section.id}
-                data-section={section.id}
-                className="content-section min-h-screen flex items-center justify-center mb-8 last:mb-0"
-              >
-                <div className="max-w-lg mx-auto">
-                  <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-900 border border-gray-700 mb-4">
-                    <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
-                    <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto scroll-smooth">
+        {sections.map((section, index) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
+                                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
+                backgroundSize: '50px 50px',
+                backgroundPosition: '0 0, 25px 25px'
+              }} />
+            </div>
+
+            {/* Floating Icons with colorful animation */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[Cpu, Satellite, Network, Play].map((Icon, i) => {
+                const colors = ['text-pink-500/20', 'text-orange-500/20', 'text-purple-500/20', 'text-green-500/20'];
+                return (
+                  <Icon
+                    key={i}
+                    className={`absolute ${colors[i]} animate-float`}
+                    size={40}
+                    style={{
+                      top: `${20 + (i * 20) % 60}%`,
+                      left: `${15 + (i * 25) % 70}%`,
+                      animationDelay: `${i * 3}s`,
+                      animationDuration: `${15 + i * 5}s`
+                    }}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="relative z-10 max-w-6xl mx-auto px-8 py-16 animate-fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Text Content */}
+                <div className="space-y-8">
+                  <div>
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700 mb-6">
+                      <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
+                      <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
+                    </div>
+                    
+                    <h1 className={`text-5xl lg:text-6xl font-bold mb-6 leading-tight ${section.color}`}>
+                      {section.title}
+                    </h1>
+                    
+                    <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                      {section.description}
+                    </p>
                   </div>
-                  
-                  <h1 className={`text-4xl lg:text-5xl font-bold mb-4 leading-tight ${section.color}`}>
-                    {section.title}
-                  </h1>
-                  
-                  <p className="text-lg text-gray-300 mb-6 leading-relaxed line-clamp-3">
-                    {section.description}
-                  </p>
 
-                  {/* Features (Condensed) */}
-                  <div className="flex flex-wrap gap-4 mb-6">
+                  {/* Features */}
+                  <div className="space-y-4">
                     {section.features.map((feature, i) => (
-                      <div key={i} className="flex items-center space-x-2 bg-gray-900/50 px-3 py-1.5 rounded-lg">
+                      <div key={i} className="flex items-center space-x-3">
                         <div className={`w-2 h-2 rounded-full ${section.accent}`} />
-                        <span className="text-gray-300 text-sm">{feature}</span>
+                        <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button
                       onClick={() => navigateToRoute(section.route)}
-                      className={`inline-flex items-center justify-center px-6 py-3 ${section.buttonBg} text-white font-semibold rounded-lg transition-all duration-300 transform hover:-translate-y-0.5 shadow-md`}
+                      className={`inline-flex items-center justify-center px-8 py-4 ${section.buttonBg} text-white font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg`}
                     >
                       {section.buttonText}
-                      <ArrowRight className="ml-2 w-4 h-4" />
+                      <ArrowRight className="ml-2 w-5 h-5" />
                     </button>
                     
                     <button 
                       onClick={() => navigateToRoute('/contact')}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg border border-gray-700 transition-all duration-300"
+                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300"
                     >
                       Contact Sales
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
 
-          {/* Sticky Image Container (Expanded in both directions) */}
-          <div className="sticky top-0 h-screen flex items-center justify-center p-1">
-            <div className="relative w-[500px] h-75 rounded-2xl overflow-hidden shadow-xl">
-              <img
-                src={sections.find(s => s.id === activeSection)?.image}
-                alt={sections.find(s => s.id === activeSection)?.title}
-                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Version - Original Layout with Strict Scrolling */}
-      <div className="md:hidden w-full">
-        {/* Mobile Content with Strict Section Navigation */}
-        <div 
-          ref={mobileContentRef}
-          className="h-screen overflow-y-scroll snap-y snap-mandatory"
-          style={{ scrollSnapType: 'y mandatory' }}
-        >
-          {sections.map((section, index) => (
-            <div 
-              key={section.id} 
-              id={`mobile-${section.id}`}
-              className="snap-start snap-always min-h-screen w-full py-8 px-4 flex flex-col"
-              style={{ 
-                scrollSnapAlign: 'start',
-                scrollSnapStop: 'always',
-                height: '100vh'
-              }}
-            >
-              <div className="max-w-lg mx-auto w-full flex flex-col h-full">
-                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-900 border border-gray-700 mb-4">
-                  <div className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`} />
-                  <span className="text-gray-300 text-sm font-medium">{section.subtitle}</span>
-                </div>
-                
-                <h1 className={`text-3xl font-bold mb-4 leading-tight ${section.color}`}>
-                  {section.title}
-                </h1>
-                
-                <p className="text-lg text-gray-300 mb-6 leading-relaxed">
-                  {section.description}
-                </p>
-
-                {/* Features */}
-                <div className="flex flex-wrap gap-3 mb-6">
-                  {section.features.map((feature, i) => (
-                    <div key={i} className="flex items-center space-x-2 bg-gray-900/50 px-3 py-1.5 rounded-lg">
-                      <div className={`w-2 h-2 rounded-full ${section.accent}`} />
-                      <span className="text-gray-300 text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Image */}
-                <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow-xl mb-6">
-                  <img
-                    src={section.image}
-                    alt={section.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-col gap-3 pt-2 mt-auto">
-                  <button
-                    onClick={() => navigateToRoute(section.route)}
-                    className={`inline-flex items-center justify-center px-6 py-3 ${section.buttonBg} text-white font-semibold rounded-lg transition-all duration-300`}
-                  >
-                    {section.buttonText}
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </button>
-                  
-                  <button 
-                    onClick={() => navigateToRoute('/contact')}
-                    className="inline-flex items-center justify-center px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg border border-gray-700 transition-all duration-300"
-                  >
-                    Contact Sales
-                  </button>
+                {/* Image and Details Panel */}
+                <div className="space-y-6">
+                  {/* Image */}
+                  <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-lg">
+                    <img
+                      src={section.image}
+                      alt={section.title}
+                      className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </section>
+        ))}
       </div>
 
       <style jsx>{`
@@ -304,12 +258,6 @@ const ScrollSnapPage = () => {
         }
         .animate-fade-in {
           animation: fade-in 0.8s ease-out;
-        }
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
       `}</style>
     </div>
