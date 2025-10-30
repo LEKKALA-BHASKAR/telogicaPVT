@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { toast } from 'sonner';
 import { Search, Filter, Download, Eye, MoreVertical, Truck, CheckCircle, Clock, XCircle, Package, User, CreditCard, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import BackNavigation from '../../components/admin/BackNavigation';
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -10,6 +12,7 @@ const ManageOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -92,6 +95,9 @@ const ManageOrders = () => {
       </div>
 
       <div className="container mx-auto pt-24 pb-16 px-4 relative z-10">
+        {/* Back Navigation */}
+        <BackNavigation />
+
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
           <div>

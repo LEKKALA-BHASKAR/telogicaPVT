@@ -6,6 +6,8 @@ import {
   Plus, Edit, Trash2, X, Search, Package, DollarSign, BarChart3, Tag, Image, FileText, Upload, ChevronDown, ChevronUp, Star
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import BackNavigation from "../../components/admin/BackNavigation";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -32,6 +34,7 @@ const ManageProducts = () => {
   });
   const [editId, setEditId] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate();
 
   // Animation variants
   const fadeInUp = {
@@ -241,8 +244,8 @@ const ManageProducts = () => {
       await axios.put(
         `${API_URL}/api/products/${id}`,
         { featured: !currentStatus },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
       toast.success(`Product ${!currentStatus ? "added to" : "removed from"} featured`);
       fetchProducts();
     } catch (err) {
@@ -329,6 +332,9 @@ const ManageProducts = () => {
       </div>
 
       <div className="container mx-auto pt-20 pb-12 px-4 relative z-10">
+        {/* Back Navigation */}
+        <BackNavigation />
+
         {/* Header */}
         <motion.div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4" initial="hidden" animate="visible" variants={fadeInUp}>
           <div>

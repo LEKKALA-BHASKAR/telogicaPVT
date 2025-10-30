@@ -43,7 +43,7 @@ router.post('/', protect, admin, upload.fields([
       });
     }
 
-    const { category } = req.body;
+    const { category, title } = req.body;
     const fileCategory = category || 'other';
     const uploadedFiles = [];
 
@@ -76,8 +76,11 @@ router.post('/', protect, admin, upload.fields([
           uploadStream.end(file.buffer);
         });
 
+        // Use the title from the request body as the document name, fallback to original name
+        const documentName = title || file.originalname;
+
         const savedFile = await File.create({
-          name: file.originalname,
+          name: documentName,
           url: result.secure_url,
           publicId: result.public_id,
           type: 'image',
@@ -86,7 +89,7 @@ router.post('/', protect, admin, upload.fields([
         });
 
         uploadedFiles.push({
-          name: file.originalname,
+          name: documentName,
           url: result.secure_url,
           publicId: result.public_id
         });
@@ -122,8 +125,11 @@ router.post('/', protect, admin, upload.fields([
           uploadStream.end(file.buffer);
         });
 
+        // Use the title from the request body as the document name, fallback to original name
+        const documentName = title || file.originalname;
+
         const savedFile = await File.create({
-          name: file.originalname,
+          name: documentName,
           url: result.secure_url,
           publicId: result.public_id,
           type: 'pdf',
@@ -132,7 +138,7 @@ router.post('/', protect, admin, upload.fields([
         });
 
         uploadedFiles.push({
-          name: file.originalname,
+          name: documentName,
           url: result.secure_url,
           publicId: result.public_id
         });
@@ -244,6 +250,44 @@ router.get('/:id', async (req, res) => {
     res.json({ success: true, data: file });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update document (Admin only)
+router.put('/:id', protect, admin, async (req, res) => {
+  try {
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Document name is required'
+      });
+    }
+
+    const updatedFile = await File.findByIdAndUpdate(
+      req.params.id,
+      { name },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedFile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Document not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedFile
+    });
+  } catch (error) {
+    console.error('Update document error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update document'
+    });
   }
 });
 

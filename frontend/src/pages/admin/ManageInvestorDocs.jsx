@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Trash2, Download, FileText, Calendar, Plus, Edit, Save, X, FolderOpen, Search, Filter, MoreVertical, Eye, Share2, Link, HardDrive } from 'lucide-react';
+import { Upload, Trash2, FileText, Calendar, Plus, Edit, Save, X, FolderOpen, Search, Filter, MoreVertical, HardDrive, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import BackNavigation from '../../components/admin/BackNavigation';
 
 const ManageInvestorDocs = () => {
   const [documents, setDocuments] = useState([]);
@@ -17,6 +19,10 @@ const ManageInvestorDocs = () => {
   const [showAddDocForm, setShowAddDocForm] = useState(false);
   const [docForm, setDocForm] = useState({ name: '', url: '', category: '' });
   const [linkType, setLinkType] = useState('cloudinary'); // 'cloudinary' or 'drive'
+  const [fileUploadForm, setFileUploadForm] = useState({ title: '', file: null });
+  const [editingDocument, setEditingDocument] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '' });
+  const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -94,17 +100,20 @@ const ManageInvestorDocs = () => {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !selectedSection) return;
+    e.preventDefault();
+    if (!fileUploadForm.title || !fileUploadForm.file || !selectedSection) {
+      toast.error('Please provide a title and select a file');
+      return;
+    }
 
     setUploading(true);
     const formData = new FormData();
     
     // Determine the correct field name based on file type
-    if (file.type.startsWith('image/')) {
-      formData.append('images', file);
-    } else if (file.type === 'application/pdf') {
-      formData.append('pdfs', file);
+    if (fileUploadForm.file.type.startsWith('image/')) {
+      formData.append('images', fileUploadForm.file);
+    } else if (fileUploadForm.file.type === 'application/pdf') {
+      formData.append('pdfs', fileUploadForm.file);
     } else {
       toast.error('Invalid file type. Only images and PDFs are allowed.');
       setUploading(false);
@@ -112,9 +121,10 @@ const ManageInvestorDocs = () => {
     }
     
     formData.append('category', selectedSection.category);
+    formData.append('title', fileUploadForm.title); // Add the title to the form data
 
     try {
-      console.log('Uploading file:', file.name, 'to category:', selectedSection.category);
+      console.log('Uploading file:', fileUploadForm.file.name, 'to category:', selectedSection.category);
       const response = await axios.post(`${API_URL}/api/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -122,6 +132,7 @@ const ManageInvestorDocs = () => {
       });
       console.log('Upload response:', response.data);
       toast.success('Document uploaded successfully');
+      setFileUploadForm({ title: '', file: null });
       fetchDocuments();
     } catch (error) {
       console.error('Upload error details:', error);
@@ -167,6 +178,35 @@ const ManageInvestorDocs = () => {
     } catch (error) {
       toast.error('Failed to delete document');
     }
+  };
+
+  const startEditingDocument = (doc) => {
+    setEditingDocument(doc._id);
+    setEditForm({ name: doc.name });
+  };
+
+  const saveDocumentEdit = async (id) => {
+    if (editForm.name.trim() === '') {
+      toast.error('Document title cannot be empty');
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}/api/upload/${id}`, {
+        name: editForm.name
+      });
+      toast.success('Document updated');
+      fetchDocuments();
+      setEditingDocument(null);
+      setEditForm({ name: '' });
+    } catch (error) {
+      toast.error('Failed to update document');
+    }
+  };
+
+  const cancelEditingDocument = () => {
+    setEditingDocument(null);
+    setEditForm({ name: '' });
   };
 
   const startEditingSection = (section) => {
@@ -262,6 +302,9 @@ const ManageInvestorDocs = () => {
       </div>
 
       <div className="container mx-auto pt-24 pb-16 px-4 relative z-10">
+        {/* Back Navigation */}
+        <BackNavigation />
+
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
           <div>
@@ -272,19 +315,20 @@ const ManageInvestorDocs = () => {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
-            <label className={`bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-3 rounded-xl cursor-pointer flex items-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
-              uploading || !selectedSection ? 'opacity-50 cursor-not-allowed' : ''
-            }`}>
+            {/* File Upload Button */}
+            <button 
+              onClick={() => {
+                setFileUploadForm({ title: '', file: null });
+                document.getElementById('file-upload-modal').classList.remove('hidden');
+              }}
+              className={`bg-gradient-to-r from-purple-600 to-pink-500 text-white px-6 py-3 rounded-xl flex items-center font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+                !selectedSection ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={!selectedSection}
+            >
               <Upload className="mr-2 w-5 h-5" />
-              {uploading ? 'Uploading...' : 'Upload Document'}
-              <input 
-                type="file" 
-                className="hidden" 
-                onChange={handleFileUpload}
-                accept=".pdf,.doc,.docx,.xlsx,.pptx"
-                disabled={uploading || !selectedSection}
-              />
-            </label>
+              Upload Document
+            </button>
             
             <button 
               onClick={() => {
@@ -296,9 +340,79 @@ const ManageInvestorDocs = () => {
               }`}
               disabled={!selectedSection}
             >
-              <Link className="mr-2 w-5 h-5" />
+              <HardDrive className="mr-2 w-5 h-5" />
               Add External Link
             </button>
+          </div>
+        </div>
+
+        {/* File Upload Modal */}
+        <div id="file-upload-modal" className="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl border border-gray-700/50 shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Upload Document</h3>
+                <button 
+                  onClick={() => {
+                    document.getElementById('file-upload-modal').classList.add('hidden');
+                    setFileUploadForm({ title: '', file: null });
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleFileUpload}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Document Title</label>
+                    <input
+                      type="text"
+                      value={fileUploadForm.title}
+                      onChange={(e) => setFileUploadForm({...fileUploadForm, title: e.target.value})}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="Enter document title"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Select Document</label>
+                    <input
+                      type="file"
+                      onChange={(e) => setFileUploadForm({...fileUploadForm, file: e.target.files[0]})}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Supported formats: PDF, JPG, JPEG, PNG
+                    </p>
+                  </div>
+                  
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        document.getElementById('file-upload-modal').classList.add('hidden');
+                        setFileUploadForm({ title: '', file: null });
+                      }}
+                      className="flex-1 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+                      disabled={uploading}
+                    >
+                      {uploading ? 'Uploading...' : 'Upload Document'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -358,13 +472,14 @@ const ManageInvestorDocs = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Document Name</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Document Title</label>
                       <input
                         type="text"
                         value={docForm.name}
                         onChange={(e) => setDocForm({...docForm, name: e.target.value})}
                         className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                        placeholder="Enter document name"
+                        placeholder="Enter document title"
+                        required
                       />
                     </div>
                     
@@ -378,6 +493,7 @@ const ManageInvestorDocs = () => {
                         onChange={(e) => setDocForm({...docForm, url: e.target.value})}
                         className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
                         placeholder={linkType === 'cloudinary' ? 'https://res.cloudinary.com/...' : 'https://drive.google.com/...'}
+                        required
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         {linkType === 'cloudinary' 
@@ -593,47 +709,66 @@ const ManageInvestorDocs = () => {
                                 <FileText className="w-6 h-6 text-red-400" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-white truncate">{doc.name}</h3>
-                                <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
-                                  <span>{(doc.size / 1024).toFixed(1)} KB</span>
-                                  <span>•</span>
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {new Date(doc.createdAt).toLocaleDateString()}
+                                {editingDocument === doc._id ? (
+                                  <div className="space-y-2">
+                                    <input
+                                      type="text"
+                                      value={editForm.name}
+                                      onChange={(e) => setEditForm({ name: e.target.value })}
+                                      className="w-full px-3 py-1 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                                      placeholder="Document title"
+                                      autoFocus
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => saveDocumentEdit(doc._id)}
+                                        className="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                      >
+                                        Save
+                                      </button>
+                                      <button
+                                        onClick={cancelEditingDocument}
+                                        className="px-3 py-1 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
                                   </div>
-                                  {doc.isExternalLink && (
-                                    <span className={`px-2 py-1 rounded text-xs ${
-                                      doc.linkType === 'cloudinary' 
-                                        ? 'bg-blue-500/20 text-blue-400' 
-                                        : 'bg-green-500/20 text-green-400'
-                                    }`}>
-                                      {doc.linkType === 'cloudinary' ? 'Cloudinary' : 'Drive'}
-                                    </span>
-                                  )}
-                                </div>
+                                ) : (
+                                  <>
+                                    <h3 className="font-semibold text-white truncate">{doc.name}</h3>
+                                    <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
+                                      <span>{(doc.size / 1024).toFixed(1)} KB</span>
+                                      <span>•</span>
+                                      <div className="flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        {new Date(doc.createdAt).toLocaleDateString()}
+                                      </div>
+                                      {doc.isExternalLink && (
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                          doc.linkType === 'cloudinary' 
+                                            ? 'bg-blue-500/20 text-blue-400' 
+                                            : 'bg-green-500/20 text-green-400'
+                                        }`}>
+                                          {doc.linkType === 'cloudinary' ? 'Cloudinary' : 'Drive'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleDownload(doc._id, doc.name)}
-                                className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors group/download"
-                                title="Download"
-                              >
-                                <Download className="w-4 h-4" />
-                              </button>
-                              <button
-                                className="p-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors"
-                                title="Preview"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                className="p-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-colors"
-                                title="Share"
-                              >
-                                <Share2 className="w-4 h-4" />
-                              </button>
+                              {editingDocument !== doc._id && (
+                                <button
+                                  onClick={() => startEditingDocument(doc)}
+                                  className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+                                  title="Edit"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => deleteDocument(doc._id)}
                                 className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors"

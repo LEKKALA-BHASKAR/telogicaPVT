@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { Trash2, Search, Filter, User, Mail, Shield, Calendar, MoreVertical, Eye, Edit, UserPlus, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import BackNavigation from '../../components/admin/BackNavigation';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -10,6 +12,7 @@ const ManageUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState(null);
+  const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -80,6 +83,9 @@ const ManageUsers = () => {
       </div>
 
       <div className="container mx-auto pt-24 pb-16 px-4 relative z-10">
+        {/* Back Navigation */}
+        <BackNavigation />
+
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
           <div>
