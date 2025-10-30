@@ -207,7 +207,7 @@ const ScrollSnapPage = () => {
                     </div>
 
                     <h1
-                      className={`text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${section.color}`}
+                      className={`text-4xl sm:text-5xl lg:text-5xl font-bold mb-5 leading-tight ${section.color}`}
                     >
                       {section.title}
                     </h1>
