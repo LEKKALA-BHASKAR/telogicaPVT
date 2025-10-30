@@ -38,7 +38,9 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
   }, [search, category, sort, priceRange, featuredOnly]);
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const fetchProducts = async () => {
     try {
       setLoading(true);

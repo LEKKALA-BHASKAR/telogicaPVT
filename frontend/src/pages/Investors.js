@@ -15,6 +15,9 @@ const Investors = () => {
     fetchSections();
     fetchDocuments();
   }, []);
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   const fetchSections = async () => {
     try {

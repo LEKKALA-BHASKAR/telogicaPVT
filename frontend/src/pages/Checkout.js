@@ -20,6 +20,9 @@ const Checkout = () => {
   });
   const [activeStep, setActiveStep] = useState(1);
   const navigate = useNavigate();
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
