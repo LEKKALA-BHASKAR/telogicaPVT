@@ -205,41 +205,6 @@ function Contact() {
         />
       </div>
 
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-950/80 to-black/80" />
-        <div className="relative z-10 max-w-6xl mx-auto text-center">
-          <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
-            <MessageCircle className="h-10 w-10 text-white" />
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent tracking-tight">
-            Contact
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Ready to transform your telecommunications and defense capabilities?{' '}
-            <span className="text-cyan-400 font-medium">Let's build the future together.</span>
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mt-20">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="relative inline-flex items-center justify-center mb-4">
-                  <div className="absolute inset-0 bg-cyan-500/10 rounded-full blur-md group-hover:bg-cyan-500/20 transition-all duration-500"></div>
-                  <div className="relative w-16 h-16 rounded-2xl bg-gray-900/50 border border-gray-700 flex items-center justify-center group-hover:border-cyan-500/30 transition-all duration-300">
-                    <stat.icon className="h-8 w-8 text-cyan-400" />
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-cyan-500/50 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-cyan-400 rounded-full mt-2"></div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Contact Information */}
       <section className="relative py-20" ref={(el) => (sectionsRef.current[0] = el)}>
