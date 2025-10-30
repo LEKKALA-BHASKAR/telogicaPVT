@@ -146,78 +146,77 @@ const Navbar = () => {
             {isAuthenticated ? (
               <>
                 {isAdmin && (
-<Button
-  variant="ghost"
-  onClick={() => navigate('/admin/dashboard')}
-  className={`
-    w-full flex items-center justify-between 
-    bg-gray-900 text-white 
-    rounded-xl px-4 py-3 
-    shadow-md shadow-gray-800/50
-    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-    transition-all duration-300
-  `}
->
-  <div className="flex items-center gap-2">
-    <LayoutDashboard className="w-5 h-5 text-blue-400" />
-    <span className="font-medium">Dashboard</span>
-  </div>
-</Button>
-
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/admin/dashboard')}
+                    className={`
+                      w-full flex items-center justify-between 
+                      bg-gray-900 text-white 
+                      rounded-xl px-4 py-3 
+                      shadow-md shadow-gray-800/50
+                      hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+                      transition-all duration-300
+                      mr-2
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      <LayoutDashboard className="w-5 h-5 text-blue-400" />
+                      <span className="font-medium">Dashboard</span>
+                    </div>
+                  </Button>
                 )}
-<Button
-  variant="ghost"
-  onClick={() => {
-    navigate('/cart');
-    setIsOpen(false);
-  }}
-  className={`
-    w-full flex items-center justify-between 
-    bg-gray-900 text-white 
-    rounded-xl px-4 py-3 
-    shadow-md shadow-gray-800/50
-    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-    transition-all duration-300
-  `}
->
-  <div className="flex items-center gap-2">
-    <ShoppingCart className="w-5 h-5 text-blue-400" />
-    <span className="font-medium">Cart</span>
-  </div>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    navigate('/cart');
+                    setIsOpen(false);
+                  }}
+                  className={`
+                    w-full flex items-center justify-between 
+                    bg-gray-900 text-white 
+                    rounded-xl px-4 py-3 
+                    shadow-md shadow-gray-800/50
+                    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+                    transition-all duration-300
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 text-blue-400" />
+                    <span className="font-medium">Cart</span>
+                  </div>
 
-  {cartCount > 0 && (
-    <span className="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-      {cartCount > 99 ? '99+' : cartCount}
-    </span>
-  )}
-</Button>
+                  {cartCount > 0 && (
+                    <span className="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Button>
 
                 <div className="relative" ref={dropdownRef}>
-                 <Button
-  variant="ghost"
-  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-  className={`
-    w-full flex items-center justify-between 
-    bg-gray-900 text-white 
-    rounded-xl px-4 py-3 
-    shadow-md shadow-gray-800/50
-    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-    transition-all duration-300
-  `}
->
-  <div className="flex items-center gap-2">
-    <User className="w-5 h-5 text-blue-400" />
-    <span className="font-medium">Account</span>
-  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className={`
+                      w-full flex items-center justify-between 
+                      bg-gray-900 text-white 
+                      rounded-xl px-4 py-3 
+                      shadow-md shadow-gray-800/50
+                      hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
+                      transition-all duration-300
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-blue-400" />
+                      <span className="font-medium">Account</span>
+                    </div>
 
-  <ChevronDown
-    className={`w-5 h-5 ml-2 text-gray-400 transition-transform ${
-      isDropdownOpen ? 'rotate-180 text-blue-400' : ''
-    }`}
-  />
-</Button>
+                    <ChevronDown
+                      className={`w-5 h-5 ml-2 text-gray-400 transition-transform ${
+                        isDropdownOpen ? 'rotate-180 text-blue-400' : ''
+                      }`}
+                    />
+                  </Button>
 
-                  
                   {isDropdownOpen && (
                     <div className={`absolute right-0 mt-2 w-48 ${dropdownBg} rounded-lg shadow-xl`}>
                       <div className="p-3 border-b border-white/20">
@@ -316,28 +315,28 @@ const Navbar = () => {
                       navigate('/admin/dashboard');
                       setIsOpen(false);
                     }}
-                    className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300`}
+                    className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300 mb-2`}
                   >
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     Dashboard
                   </Button>
                 )}
-    <Button
-      variant="ghost"
-      onClick={() => {
-        navigate('/cart');
-        setIsOpen(false);
-      }}
-      className={`w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-white/10 transition-all duration-300 relative group`}
-    >
-      <ShoppingCart className="w-4 h-4 mr-2" />
-      Cart
-      {cartCount > 0 && (
-        <span className="absolute right-4 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold transform group-hover:scale-110 transition-transform duration-200">
-          {cartCount > 99 ? '99+' : cartCount}
-        </span>
-      )}
-    </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    navigate('/cart');
+                    setIsOpen(false);
+                  }}
+                  className={`w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-white/10 transition-all duration-300 relative group mb-2`}
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Cart
+                  {cartCount > 0 && (
+                    <span className="absolute right-4 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold transform group-hover:scale-110 transition-transform duration-200">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Button>
                 <Button
                   variant="ghost"
                   onClick={() => {
