@@ -20,11 +20,14 @@ import ManageUsers from './pages/admin/ManageUsers';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageInvestorDocs from './pages/admin/ManageInvestorDocs';
 import UserOrders from './pages/UserOrders';
+import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import { Toaster } from './components/ui/sonner';
 import { GlobalContactForm } from './components';
 import { HelpCircle } from 'lucide-react';
+import ScrollToTop from './components/ScrollToTop';
+import SkipToContent from './components/SkipToContent';
 import './App.css';
 
 function App() {
@@ -33,8 +36,9 @@ function App() {
   return (
     <AuthProvider>
       <div className="App">
+        <SkipToContent />
         <Navbar />
-        <main className="min-h-screen">
+        <main id="main-content" className="min-h-screen">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -89,9 +93,13 @@ function App() {
                 <ManageInvestorDocs />
               </AdminRoute>
             } />
+            
+            {/* 404 Not Found - Must be last */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
+        <ScrollToTop />
         <Toaster position="top-right" richColors />
         
         {/* Floating Help Icon */}

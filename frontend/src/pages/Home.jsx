@@ -4,6 +4,7 @@ import ScrollSnapPage from "./ScrollSnapPage";
 import Clients from "./Clients";
 import AboutHero from "./AboutHero";
 import FeaturedProductsSection from "./FeaturedProductsSection";
+import FAQSection from "../components/FAQSection";
 import { useEffect } from "react";
 const Home = () => {
     useEffect(() => {
@@ -18,6 +19,7 @@ const Home = () => {
       </div>
       <FeaturedProductsSection/>
       <Clients />
+      <FAQSection />
     </div>
   );
 };
