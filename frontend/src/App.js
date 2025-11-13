@@ -25,6 +25,7 @@ import AdminRoute from './components/AdminRoute';
 import { Toaster } from './components/ui/sonner';
 import { GlobalContactForm } from './components';
 import { HelpCircle } from 'lucide-react';
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
 function App() {
@@ -92,6 +93,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ScrollToTop />
         <Toaster position="top-right" richColors />
         
         {/* Floating Help Icon */}
