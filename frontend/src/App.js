@@ -27,6 +27,7 @@ import { Toaster } from './components/ui/sonner';
 import { GlobalContactForm } from './components';
 import { HelpCircle } from 'lucide-react';
 import ScrollToTop from './components/ScrollToTop';
+import SkipToContent from './components/SkipToContent';
 import './App.css';
 
 function App() {
@@ -35,8 +36,9 @@ function App() {
   return (
     <AuthProvider>
       <div className="App">
+        <SkipToContent />
         <Navbar />
-        <main className="min-h-screen">
+        <main id="main-content" className="min-h-screen">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
