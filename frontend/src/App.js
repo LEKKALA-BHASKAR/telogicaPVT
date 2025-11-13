@@ -20,6 +20,7 @@ import ManageUsers from './pages/admin/ManageUsers';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageInvestorDocs from './pages/admin/ManageInvestorDocs';
 import UserOrders from './pages/UserOrders';
+import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import { Toaster } from './components/ui/sonner';
@@ -90,6 +91,9 @@ function App() {
                 <ManageInvestorDocs />
               </AdminRoute>
             } />
+            
+            {/* 404 Not Found - Must be last */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />

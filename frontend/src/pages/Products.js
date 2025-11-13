@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import {
   Search,
   Filter,
@@ -422,9 +423,8 @@ const Products = () => {
         <section className="px-4 pb-20">
           <div className="max-w-7xl mx-auto">
             {loading ? (
-              <div className="flex flex-col items-center justify-center h-64 space-y-4">
-                <div className="animate-spin w-12 h-12 border-2 border-purple-500 border-t-transparent rounded-full"></div>
-                <p className="text-gray-400 text-lg">Loading products...</p>
+              <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8' : 'space-y-6'}>
+                <LoadingSkeleton type="product" count={6} />
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-20">
