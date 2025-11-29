@@ -1,10 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const Footer = () => {
+  const { isDarkMode } = useTheme();
+  
   return (
-    <footer className="bg-gray-900 text-white border-t border-gray-700">
+    <footer className={`border-t transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gray-900 text-white border-gray-700' 
+        : 'bg-gray-50 text-gray-900 border-gray-200'
+    }`}>
       <div className="container mx-auto px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -15,23 +22,23 @@ const Footer = () => {
                 alt="Telogica Ltd" 
                 className="w-12 h-12 mr-3"
               />
-              <span className="text-2xl font-bold text-white">
+              <span className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Telogica Ltd
               </span>
             </div>
-            <p className="text-gray-300 mb-6 leading-relaxed">
+            <p className={`mb-6 leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Leading manufacturer of advanced Test & Measuring Equipment for Defence 
               and Telecom sectors. Delivering reliability, innovation, and unmatched performance.
             </p>
-            <div className="flex items-center space-x-2 text-sm text-gray-400">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <div className={`flex items-center space-x-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <div className={`w-2 h-2 rounded-full animate-pulse ${isDarkMode ? 'bg-blue-500' : 'bg-indigo-500'}`}></div>
               <span>Trusted by industry leaders</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">
+            <h3 className={`text-lg font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -44,9 +51,15 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-300 hover:text-white transition-colors duration-300 flex items-center group"
+                    className={`transition-colors duration-300 flex items-center group ${
+                      isDarkMode 
+                        ? 'text-gray-300 hover:text-white' 
+                        : 'text-gray-600 hover:text-indigo-600'
+                    }`}
                   >
-                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className={`w-1.5 h-1.5 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                      isDarkMode ? 'bg-blue-500' : 'bg-indigo-500'
+                    }`}></span>
                     {link.label}
                   </Link>
                 </li>
@@ -56,23 +69,23 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">
+            <h3 className={`text-lg font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Contact Info
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                <div className="text-gray-300 text-sm">
-                  <div className="font-semibold text-white">Corporate</div>
-                  <div className="font-semibold text-white">TELOGICA LIMITED</div>
+                <MapPin className={`w-5 h-5 flex-shrink-0 mt-1 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
+                <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Corporate</div>
+                  <div className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>TELOGICA LIMITED</div>
                   <div>Empire Square, Plot No 233-A, 234 & 235,</div>
                   <div>3rd Fl, Rd No 36, Jubilee Hills,</div>
                   <div>Hyderabad- 500 033, Telangana, India</div>
                 </div>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <div className="text-gray-300 text-sm">
+                <Phone className={`w-5 h-5 flex-shrink-0 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
+                <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <div className="flex items-center gap-2">
                     <span>+91 9396610682</span>
                   </div>
@@ -85,8 +98,8 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-blue-400" />
-                <div className="text-gray-300 text-sm">
+                <Mail className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
+                <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <div className="flex items-center gap-2">
                     <span>sales@telogica.com</span>
                   </div>
@@ -100,7 +113,7 @@ const Footer = () => {
 
           {/* Social & Additional */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">
+            <h3 className={`text-lg font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Connect With Us
             </h3>
             <div className="flex gap-4 mb-6">
@@ -125,8 +138,12 @@ const Footer = () => {
             </div>
             
             {/* Trust Badge */}
-            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-              <p className="text-sm text-gray-300 text-center">
+            <div className={`p-4 rounded-lg border ${
+              isDarkMode 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-white border-gray-200 shadow-sm'
+            }`}>
+              <p className={`text-sm text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 ISO Certified • 15+ Years Experience
               </p>
             </div>
@@ -134,28 +151,34 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-700 mt-12 pt-8">
+        <div className={`border-t mt-12 pt-8 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
+            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               © 2024 Aishwarya Tech Tele. All rights reserved.
             </p>
             
             <div className="flex gap-6 text-sm">
               <Link 
                 to="/privacy" 
-                className="text-gray-400 hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-600'
+                }`}
               >
                 Privacy Policy
               </Link>
               <Link 
                 to="/terms" 
-                className="text-gray-400 hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-600'
+                }`}
               >
                 Terms of Service
               </Link>
               <Link 
                 to="/sitemap" 
-                className="text-gray-400 hover:text-white transition-colors duration-300"
+                className={`transition-colors duration-300 ${
+                  isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-600'
+                }`}
               >
                 Sitemap
               </Link>

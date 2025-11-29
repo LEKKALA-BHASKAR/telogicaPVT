@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
 import { TrendingUp, Users, Package, DollarSign, ShoppingCart, Eye, ArrowUpRight, BarChart3, Settings, Bell, Search, Calendar, Download, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTheme } from '../../context/ThemeContext';
 
 const Dashboard = () => {
+  const { isDarkMode } = useTheme();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -28,10 +30,14 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center pt-24">
+      <div className={`min-h-screen flex items-center justify-center pt-24 transition-colors duration-300 ${
+        isDarkMode ? 'bg-black' : 'bg-slate-50'
+      }`}>
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
-          <p className="text-gray-400 text-lg">Loading dashboard...</p>
+          <div className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
+            isDarkMode ? 'border-purple-500' : 'border-indigo-500'
+          }`}></div>
+          <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading dashboard...</p>
         </div>
       </div>
     );
@@ -94,43 +100,67 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
+    <div className={`min-h-screen font-sans relative overflow-hidden transition-colors duration-300 ${
+      isDarkMode ? 'bg-black text-white' : 'bg-slate-50 text-gray-900'
+    }`}>
       {/* Animated Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-0 left-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className={`absolute top-0 left-0 w-72 h-72 rounded-full blur-3xl animate-pulse ${
+          isDarkMode ? 'bg-purple-600/10' : 'bg-indigo-400/10'
+        }`} />
+        <div className={`absolute top-1/2 right-0 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000 ${
+          isDarkMode ? 'bg-blue-600/10' : 'bg-blue-400/10'
+        }`} />
+        <div className={`absolute bottom-0 left-1/2 w-64 h-64 rounded-full blur-3xl animate-pulse delay-500 ${
+          isDarkMode ? 'bg-green-600/10' : 'bg-emerald-400/10'
+        }`} />
       </div>
 
       <div className="container mx-auto pt-24 pb-16 px-4 relative z-10">
         {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
           <div>
-            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
+            <h1 className={`text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2 ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-white to-gray-300' 
+                : 'bg-gradient-to-r from-gray-900 to-gray-600'
+            }`}>
               Admin Dashboard
             </h1>
-            <p className="text-gray-400 text-lg">Welcome back! Here's what's happening today.</p>
+            <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Welcome back! Here's what's happening today.</p>
           </div>
           
           <div className="flex items-center gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+                className={`pl-10 pr-4 py-2 border rounded-xl focus:outline-none transition-colors ${
+                  isDarkMode 
+                    ? 'bg-gray-800/50 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500' 
+                    : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-indigo-500'
+                }`}
               />
             </div>
             
             {/* Notifications */}
-            <button className="p-2 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-colors">
-              <Bell className="w-5 h-5 text-gray-400" />
+            <button className={`p-2 border rounded-xl transition-colors ${
+              isDarkMode 
+                ? 'bg-gray-800/50 border-gray-700 hover:bg-gray-700/50' 
+                : 'bg-white border-gray-200 hover:bg-gray-100'
+            }`}>
+              <Bell className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </button>
             
             {/* Calendar */}
-            <button className="p-2 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-colors">
-              <Calendar className="w-5 h-5 text-gray-400" />
+            <button className={`p-2 border rounded-xl transition-colors ${
+              isDarkMode 
+                ? 'bg-gray-800/50 border-gray-700 hover:bg-gray-700/50' 
+                : 'bg-white border-gray-200 hover:bg-gray-100'
+            }`}>
+              <Calendar className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
             </button>
           </div>
         </div>

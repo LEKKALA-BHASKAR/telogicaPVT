@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import { 
   Menu, 
@@ -12,7 +13,9 @@ import {
   ChevronDown,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -24,6 +27,7 @@ const Navbar = () => {
   const [cartCount, setCartCount] = useState(0);
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -83,19 +87,29 @@ const Navbar = () => {
     { name: 'Contact', path: '/contact' }
   ];
 
-  // Transparent with white text and blue accents
+  // Dynamic styling based on theme
   const navbarBg = isScrolled 
-    ? 'bg-black/20 backdrop-blur-md border-b border-white/10' 
+    ? isDarkMode 
+      ? 'bg-black/90 backdrop-blur-md border-b border-white/10' 
+      : 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm'
     : 'bg-transparent';
   
-  const textColor = 'text-white';
-  const secondaryTextColor = 'text-white/80';
-  const hoverTextColor = 'hover:text-blue-300';
-  const activeTextColor = 'text-blue-300';
-  const buttonPrimaryBg = 'bg-blue-500/80 hover:bg-blue-600 text-white backdrop-blur-sm';
-  const buttonSecondaryBg = 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20';
-  const dropdownBg = 'bg-black/80 backdrop-blur-xl border border-white/20';
-  const mobileMenuBg = 'bg-black/80 backdrop-blur-xl border-t border-white/20';
+  const textColor = isDarkMode ? 'text-white' : 'text-gray-900';
+  const secondaryTextColor = isDarkMode ? 'text-white/80' : 'text-gray-600';
+  const hoverTextColor = isDarkMode ? 'hover:text-blue-300' : 'hover:text-indigo-600';
+  const activeTextColor = isDarkMode ? 'text-blue-300' : 'text-indigo-600';
+  const buttonPrimaryBg = isDarkMode 
+    ? 'bg-blue-500/80 hover:bg-blue-600 text-white backdrop-blur-sm' 
+    : 'bg-indigo-600 hover:bg-indigo-700 text-white';
+  const buttonSecondaryBg = isDarkMode 
+    ? 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20' 
+    : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300';
+  const dropdownBg = isDarkMode 
+    ? 'bg-black/90 backdrop-blur-xl border border-white/20' 
+    : 'bg-white backdrop-blur-xl border border-gray-200 shadow-lg';
+  const mobileMenuBg = isDarkMode 
+    ? 'bg-black/95 backdrop-blur-xl border-t border-white/20' 
+    : 'bg-white/95 backdrop-blur-xl border-t border-gray-200';
 
   return (
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${navbarBg}`}>
@@ -144,24 +158,34 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
+            {/* Theme Toggle Button */}
+            <Button
+              variant="ghost"
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-indigo-600'
+              }`}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+
             {isAuthenticated ? (
               <>
                 {isAdmin && (
                   <Button
                     variant="ghost"
                     onClick={() => navigate('/admin/dashboard')}
-                    className={`
-                      w-full flex items-center justify-between 
-                      bg-gray-900 text-white 
-                      rounded-xl px-4 py-3 
-                      shadow-md shadow-gray-800/50
-                      hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-                      transition-all duration-300
-                      mr-2
-                    `}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-md transition-all duration-300 mr-2 ${
+                      isDarkMode 
+                        ? 'bg-gray-900 text-white shadow-gray-800/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20' 
+                        : 'bg-indigo-50 text-indigo-900 shadow-indigo-100 hover:bg-indigo-100 hover:shadow-lg'
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <LayoutDashboard className="w-5 h-5 text-blue-400" />
+                      <LayoutDashboard className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
                       <span className="font-medium">Dashboard</span>
                     </div>
                   </Button>
@@ -172,22 +196,21 @@ const Navbar = () => {
                     navigate('/cart');
                     setIsOpen(false);
                   }}
-                  className={`
-                    w-full flex items-center justify-between 
-                    bg-gray-900 text-white 
-                    rounded-xl px-4 py-3 
-                    shadow-md shadow-gray-800/50
-                    hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-                    transition-all duration-300
-                  `}
+                  className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-md transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-900 text-white shadow-gray-800/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20' 
+                      : 'bg-indigo-50 text-indigo-900 shadow-indigo-100 hover:bg-indigo-100 hover:shadow-lg'
+                  }`}
                 >
                   <div className="flex items-center gap-2">
-                    <ShoppingCart className="w-5 h-5 text-blue-400" />
+                    <ShoppingCart className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
                     <span className="font-medium">Cart</span>
                   </div>
 
                   {cartCount > 0 && (
-                    <span className="w-6 h-6 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                    <span className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center font-bold ml-2 ${
+                      isDarkMode ? 'bg-blue-500' : 'bg-indigo-600'
+                    }`}>
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -197,34 +220,33 @@ const Navbar = () => {
                   <Button
                     variant="ghost"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`
-                      w-full flex items-center justify-between 
-                      bg-gray-900 text-white 
-                      rounded-xl px-4 py-3 
-                      shadow-md shadow-gray-800/50
-                      hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20 
-                      transition-all duration-300
-                    `}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-md transition-all duration-300 ${
+                      isDarkMode 
+                        ? 'bg-gray-900 text-white shadow-gray-800/50 hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-500/20' 
+                        : 'bg-indigo-50 text-indigo-900 shadow-indigo-100 hover:bg-indigo-100 hover:shadow-lg'
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <User className="w-5 h-5 text-blue-400" />
+                      <User className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-indigo-600'}`} />
                       <span className="font-medium">Account</span>
                     </div>
 
                     <ChevronDown
-                      className={`w-5 h-5 ml-2 text-gray-400 transition-transform ${
-                        isDropdownOpen ? 'rotate-180 text-blue-400' : ''
+                      className={`w-5 h-5 ml-2 transition-transform ${
+                        isDropdownOpen 
+                          ? isDarkMode ? 'rotate-180 text-blue-400' : 'rotate-180 text-indigo-600'
+                          : isDarkMode ? 'text-gray-400' : 'text-gray-500'
                       }`}
                     />
                   </Button>
 
                   {isDropdownOpen && (
-                    <div className={`absolute right-0 mt-2 w-48 ${dropdownBg} rounded-lg shadow-xl`}>
-                      <div className="p-3 border-b border-white/20">
-                        <p className="text-white font-medium text-sm">
+                    <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-xl ${dropdownBg}`}>
+                      <div className={`p-3 border-b ${isDarkMode ? 'border-white/20' : 'border-gray-200'}`}>
+                        <p className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           {user?.name || 'User'}
                         </p>
-                        <p className="text-white/60 text-xs">
+                        <p className={`text-xs ${isDarkMode ? 'text-white/60' : 'text-gray-500'}`}>
                           {user?.email || 'user@example.com'}
                         </p>
                       </div>
@@ -235,7 +257,11 @@ const Navbar = () => {
                             navigate('/profile');
                             setIsDropdownOpen(false);
                           }}
-                          className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+                          className={`w-full justify-start transition-all duration-300 ${
+                            isDarkMode 
+                              ? 'text-white/80 hover:text-white hover:bg-white/10' 
+                              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                          }`}
                         >
                           <User className="w-4 h-4 mr-2" />
                           Profile
@@ -243,7 +269,11 @@ const Navbar = () => {
                         <Button
                           variant="ghost"
                           onClick={handleLogout}
-                          className="w-full justify-start text-white/80 hover:text-red-300 hover:bg-white/10 transition-all duration-300"
+                          className={`w-full justify-start transition-all duration-300 ${
+                            isDarkMode 
+                              ? 'text-white/80 hover:text-red-300 hover:bg-white/10' 
+                              : 'text-gray-700 hover:text-red-600 hover:bg-red-50'
+                          }`}
                         >
                           <LogOut className="w-4 h-4 mr-2" />
                           Logout
@@ -286,7 +316,26 @@ const Navbar = () => {
       <div className={`lg:hidden transition-all duration-300 overflow-hidden backdrop-blur-xl ${
         isOpen ? `max-h-screen ${mobileMenuBg}` : 'max-h-0'
       }`}>
-        <div className="px-6 py-4 space-y-4 border-t border-white/20">
+        <div className={`px-6 py-4 space-y-4 border-t ${isDarkMode ? 'border-white/20' : 'border-gray-200'}`}>
+          {/* Theme Toggle in Mobile */}
+          <div className="flex items-center justify-between py-2">
+            <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+            </span>
+            <Button
+              variant="ghost"
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-indigo-600'
+              }`}
+              aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+          </div>
+
           {/* Navigation Links */}
           <div className="space-y-2">
             {navLinks.map((link) => (
@@ -295,8 +344,12 @@ const Navbar = () => {
                 to={link.path}
                 className={`block py-3 px-4 rounded-lg font-medium transition-colors duration-300 ${
                   isActive(link.path)
-                    ? `${activeTextColor} bg-white/10`
-                    : `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                    ? isDarkMode 
+                      ? `${activeTextColor} bg-white/10`
+                      : `${activeTextColor} bg-indigo-50`
+                    : isDarkMode
+                      ? `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                      : `${secondaryTextColor} ${hoverTextColor} hover:bg-gray-100`
                 }`}
                 onClick={() => setIsOpen(false)}
               >
@@ -306,7 +359,7 @@ const Navbar = () => {
           </div>
           
           {/* Auth Section */}
-          <div className="border-t border-white/20 pt-4">
+          <div className={`border-t pt-4 ${isDarkMode ? 'border-white/20' : 'border-gray-200'}`}>
             {isAuthenticated ? (
               <div className="space-y-3">
                 {isAdmin && (
@@ -316,7 +369,11 @@ const Navbar = () => {
                       navigate('/admin/dashboard');
                       setIsOpen(false);
                     }}
-                    className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300 mb-2`}
+                    className={`w-full justify-start transition-all duration-300 mb-2 ${
+                      isDarkMode 
+                        ? `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100'
+                    }`}
                   >
                     <LayoutDashboard className="w-4 h-4 mr-2" />
                     Dashboard
@@ -328,12 +385,18 @@ const Navbar = () => {
                     navigate('/cart');
                     setIsOpen(false);
                   }}
-                  className={`w-full justify-start text-gray-700 hover:text-blue-600 hover:bg-white/10 transition-all duration-300 relative group mb-2`}
+                  className={`w-full justify-start transition-all duration-300 relative group mb-2 ${
+                    isDarkMode 
+                      ? `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100'
+                  }`}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Cart
                   {cartCount > 0 && (
-                    <span className="absolute right-4 w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold transform group-hover:scale-110 transition-transform duration-200">
+                    <span className={`absolute right-4 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold transform group-hover:scale-110 transition-transform duration-200 ${
+                      isDarkMode ? 'bg-blue-500' : 'bg-indigo-600'
+                    }`}>
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
@@ -344,7 +407,11 @@ const Navbar = () => {
                     navigate('/profile');
                     setIsOpen(false);
                   }}
-                  className={`w-full justify-start ${secondaryTextColor} ${hoverTextColor} hover:bg-white/10 transition-all duration-300`}
+                  className={`w-full justify-start transition-all duration-300 ${
+                    isDarkMode 
+                      ? `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100'
+                  }`}
                 >
                   <User className="w-4 h-4 mr-2" />
                   Profile
@@ -352,7 +419,11 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   onClick={handleLogout}
-                  className="w-full justify-start text-white/80 hover:text-red-300 hover:bg-white/10 transition-all duration-300"
+                  className={`w-full justify-start transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'text-white/80 hover:text-red-300 hover:bg-white/10'
+                      : 'text-gray-700 hover:text-red-600 hover:bg-red-50'
+                  }`}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
@@ -384,7 +455,7 @@ const Navbar = () => {
           </div>
           
           {/* Contact Info */}
-          <div className="border-t border-white/20 pt-4 space-y-3 text-sm">
+          <div className={`border-t pt-4 space-y-3 text-sm ${isDarkMode ? 'border-white/20' : 'border-gray-200'}`}>
             <div className={`flex items-center space-x-3 ${secondaryTextColor}`}>
               <Phone className="w-4 h-4" />
               <span>+91 9396610682</span>

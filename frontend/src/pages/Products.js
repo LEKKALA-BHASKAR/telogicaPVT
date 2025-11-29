@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import { useTheme } from '../context/ThemeContext';
 import {
   Search,
   Filter,
@@ -23,6 +24,7 @@ import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
 const Products = () => {
+  const { isDarkMode } = useTheme();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -209,12 +211,22 @@ const Products = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-950 to-gray-900 text-white font-sans overflow-hidden">
+    <div className={`min-h-screen font-sans overflow-hidden transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-b from-black via-gray-950 to-gray-900 text-white' 
+        : 'bg-gradient-to-b from-slate-50 via-white to-indigo-50 text-gray-900'
+    }`}>
       {/* ✨ Floating Glow Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-500/20 blur-[120px]" />
-        <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] bg-blue-500/20 blur-[160px]" />
-        <div className="absolute bottom-[-10%] left-[25%] w-[400px] h-[400px] bg-pink-500/20 blur-[120px]" />
+        <div className={`absolute top-[-10%] left-[-10%] w-96 h-96 blur-[120px] ${
+          isDarkMode ? 'bg-purple-500/20' : 'bg-indigo-400/20'
+        }`} />
+        <div className={`absolute top-[40%] right-[-10%] w-[500px] h-[500px] blur-[160px] ${
+          isDarkMode ? 'bg-blue-500/20' : 'bg-purple-400/15'
+        }`} />
+        <div className={`absolute bottom-[-10%] left-[25%] w-[400px] h-[400px] blur-[120px] ${
+          isDarkMode ? 'bg-pink-500/20' : 'bg-pink-400/15'
+        }`} />
       </div>
 
       <div className="relative z-10">
@@ -227,20 +239,24 @@ const Products = () => {
             className="max-w-4xl mx-auto"
           >
             <div className="flex justify-center items-center mb-4">
-              <Sparkles className="text-purple-400 w-8 h-8 mr-2" />
-              <h1 className="text-6xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+              <Sparkles className={`w-8 h-8 mr-2 ${isDarkMode ? 'text-purple-400' : 'text-indigo-600'}`} />
+              <h1 className={`text-6xl font-extrabold bg-clip-text text-transparent ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400' 
+                  : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600'
+              }`}>
                 Explore Our Products
               </h1>
             </div>
 
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed mt-4">
-              Find cutting-edge solutions crafted for <span className="text-purple-300 font-semibold">Telecommunication</span>,{' '}
-              <span className="text-blue-300 font-semibold">Defence</span>, and{' '}
-              <span className="text-pink-300 font-semibold">Manufacturing</span> industries.
+            <p className={`text-lg max-w-2xl mx-auto leading-relaxed mt-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Find cutting-edge solutions crafted for <span className={`font-semibold ${isDarkMode ? 'text-purple-300' : 'text-indigo-600'}`}>Telecommunication</span>,{' '}
+              <span className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>Defence</span>, and{' '}
+              <span className={`font-semibold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>Manufacturing</span> industries.
             </p>
 
             {/* Category Stats */}
-            <div className="flex flex-wrap justify-center gap-6 mt-10 text-gray-300">
+            <div className={`flex flex-wrap justify-center gap-6 mt-10 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {Object.entries({
                 Total: categoryStats.all,
                 Telecom: categoryStats.Telecommunication,
@@ -253,10 +269,14 @@ const Products = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-gray-800/40 rounded-xl px-6 py-4 border border-gray-700/50 shadow-md hover:border-purple-500/40 transition-all"
+                  className={`rounded-xl px-6 py-4 border shadow-md transition-all ${
+                    isDarkMode 
+                      ? 'bg-gray-800/40 border-gray-700/50 hover:border-purple-500/40' 
+                      : 'bg-white/80 border-gray-200 hover:border-indigo-500/40 hover:shadow-lg'
+                  }`}
                 >
-                  <div className="text-2xl font-bold text-white">{value}</div>
-                  <div className="text-sm text-gray-400 mt-1">{label}</div>
+                  <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{value}</div>
+                  <div className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{label}</div>
                 </motion.div>
               ))}
             </div>
@@ -269,12 +289,16 @@ const Products = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 shadow-lg"
+            className={`backdrop-blur-xl border rounded-2xl p-6 shadow-lg ${
+              isDarkMode 
+                ? 'bg-gray-900/80 border-gray-700/50' 
+                : 'bg-white/80 border-gray-200'
+            }`}
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
               {/* Search */}
               <div className="lg:col-span-4">
-                <label className="text-sm text-gray-400 mb-2 block">Search</label>
+                <label className={`text-sm mb-2 block ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Search</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
