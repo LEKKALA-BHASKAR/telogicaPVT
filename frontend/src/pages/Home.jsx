@@ -6,12 +6,17 @@ import AboutHero from "./AboutHero";
 import FeaturedProductsSection from "./FeaturedProductsSection";
 import FAQSection from "../components/FAQSection";
 import { useEffect } from "react";
+import { useTheme } from "../context/ThemeContext";
+
 const Home = () => {
+    const { isDarkMode } = useTheme();
+    
     useEffect(() => {
       window.scrollTo(0, 0);
     }, []);
+
   return (
-    <div className="bg-black text-white">
+    <div className={`transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
       <Hero />
       <AboutHero />
       <div className="my-16">
