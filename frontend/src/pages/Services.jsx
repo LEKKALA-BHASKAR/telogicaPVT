@@ -3,8 +3,10 @@ import { ArrowRight, CheckCircle, Zap, Shield, Cog, Phone, Satellite, Wrench, Sp
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import Footer from '@/components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 function Services() {
+  const { isDarkMode } = useTheme();
   const [activeService, setActiveService] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef(null);
@@ -113,17 +115,23 @@ function Services() {
   ];
 
   return (
-    <div className="bg-gray-950 text-white" ref={containerRef}>
+    <div className={`transition-colors duration-300 ${
+      isDarkMode ? 'bg-gray-950 text-white' : 'bg-slate-50 text-gray-900'
+    }`} ref={containerRef}>
       {/* Scroll Progress Indicator */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-gray-900 z-50">
+      <div className={`fixed top-0 left-0 w-full h-1 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
         <div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300"
+          className={`h-full transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600' 
+              : 'bg-gradient-to-r from-cyan-500 to-indigo-500'
+          }`}
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
       {/* Animated Background */}
-      <div className="fixed inset-0 z-0 opacity-10">
+      <div className={`fixed inset-0 z-0 ${isDarkMode ? 'opacity-10' : 'opacity-5'}`}>
         <div
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center transition-transform duration-1000"
           style={{
@@ -134,37 +142,59 @@ function Services() {
 
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-950/80 to-black/80" />
+        <div className={`absolute inset-0 ${
+          isDarkMode 
+            ? 'bg-gradient-to-b from-gray-950/80 to-black/80' 
+            : 'bg-gradient-to-b from-slate-50/90 to-white/90'
+        }`} />
         <div className="relative z-10 max-w-6xl mx-auto text-center">
-          <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
+          <div className={`w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600' 
+              : 'bg-gradient-to-r from-cyan-500 to-indigo-600'
+          }`}>
             <Sparkles className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent tracking-tight">
+          <h1 className={`text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent tracking-tight ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400' 
+              : 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600'
+          }`}>
             Services
           </h1>
-          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <p className={`text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Precision-engineered solutions for{' '}
-            <span className="text-cyan-400 font-medium">telecommunications</span>,{' '}
-            <span className="text-emerald-400 font-medium">defense</span>, and{' '}
-            <span className="text-purple-400 font-medium">manufacturing</span> sectors.
+            <span className={`font-medium ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>telecommunications</span>,{' '}
+            <span className={`font-medium ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>defense</span>, and{' '}
+            <span className={`font-medium ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>manufacturing</span> sectors.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mt-20">
             {stats.map((stat, index) => (
               <div key={index} className="text-center group">
                 <div className="relative inline-flex items-center justify-center mb-4">
-                  <div className="absolute inset-0 bg-cyan-500/10 rounded-full blur-md group-hover:bg-cyan-500/20 transition-all duration-500"></div>
-                  <div className="relative w-16 h-16 rounded-2xl bg-gray-900/50 border border-gray-700 flex items-center justify-center group-hover:border-cyan-500/30 transition-all duration-300">
-                    <stat.icon className="h-8 w-8 text-cyan-400" />
+                  <div className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${
+                    isDarkMode 
+                      ? 'bg-cyan-500/10 group-hover:bg-cyan-500/20' 
+                      : 'bg-cyan-400/10 group-hover:bg-cyan-400/20'
+                  }`}></div>
+                  <div className={`relative w-16 h-16 rounded-2xl border flex items-center justify-center transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-900/50 border-gray-700 group-hover:border-cyan-500/30' 
+                      : 'bg-white/80 border-gray-200 group-hover:border-cyan-500/50'
+                  }`}>
+                    <stat.icon className={`h-8 w-8 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-sm text-gray-400 font-medium">{stat.label}</div>
+                <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stat.number}</div>
+                <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</div>
               </div>
             ))}
           </div>
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-cyan-500/50 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-cyan-400 rounded-full mt-2"></div>
+            <div className={`w-6 h-10 border-2 rounded-full flex justify-center ${
+              isDarkMode ? 'border-cyan-500/50' : 'border-cyan-500/70'
+            }`}>
+              <div className={`w-1 h-3 rounded-full mt-2 ${isDarkMode ? 'bg-cyan-400' : 'bg-cyan-500'}`}></div>
             </div>
           </div>
         </div>

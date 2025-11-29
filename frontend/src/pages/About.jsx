@@ -18,8 +18,10 @@ import {
 } from 'lucide-react';
 import { gsap } from 'gsap';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function About() {
+  const { isDarkMode } = useTheme();
   const [activeTimeline, setActiveTimeline] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef(null);
@@ -162,17 +164,23 @@ function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white overflow-hidden" ref={containerRef}>
+    <div className={`min-h-screen overflow-hidden transition-colors duration-300 ${
+      isDarkMode ? 'bg-gray-950 text-white' : 'bg-slate-50 text-gray-900'
+    }`} ref={containerRef}>
       {/* Scroll Progress Indicator */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-gray-900 z-50">
+      <div className={`fixed top-0 left-0 w-full h-1 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
         <div
-          className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
+          className={`h-full transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-blue-600 to-purple-600' 
+              : 'bg-gradient-to-r from-indigo-500 to-purple-500'
+          }`}
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
       {/* Animated Background */}
-      <div className="fixed inset-0 z-0 opacity-10">
+      <div className={`fixed inset-0 z-0 ${isDarkMode ? 'opacity-10' : 'opacity-5'}`}>
         <div
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center transition-transform duration-1000"
           style={{
@@ -184,13 +192,23 @@ function About() {
 {/* Hero Section */}
 <section className="relative min-h-screen flex items-center overflow-hidden px-4 sm:px-6 lg:px-8" ref={heroRef}>
   {/* Background with gradient overlay */}
-  <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-black to-purple-950/30" />
+  <div className={`absolute inset-0 ${
+    isDarkMode 
+      ? 'bg-gradient-to-br from-gray-950 via-black to-purple-950/30' 
+      : 'bg-gradient-to-br from-slate-50 via-white to-indigo-100/50'
+  }`} />
   
   {/* Animated background elements */}
   <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
-    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl"></div>
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl"></div>
+    <div className={`absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl ${
+      isDarkMode ? 'bg-blue-500/10' : 'bg-indigo-400/20'
+    }`}></div>
+    <div className={`absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl ${
+      isDarkMode ? 'bg-purple-500/10' : 'bg-purple-400/20'
+    }`}></div>
+    <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl ${
+      isDarkMode ? 'bg-cyan-500/5' : 'bg-cyan-400/10'
+    }`}></div>
   </div>
 
   <div className="relative z-10 max-w-7xl mx-auto w-full">

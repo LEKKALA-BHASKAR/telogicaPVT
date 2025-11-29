@@ -5,8 +5,10 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
 import Footer from '@/components/Footer';
+import { useTheme } from '../context/ThemeContext';
 
 function Contact() {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -186,17 +188,23 @@ function Contact() {
   ];
 
   return (
-    <div className="bg-gray-950 text-white" ref={containerRef}>
+    <div className={`transition-colors duration-300 ${
+      isDarkMode ? 'bg-gray-950 text-white' : 'bg-slate-50 text-gray-900'
+    }`} ref={containerRef}>
       {/* Scroll Progress Indicator */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-gray-900 z-50">
+      <div className={`fixed top-0 left-0 w-full h-1 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
         <div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300"
+          className={`h-full transition-all duration-300 ${
+            isDarkMode 
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600' 
+              : 'bg-gradient-to-r from-cyan-500 to-indigo-500'
+          }`}
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
       {/* Animated Background */}
-      <div className="fixed inset-0 z-0 opacity-10">
+      <div className={`fixed inset-0 z-0 ${isDarkMode ? 'opacity-10' : 'opacity-5'}`}>
         <div
           className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center transition-transform duration-1000"
           style={{
@@ -210,10 +218,14 @@ function Contact() {
       <section className="relative py-20" ref={(el) => (sectionsRef.current[0] = el)}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-              Get In <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Touch</span>
+            <h2 className={`text-5xl font-extrabold mb-6 tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Get In <span className={`bg-clip-text text-transparent ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-cyan-400 to-blue-400' 
+                  : 'bg-gradient-to-r from-cyan-600 to-indigo-600'
+              }`}>Touch</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className={`text-xl max-w-3xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Connect with us through multiple channels for prompt and personalized support.
             </p>
           </div>
@@ -228,14 +240,18 @@ function Contact() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50" />
                 </div>
-                <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mt-4 border border-gray-700 group-hover:border-cyan-500/30 transition-all duration-300">
+                <div className={`relative backdrop-blur-sm rounded-2xl p-6 mt-4 border transition-all duration-300 ${
+                  isDarkMode 
+                    ? 'bg-gray-900/50 border-gray-700 group-hover:border-cyan-500/30' 
+                    : 'bg-white/80 border-gray-200 group-hover:border-cyan-500/50 shadow-lg'
+                }`}>
                   <div className={`w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-r ${info.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <info.icon className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4 text-center">{info.title}</h3>
+                  <h3 className={`text-lg font-bold mb-4 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{info.title}</h3>
                   <div className="space-y-2 text-center">
                     {info.details.map((detail, idx) => (
-                      <p key={idx} className="text-gray-300 text-sm">{detail}</p>
+                      <p key={idx} className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{detail}</p>
                     ))}
                   </div>
                 </div>
