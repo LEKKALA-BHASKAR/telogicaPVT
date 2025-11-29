@@ -239,7 +239,7 @@ const Login = () => {
 
           {/* Footer */}
           <div className="text-center mt-6">
-            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className="text-xs text-gray-500">
               © 2024 Telogica. Connecting the future of telecommunications.
             </p>
           </div>

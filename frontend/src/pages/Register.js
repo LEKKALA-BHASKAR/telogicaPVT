@@ -186,7 +186,7 @@ const Register = () => {
                     )}
                   </button>
                 </div>
-                <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                <p className="text-xs text-gray-500">
                   Use 8+ characters with a mix of letters, numbers & symbols
                 </p>
               </div>
@@ -284,7 +284,7 @@ const Register = () => {
 
           {/* Footer */}
           <div className="text-center mt-6">
-            <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className="text-xs text-gray-500">
               © 2024 Telogica. Powering the future of connectivity.
             </p>
           </div>
