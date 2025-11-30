@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { ChevronDown, HelpCircle, MessageCircle, Phone, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
+  const { isDarkMode } = useTheme();
 
   const faqs = [
     {
@@ -46,11 +48,19 @@ const FAQSection = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white relative overflow-hidden">
+    <section className={`py-20 relative overflow-hidden transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white'
+        : 'bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900'
+    }`}>
       {/* Background Gradients */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/10 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 blur-[120px]" />
+        <div className={`absolute top-0 left-0 w-96 h-96 blur-[120px] ${
+          isDarkMode ? 'bg-blue-500/10' : 'bg-blue-500/5'
+        }`} />
+        <div className={`absolute bottom-0 right-0 w-96 h-96 blur-[120px] ${
+          isDarkMode ? 'bg-purple-500/10' : 'bg-purple-500/5'
+        }`} />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,13 +72,25 @@ const FAQSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 mb-6">
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 ${
+            isDarkMode 
+              ? 'bg-gradient-to-br from-blue-600 to-purple-600'
+              : 'bg-gradient-to-br from-blue-500 to-purple-500'
+          }`}>
             <HelpCircle className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Frequently Asked <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Questions</span>
+          <h2 className={`text-4xl md:text-5xl font-bold mb-4 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>
+            Frequently Asked <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
+              isDarkMode 
+                ? 'from-blue-400 to-purple-400'
+                : 'from-blue-600 to-purple-600'
+            }`}>Questions</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          }`}>
             Find answers to common questions about our products and services
           </p>
         </motion.div>
@@ -82,18 +104,26 @@ const FAQSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-700/50 overflow-hidden hover:border-purple-500/30 transition-all duration-300"
+              className={`backdrop-blur-sm rounded-xl border overflow-hidden hover:border-purple-500/30 transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gray-900/50 border-gray-700/50 hover:border-purple-400/50'
+                  : 'bg-white/50 border-gray-200 hover:border-purple-300'
+              }`}
             >
               <button
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-6 py-5 flex items-center justify-between text-left group"
               >
-                <span className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors duration-300 pr-4">
+                <span className={`text-lg font-semibold group-hover:text-purple-400 transition-colors duration-300 pr-4 ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`w-6 h-6 text-purple-400 flex-shrink-0 transition-transform duration-300 ${
+                  className={`w-6 h-6 flex-shrink-0 transition-transform duration-300 ${
                     openIndex === index ? 'rotate-180' : ''
+                  } ${
+                    isDarkMode ? 'text-purple-400' : 'text-purple-600'
                   }`}
                 />
               </button>
@@ -106,7 +136,11 @@ const FAQSection = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-5 pt-2 text-gray-300 leading-relaxed border-t border-gray-700/30">
+                    <div className={`px-6 pb-5 pt-2 leading-relaxed border-t ${
+                      isDarkMode 
+                        ? 'text-gray-300 border-gray-700/30'
+                        : 'text-gray-700 border-gray-200'
+                    }`}>
                       {faq.answer}
                     </div>
                   </motion.div>
@@ -122,26 +156,44 @@ const FAQSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm rounded-2xl border border-blue-500/20 p-8 text-center"
+          className={`backdrop-blur-sm rounded-2xl p-8 text-center ${
+            isDarkMode 
+              ? 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-500/20'
+              : 'bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200'
+          }`}
         >
-          <MessageCircle className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-white mb-2">
+          <MessageCircle className={`w-12 h-12 mx-auto mb-4 ${
+            isDarkMode ? 'text-blue-400' : 'text-blue-600'
+          }`} />
+          <h3 className={`text-2xl font-bold mb-2 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>
             Still have questions?
           </h3>
-          <p className="text-gray-300 mb-6">
+          <p className={`mb-6 ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
             Our team is here to help. Get in touch with us for personalized assistance.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
+              className={`inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-blue-500/50'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-blue-500/25'
+              }`}
             >
               <Mail className="w-5 h-5 mr-2" />
               Contact Us
             </Link>
             <a
               href="tel:+919396610682"
-              className="inline-flex items-center justify-center px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold border border-white/20 transition-all duration-300"
+              className={`inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold border transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-300'
+              }`}
             >
               <Phone className="w-5 h-5 mr-2" />
               Call Now

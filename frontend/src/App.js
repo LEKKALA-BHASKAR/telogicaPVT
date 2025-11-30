@@ -47,10 +47,10 @@ function AppContent({ showContactForm, setShowContactForm }) {
   const { isDarkMode } = useTheme();
 
   return (
-    <div className={`App min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+    <div className={`App min-h-screen flex flex-col transition-colors duration-300 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
       <SkipToContent />
       <Navbar />
-      <main id="main-content" className="min-h-screen">
+      <main id="main-content" className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

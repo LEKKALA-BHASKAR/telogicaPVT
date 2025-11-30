@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Handshake, CheckCircle, Calendar, Star, Quote, ArrowRight, MessageSquare, ChevronLeft, ChevronRight, Play, Pause, Users, Award, TrendingUp, Globe, Shield, Network, Target, Zap, Sparkles, ArrowUpRight, Layers, Cpu, Radio, Wifi, BarChart3, Clock, MapPin, Phone, Mail } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useTheme } from '../context/ThemeContext';
 
 // Import your logos (keeping the same imports)
 import jioLogo from "../assets/jio.png";
@@ -193,6 +194,7 @@ const ClientLogo = ({ client, index }) => {
 };
 
 const ServiceCard = ({ service, index }) => {
+  const { isDarkMode } = useTheme();
   const Icon = service.icon;
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
@@ -205,22 +207,40 @@ const ServiceCard = ({ service, index }) => {
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 h-full transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10 overflow-hidden">
+      <div className={`relative rounded-2xl p-8 border h-full transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10 overflow-hidden ${
+        isDarkMode 
+          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
+          : 'bg-white/50 backdrop-blur-sm border-gray-200'
+      }`}>
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+          isDarkMode 
+            ? 'from-purple-500/5 via-transparent to-pink-500/5'
+            : 'from-blue-500/5 via-transparent to-indigo-500/5'
+        }`} />
         
         <div className="relative z-10">
-          <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${service.color} mb-6 group-hover:scale-110 transition-transform duration-500`}>
+          <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r mb-6 group-hover:scale-110 transition-transform duration-500 ${
+            isDarkMode ? service.color : 'from-blue-500 to-indigo-500'
+          }`}>
             <Icon className="w-7 h-7 text-white" />
           </div>
           
-          <h3 className="text-xl font-semibold text-white mb-3">{service.title}</h3>
-          <p className="text-gray-300 mb-6 leading-relaxed">{service.description}</p>
+          <h3 className={`text-xl font-semibold mb-3 ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>{service.title}</h3>
+          <p className={`mb-6 leading-relaxed ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>{service.description}</p>
           
           <ul className="space-y-2">
             {service.features.map((feature, idx) => (
-              <li key={idx} className="flex items-center text-gray-400 text-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mr-3" />
+              <li className={`flex items-center text-sm ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                <div className={`w-1.5 h-1.5 rounded-full mr-3 ${
+                  isDarkMode ? 'bg-purple-500' : 'bg-blue-500'
+                }`} />
                 {feature}
               </li>
             ))}
@@ -232,6 +252,7 @@ const ServiceCard = ({ service, index }) => {
 };
 
 const EnterpriseStatCard = ({ stat, index }) => {
+  const { isDarkMode } = useTheme();
   const Icon = stat.icon;
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
   const [count, setCount] = useState(0);
@@ -263,22 +284,39 @@ const EnterpriseStatCard = ({ stat, index }) => {
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 text-center transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 mb-6 group-hover:scale-110 transition-transform duration-500">
-          <Icon className="w-8 h-8 text-purple-400" />
+      <div className={`relative rounded-2xl p-8 border text-center transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10 ${
+        isDarkMode 
+          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
+          : 'bg-white/50 backdrop-blur-sm border-gray-200'
+      }`}>
+        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-500 ${
+          isDarkMode 
+            ? 'bg-purple-500/10 border border-purple-500/20'
+            : 'bg-blue-500/10 border border-blue-500/20'
+        }`}>
+          <Icon className={`w-8 h-8 ${
+            isDarkMode ? 'text-purple-400' : 'text-blue-600'
+          }`} />
         </div>
         
-        <div className="text-4xl font-bold text-white mb-2">
+        <div className={`text-4xl font-bold mb-2 ${
+          isDarkMode ? 'text-white' : 'text-gray-900'
+        }`}>
           {inView ? (stat.number.includes("%") ? `${count}%` : `${count}+`) : `0${stat.number.slice(-1)}`}
         </div>
-        <div className="text-lg font-semibold text-purple-400 mb-2">{stat.label}</div>
-        <div className="text-gray-400 text-sm">{stat.description}</div>
+        <div className={`text-lg font-semibold mb-2 ${
+          isDarkMode ? 'text-purple-400' : 'text-blue-600'
+        }`}>{stat.label}</div>
+        <div className={`text-sm ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+        }`}>{stat.description}</div>
       </div>
     </motion.div>
   );
 };
 
 const TestimonialSlide = ({ testimonial, isActive, direction }) => {
+  const { isDarkMode } = useTheme();
   const CompanyLogoSrc = getLogoSrc(testimonial.companyLogoKey);
 
   return (
@@ -289,21 +327,37 @@ const TestimonialSlide = ({ testimonial, isActive, direction }) => {
       exit={{ opacity: 0, x: direction > 0 ? -100 : 100 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
+      <div className={`rounded-2xl p-6 border ${
+        isDarkMode 
+          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
+          : 'bg-white/50 backdrop-blur-sm border-gray-200'
+      }`}>
         <div className="flex flex-col h-full">
           {/* Header with logo and info */}
           <div className="flex items-start gap-4 mb-4">
-            <div className="w-12 h-12 rounded-lg bg-gray-800/50 p-2 flex items-center justify-center border border-gray-700/50 flex-shrink-0">
+            <div className={`w-12 h-12 rounded-lg p-2 flex items-center justify-center border flex-shrink-0 ${
+              isDarkMode 
+                ? 'bg-gray-800/50 border-gray-700/50'
+                : 'bg-gray-100 border-gray-200'
+            }`}>
               {CompanyLogoSrc ? (
                 <img src={CompanyLogoSrc} alt={`${testimonial.company} logo`} className="w-8 h-8 object-contain" />
               ) : (
-                <div className="text-gray-600 text-xs">Logo</div>
+                <div className={`text-xs ${
+                  isDarkMode ? 'text-gray-600' : 'text-gray-400'
+                }`}>Logo</div>
               )}
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-white text-base mb-1">{testimonial.name}</div>
-              <div className="text-purple-400 text-xs mb-1">{testimonial.position}</div>
-              <div className="text-gray-300 text-xs">{testimonial.company}</div>
+              <div className={`font-semibold text-base mb-1 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>{testimonial.name}</div>
+              <div className={`text-xs mb-1 ${
+                isDarkMode ? 'text-purple-400' : 'text-blue-600'
+              }`}>{testimonial.position}</div>
+              <div className={`text-xs ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>{testimonial.company}</div>
             </div>
           </div>
           
@@ -315,12 +369,20 @@ const TestimonialSlide = ({ testimonial, isActive, direction }) => {
           </div>
           
           {/* Content */}
-          <p className="text-gray-200 text-sm leading-relaxed flex-1 mb-3">{testimonial.content}</p>
+          <p className={`text-sm leading-relaxed flex-1 mb-3 ${
+            isDarkMode ? 'text-gray-200' : 'text-gray-800'
+          }`}>{testimonial.content}</p>
           
           {/* Project */}
-          <div className="pt-3 border-t border-gray-700/50">
-            <div className="text-xs text-gray-400">Project:</div>
-            <div className="text-purple-400 font-medium text-sm">{testimonial.project}</div>
+          <div className={`pt-3 border-t ${
+            isDarkMode ? 'border-gray-700/50' : 'border-gray-200'
+          }`}>
+            <div className={`text-xs ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>Project:</div>
+            <div className={`font-medium text-sm ${
+              isDarkMode ? 'text-purple-400' : 'text-blue-600'
+            }`}>{testimonial.project}</div>
           </div>
         </div>
       </div>
@@ -330,6 +392,7 @@ const TestimonialSlide = ({ testimonial, isActive, direction }) => {
 
 // ========== MAIN COMPONENT ==========
 export default function EnterpriseClients({ clients: clientsProp = null, logosEndpoint = null, stats = ENTERPRISE_STATS }) {
+  const { isDarkMode } = useTheme();
   const [clients, setClients] = useState(clientsProp || DEFAULT_CLIENTS);
   const [loadingClients, setLoadingClients] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -407,11 +470,19 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
   const duplicatedSecondRow = [...secondRowClients, ...secondRowClients];
 
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white relative overflow-hidden">
+    <section className={`py-24 relative overflow-hidden transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white'
+        : 'bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900'
+    }`}>
       {/* glowing gradients */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-[30rem] h-[30rem] bg-purple-600/20 blur-[180px]" />
-        <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-blue-500/10 blur-[150px]" />
+        <div className={`absolute -top-20 -left-20 w-[30rem] h-[30rem] blur-[180px] ${
+          isDarkMode ? 'bg-purple-600/20' : 'bg-blue-500/10'
+        }`} />
+        <div className={`absolute bottom-0 right-0 w-[28rem] h-[28rem] blur-[150px] ${
+          isDarkMode ? 'bg-blue-500/10' : 'bg-indigo-500/10'
+        }`} />
       </div>
 
       {/* Trusted Partners Section - Logo Only in Two Rows with Marquee */}
@@ -423,10 +494,16 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Trusted by <span className="text-purple-400">Visionary</span> Enterprises
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              Trusted by <span className={`${
+                isDarkMode ? 'text-purple-400' : 'text-blue-600'
+              }`}>Visionary</span> Enterprises
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className={`text-lg max-w-2xl mx-auto ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               Collaborating with industry pioneers to drive innovation and excellence in telecommunications
             </p>
           </motion.div>
@@ -483,10 +560,16 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Enterprise <span className="text-purple-400">Solutions</span>
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              Enterprise <span className={`${
+                isDarkMode ? 'text-purple-400' : 'text-blue-600'
+              }`}>Solutions</span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className={`text-lg max-w-2xl mx-auto ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               Comprehensive telecommunications solutions tailored for enterprise needs
             </p>
           </motion.div>
@@ -514,15 +597,25 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Client <span className="text-purple-400">Success</span> Stories
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>
+              Client <span className={`${
+                isDarkMode ? 'text-purple-400' : 'text-blue-600'
+              }`}>Success</span> Stories
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className={`text-lg max-w-2xl mx-auto ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-600'
+            }`}>
               Hear from industry leaders about their experience partnering with us
             </p>
           </motion.div>
 
-          <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50">
+          <div className={`relative rounded-2xl p-8 border ${
+            isDarkMode 
+              ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
+              : 'bg-white/50 backdrop-blur-sm border-gray-200'
+          }`}>
             {/* Testimonial Slide */}
             <div className="h-64 mb-6">
               <AnimatePresence mode="wait" initial={false}>
@@ -544,8 +637,8 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
                     onClick={() => handleTestimonialChange(index)}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
                       activeTestimonial === index 
-                        ? "bg-purple-400 w-8" 
-                        : "bg-gray-600 hover:bg-gray-400"
+                        ? (isDarkMode ? "bg-purple-400" : "bg-blue-600") + " w-8" 
+                        : isDarkMode ? "bg-gray-600 hover:bg-gray-400" : "bg-gray-400 hover:bg-gray-600"
                     }`}
                   />
                 ))}
@@ -554,23 +647,47 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
               <div className="flex gap-4">
                 <button 
                   onClick={() => handleTestimonialChange((activeTestimonial - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-                  className="p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
+                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                  }`}
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className={`w-5 h-5 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`} />
                 </button>
                 
                 <button 
                   onClick={() => setIsTestimonialPaused(!isTestimonialPaused)}
-                  className="p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
+                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                  }`}
                 >
-                  {isTestimonialPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
+                  {isTestimonialPaused ? (
+                    <Play className={`w-5 h-5 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`} />
+                  ) : (
+                    <Pause className={`w-5 h-5 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                    }`} />
+                  )}
                 </button>
                 
                 <button 
                   onClick={() => handleTestimonialChange((activeTestimonial + 1) % TESTIMONIALS.length)}
-                  className="p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
+                  className={`p-3 rounded-xl transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
+                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                  }`}
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className={`w-5 h-5 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`} />
                 </button>
               </div>
             </div>
