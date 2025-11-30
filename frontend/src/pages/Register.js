@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, Mail, Lock, Eye, EyeOff, Sparkles, Shield, Database, Cpu } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const { isDarkMode } = useTheme();
@@ -32,147 +33,145 @@ const Register = () => {
   };
 
   return (
-    <div className={`min-h-screen font-sans relative overflow-hidden transition-colors duration-300 ${
-      isDarkMode ? 'bg-black text-white' : 'bg-gradient-to-br from-slate-50 to-blue-50 text-gray-900'
-    }`}>
-      <br/>
-      <br/>
-      {/* Animated Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Gradient Orbs */}
-        <div className={`absolute top-1/4 -left-10 w-72 h-72 rounded-full blur-3xl animate-pulse ${
-          isDarkMode ? 'bg-blue-600/20' : 'bg-blue-400/20'
-        }`} />
-        <div className={`absolute bottom-1/4 -right-10 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000 ${
-          isDarkMode ? 'bg-green-600/15' : 'bg-emerald-400/15'
-        }`} />
-        <div className={`absolute top-1/2 left-1/2 w-64 h-64 rounded-full blur-3xl animate-pulse delay-500 ${
-          isDarkMode ? 'bg-cyan-600/10' : 'bg-cyan-400/10'
-        }`} />
-        
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `linear-gradient(${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(59,130,246,0.1)'} 1px, transparent 1px),
-                              linear-gradient(90deg, ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(59,130,246,0.1)'} 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}
+    <div className={`min-h-screen flex ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+      {/* Left Side - Image & Content */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 to-cyan-900/90 z-10" />
+        <img 
+          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" 
+          alt="Network Background" 
+          className="absolute inset-0 w-full h-full object-cover"
         />
-      </div>
-
-      {/* Floating Icons */}
-      <div className="absolute top-20 left-10 opacity-20 animate-float">
-        <Shield className={`w-8 h-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-500'}`} />
-      </div>
-      <div className="absolute top-40 right-16 opacity-20 animate-float delay-1000">
-        <Database className={`w-10 h-10 ${isDarkMode ? 'text-green-400' : 'text-emerald-500'}`} />
-      </div>
-      <div className="absolute bottom-32 left-20 opacity-20 animate-float delay-500">
-        <Cpu className={`w-12 h-12 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-500'}`} />
-      </div>
-
-      <div className="container mx-auto min-h-screen flex items-center justify-center px-4 py-8 relative z-10">
-        <div className="w-full max-w-md">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="relative">
-                <Sparkles className={`w-8 h-8 mr-3 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-                <div className={`absolute -inset-1 rounded-full blur opacity-75 animate-pulse ${
-                  isDarkMode ? 'bg-blue-400' : 'bg-blue-400'
-                }`}></div>
-              </div>
-              <h1 className={`text-3xl font-bold bg-clip-text text-transparent ${
-                isDarkMode 
-                  ? 'bg-gradient-to-r from-blue-400 via-green-400 to-cyan-400' 
-                  : 'bg-gradient-to-r from-blue-600 via-emerald-600 to-cyan-600'
-              }`}>
-                Telogica
-              </h1>
+        
+        <div className="relative z-20 flex flex-col justify-between h-full p-12 text-white">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-white" />
             </div>
-            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-600 text-sm'}>
-              Join the future of telecommunications
+            <span className="text-xl font-bold tracking-wide">TELOGICA</span>
+          </div>
+
+          <div className="space-y-6 max-w-lg">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-5xl font-bold leading-tight"
+            >
+              Join the Global Network
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-lg text-cyan-100"
+            >
+              Create an account to access exclusive telecom solutions, real-time analytics, and enterprise-grade support.
+            </motion.p>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-col gap-4 pt-4"
+            >
+              <div className="flex items-center gap-3 text-sm bg-white/10 backdrop-blur p-4 rounded-xl border border-white/10">
+                <ShieldCheck className="w-6 h-6 text-cyan-400" />
+                <div>
+                  <div className="font-semibold">Enterprise Security</div>
+                  <div className="text-cyan-200 text-xs">Bank-grade encryption for your data</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="text-sm text-cyan-200">
+            © 2024 Telogica Ltd. All rights reserved.
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Register Form */}
+      <div className={`w-full lg:w-1/2 flex items-center justify-center p-8 transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-950' : 'bg-white'
+      }`}>
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center lg:text-left">
+            <h2 className={`text-3xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Create an account
+            </h2>
+            <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Enter your details to get started
             </p>
           </div>
 
-          {/* Register Card */}
-          <div className={`backdrop-blur-xl rounded-3xl p-8 border shadow-2xl transition-colors duration-300 ${
-            isDarkMode 
-              ? 'bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50' 
-              : 'bg-white/80 border-gray-200'
-          }`}>
-            <div className="text-center mb-8">
-              <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Create Account</h2>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Start your journey with Telogica</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6" data-testid="register-form">
-              {/* Name Input */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Full Name</label>
+                <label className={`text-sm font-medium leading-none ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Full Name
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <User className={`h-5 w-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <Input
                     type="text"
-                    placeholder="Enter your full name"
+                    placeholder="John Doe"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={`pl-10 transition-all duration-300 ${
+                    className={`pl-10 h-12 rounded-xl transition-all ${
                       isDarkMode 
-                        ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500'
+                        ? 'bg-gray-900 border-gray-800 text-white focus:border-cyan-500 focus:ring-cyan-500/20' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-blue-500/20'
                     }`}
                     required
-                    data-testid="register-name-input"
                   />
                 </div>
               </div>
 
-              {/* Email Input */}
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email Address</label>
+                <label className={`text-sm font-medium leading-none ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Email
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <Mail className={`h-5 w-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <Input
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="name@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className={`pl-10 transition-all duration-300 ${
+                    className={`pl-10 h-12 rounded-xl transition-all ${
                       isDarkMode 
-                        ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-green-500 focus:ring-green-500' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-emerald-500'
+                        ? 'bg-gray-900 border-gray-800 text-white focus:border-cyan-500 focus:ring-cyan-500/20' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-blue-500/20'
                     }`}
                     required
-                    data-testid="register-email-input"
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
               <div className="space-y-2">
-                <label className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Password</label>
+                <label className={`text-sm font-medium leading-none ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Password
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <Lock className={`h-5 w-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                   </div>
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
+                    placeholder="Create a password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className={`pl-10 pr-10 transition-all duration-300 ${
+                    className={`pl-10 pr-10 h-12 rounded-xl transition-all ${
                       isDarkMode 
-                        ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 focus:border-cyan-500 focus:ring-cyan-500' 
-                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-cyan-500 focus:ring-cyan-500'
+                        ? 'bg-gray-900 border-gray-800 text-white focus:border-cyan-500 focus:ring-cyan-500/20' 
+                        : 'bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-blue-500/20'
                     }`}
                     required
-                    data-testid="register-password-input"
                   />
                   <button
                     type="button"
@@ -180,126 +179,78 @@ const Register = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className={`h-5 w-5 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`} />
+                      <EyeOff className={`h-5 w-5 ${isDarkMode ? 'text-gray-500 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                     ) : (
-                      <Eye className={`h-5 w-5 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`} />
+                      <Eye className={`h-5 w-5 ${isDarkMode ? 'text-gray-500 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                     )}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Use 8+ characters with a mix of letters, numbers & symbols
+                  Must be at least 8 characters long
                 </p>
               </div>
 
-              {/* Terms Agreement */}
-              <div className="flex items-start space-x-3 text-sm">
+              <div className="flex items-start space-x-3">
                 <input 
                   type="checkbox" 
-                  className={`mt-1 rounded focus:ring-blue-500 ${
-                    isDarkMode 
-                      ? 'bg-gray-700 border-gray-600 text-blue-500' 
-                      : 'bg-white border-gray-300 text-blue-600'
+                  className={`mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${
+                    isDarkMode ? 'bg-gray-800 border-gray-700' : ''
                   }`}
                   required 
                 />
-                <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   I agree to the{' '}
-                  <a href="#" className={`font-medium transition-colors ${
-                    isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
+                  <a href="#" className={`font-medium hover:underline ${
+                    isDarkMode ? 'text-cyan-400' : 'text-blue-600'
                   }`}>
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a href="#" className={`font-medium transition-colors ${
-                    isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
+                  <a href="#" className={`font-medium hover:underline ${
+                    isDarkMode ? 'text-cyan-400' : 'text-blue-600'
                   }`}>
                     Privacy Policy
                   </a>
                 </span>
               </div>
+            </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className={`w-full font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg border-0 ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-blue-500/25' 
-                    : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-blue-500/25'
+            <Button
+              type="submit"
+              className={`w-full h-12 rounded-xl font-semibold text-base transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${
+                isDarkMode 
+                  ? 'bg-white text-black hover:bg-gray-200' 
+                  : 'bg-gray-900 text-white hover:bg-gray-800'
+              }`}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <span>Creating account...</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <span>Create account</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              )}
+            </Button>
+
+            <p className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Already have an account?{' '}
+              <Link 
+                to="/login" 
+                className={`font-semibold hover:underline ${
+                  isDarkMode ? 'text-cyan-400' : 'text-blue-600'
                 }`}
-                disabled={loading}
-                data-testid="register-submit-btn"
               >
-                {loading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Creating Account...</span>
-                  </div>
-                ) : (
-                  <span>Create Account</span>
-                )}
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className={`w-full border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className={`px-2 ${isDarkMode ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}>Already with us?</span>
-              </div>
-            </div>
-
-            {/* Login Link */}
-            <div className="text-center">
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Already have an account?{' '}
-                <Link 
-                  to="/login" 
-                  className={`font-semibold transition-colors duration-300 hover:underline ${
-                    isDarkMode ? 'text-cyan-400 hover:text-cyan-300' : 'text-blue-600 hover:text-blue-500'
-                  }`}
-                >
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </div>
-
-          {/* Features List */}
-          <div className="grid grid-cols-3 gap-4 mt-8 text-center">
-            <div className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              <Shield className={`w-6 h-6 mx-auto mb-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-500'}`} />
-              <p className="text-xs font-medium">Secure</p>
-            </div>
-            <div className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              <Database className={`w-6 h-6 mx-auto mb-2 ${isDarkMode ? 'text-green-400' : 'text-emerald-500'}`} />
-              <p className="text-xs font-medium">Reliable</p>
-            </div>
-            <div className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              <Cpu className={`w-6 h-6 mx-auto mb-2 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-500'}`} />
-              <p className="text-xs font-medium">Fast</p>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center mt-6">
-            <p className="text-xs text-gray-500">
-              © 2024 Telogica. Powering the future of connectivity.
+                Sign in
+              </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(5deg); }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 };

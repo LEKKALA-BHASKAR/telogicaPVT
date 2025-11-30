@@ -15,6 +15,8 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Investors from './pages/Investors';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import Dashboard from './pages/admin/Dashboard';
 import ManageProducts from './pages/admin/ManageProducts';
 import ManageUsers from './pages/admin/ManageUsers';
@@ -61,6 +63,8 @@ function AppContent({ showContactForm, setShowContactForm }) {
           <Route path="/investors" element={<Investors />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           
           {/* Protected Routes */}
           <Route path="/cart" element={
