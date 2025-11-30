@@ -450,8 +450,7 @@ function Contact() {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer removed to avoid duplication */}
 
       <style jsx>{`
         @keyframes float {

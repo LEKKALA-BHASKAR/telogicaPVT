@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import heroSlide1 from "../assets/hero-slide-1.jpg";
 import heroSlide2 from "../assets/hero-slide-2.jpg";
 import heroSlide3 from "../assets/hero-slide-3.jpg";
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const intervalRef = useRef(null);
   const { isDarkMode } = useTheme();
 
   const slides = [
@@ -43,10 +44,10 @@ const Hero = () => {
   ];
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
+    const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 6000);
-    return () => clearInterval(intervalRef.current);
+    return () => clearInterval(timer);
   }, []);
 
   const scrollToSection = (id) => {
@@ -55,109 +56,131 @@ const Hero = () => {
   };
 
   return (
-    <section className={`relative h-screen flex items-center justify-center overflow-hidden transition-colors duration-300 ${
-      isDarkMode ? 'bg-gray-900' : 'bg-white'
-    }`}>
-      {/* Background slides */}
-      <div className="absolute inset-0">
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-[2000ms] ease-in-out ${
-              index === currentSlide ? "opacity-100" : "opacity-0"
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* Background Slides */}
+      <AnimatePresence mode="popLayout">
+        <motion.div
+          key={currentSlide}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 z-0"
+        >
+          <img
+            src={slides[currentSlide].image}
+            alt="Hero Background"
+            className={`w-full h-full object-cover ${
+              isDarkMode ? 'brightness-[0.3]' : 'brightness-[0.85] saturate-[0.8]'
             }`}
-          >
-            <img
-              src={slide.image}
-              alt={`Slide ${index + 1}`}
-              className={`w-full h-full object-cover ${
-                isDarkMode ? 'brightness-[0.4]' : 'brightness-[0.75]'
-              }`}
-            />
-          </div>
-        ))}
-
-        {/* Overlay */}
-        <div className={`absolute inset-0 ${
-          isDarkMode 
-            ? 'bg-gradient-to-b from-black/60 via-black/40 to-black/70'
-            : 'bg-gradient-to-b from-black/40 via-black/25 to-black/50'
-        }`}></div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 text-center px-6 sm:px-8 md:px-16 max-w-5xl">
-        <div className={`inline-flex items-center mb-6 px-4 py-1.5 rounded-full border backdrop-blur-md ${
-          isDarkMode 
-            ? 'bg-white/10 border-white/20'
-            : 'bg-black/10 border-black/20'
-        }`}>
-          <div className={`w-2.5 h-2.5 rounded-full mr-2 ${
-            isDarkMode ? 'bg-blue-400' : 'bg-blue-500'
-          }`}></div>
-          <span className={`text-sm font-medium tracking-wider uppercase ${
-            isDarkMode ? 'text-blue-300' : 'text-blue-600'
-          }`}>
-            {slides[currentSlide].badge}
-          </span>
-        </div>
-
-        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight drop-shadow-md ${
-          isDarkMode ? 'text-white' : 'text-gray-900'
-        }`}>
-          {slides[currentSlide].title}
-          <span className={`block bg-clip-text text-transparent bg-gradient-to-r ${
+          />
+          {/* Gradient Overlay */}
+          <div className={`absolute inset-0 ${
             isDarkMode 
-              ? 'from-blue-300 to-cyan-300'
-              : 'from-blue-600 to-cyan-600'
-          }`}>
-            {slides[currentSlide].subtitle}
-          </span>
-        </h1>
+              ? 'bg-gradient-to-r from-black/80 via-black/50 to-transparent'
+              : 'bg-gradient-to-r from-white/90 via-white/60 to-transparent'
+          }`} />
+        </motion.div>
+      </AnimatePresence>
 
-        <p className={`text-lg md:text-xl leading-relaxed mb-10 drop-shadow-sm ${
-          isDarkMode ? 'text-gray-200' : 'text-gray-700'
-        }`}>
-          {slides[currentSlide].description}
-        </p>
+      {/* Content Container */}
+      <div className="relative z-10 h-full container mx-auto px-6 lg:px-8 flex items-center">
+        <div className="max-w-3xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              {/* Badge */}
+              <div className={`inline-flex items-center px-4 py-2 rounded-full mb-8 backdrop-blur-md border ${
+                isDarkMode 
+                  ? 'bg-white/10 border-white/20 text-blue-300'
+                  : 'bg-blue-50 border-blue-100 text-blue-700'
+              }`}>
+                <span className="relative flex h-2 w-2 mr-3">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    isDarkMode ? 'bg-blue-400' : 'bg-blue-500'
+                  }`}></span>
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                    isDarkMode ? 'bg-blue-500' : 'bg-blue-600'
+                  }`}></span>
+                </span>
+                <span className="text-sm font-semibold tracking-wide uppercase">
+                  {slides[currentSlide].badge}
+                </span>
+              </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button
-            onClick={() => scrollToSection("products")}
-            className={`px-8 py-3 font-medium rounded-lg transition-all duration-300 ${
-              isDarkMode 
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25'
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-            }`}
-          >
-            {slides[currentSlide].primaryButton}
-          </button>
+              {/* Heading */}
+              <h1 className={`text-5xl md:text-7xl font-bold leading-tight mb-6 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>
+                {slides[currentSlide].title}
+                <span className={`block mt-2 bg-clip-text text-transparent bg-gradient-to-r ${
+                  isDarkMode 
+                    ? 'from-blue-400 via-purple-400 to-pink-400'
+                    : 'from-blue-600 via-indigo-600 to-purple-600'
+                }`}>
+                  {slides[currentSlide].subtitle}
+                </span>
+              </h1>
 
-          <button
-            onClick={() => scrollToSection("about")}
-            className={`px-8 py-3 font-medium rounded-lg border transition-all duration-300 ${
-              isDarkMode 
-                ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 shadow-lg'
-                : 'bg-white/10 hover:bg-white/20 text-gray-900 border-gray-300 shadow-lg'
-            }`}
-          >
-            {slides[currentSlide].secondaryButton}
-          </button>
+              {/* Description */}
+              <p className={`text-lg md:text-xl mb-10 max-w-2xl leading-relaxed ${
+                isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+                {slides[currentSlide].description}
+              </p>
+
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => scrollToSection("products")}
+                  className={`group relative px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 ${
+                    isDarkMode 
+                      ? 'bg-white text-black hover:bg-gray-100'
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
+                >
+                  <span className="flex items-center">
+                    {slides[currentSlide].primaryButton}
+                    <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => scrollToSection("about")}
+                  className={`group px-8 py-4 rounded-2xl font-semibold text-lg border backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
+                    isDarkMode 
+                      ? 'border-white/30 text-white hover:bg-white/10'
+                      : 'border-gray-300 text-gray-900 hover:bg-white/50'
+                  }`}
+                >
+                  <span className="flex items-center">
+                    {slides[currentSlide].secondaryButton}
+                    <ChevronRight className="ml-2 w-5 h-5 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
-      {/* Indicators */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 z-20">
+      {/* Slide Indicators */}
+      <div className="absolute bottom-10 right-10 z-20 flex gap-3">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`h-1.5 rounded-full transition-all duration-500 ${
               index === currentSlide 
-                ? (isDarkMode ? 'bg-white' : 'bg-gray-900')
-                : (isDarkMode ? 'bg-white/40' : 'bg-gray-400')
+                ? `w-8 ${isDarkMode ? 'bg-white' : 'bg-gray-900'}`
+                : `w-2 ${isDarkMode ? 'bg-white/30' : 'bg-gray-300'}`
             }`}
-          ></button>
+          />
         ))}
       </div>
     </section>

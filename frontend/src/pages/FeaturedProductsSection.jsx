@@ -13,12 +13,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 const FeaturedProductsSection = () => {
   const [activeCategory, setActiveCategory] = useState("Telecommunication");
   const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(true);
   const [hoveredProduct, setHoveredProduct] = useState(null);
+  const { isDarkMode } = useTheme();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -105,11 +107,19 @@ const FeaturedProductsSection = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white relative overflow-hidden">
+    <section className={`py-24 relative overflow-hidden transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white' 
+        : 'bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900'
+    }`}>
       {/* glowing gradients */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-[30rem] h-[30rem] bg-purple-600/20 blur-[180px]" />
-        <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-blue-500/10 blur-[150px]" />
+        <div className={`absolute -top-20 -left-20 w-[30rem] h-[30rem] blur-[180px] ${
+          isDarkMode ? 'bg-purple-600/20' : 'bg-purple-400/10'
+        }`} />
+        <div className={`absolute bottom-0 right-0 w-[28rem] h-[28rem] blur-[150px] ${
+          isDarkMode ? 'bg-blue-500/10' : 'bg-blue-400/10'
+        }`} />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -127,7 +137,9 @@ const FeaturedProductsSection = () => {
               Featured Products
             </h2>
           </div>
-          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          <p className={`text-lg md:text-xl max-w-3xl mx-auto leading-relaxed ${
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          }`}>
             Discover our latest innovations in test and measuring technology,
             crafted for performance and precision.
           </p>
@@ -142,7 +154,9 @@ const FeaturedProductsSection = () => {
               className={`relative px-8 py-3 rounded-2xl font-semibold text-lg transition-all duration-300 ${
                 activeCategory === category.id
                   ? `bg-gradient-to-r ${category.color} text-white shadow-xl scale-105`
-                  : "bg-gray-900/60 text-gray-400 hover:text-white hover:bg-gray-800/60 border border-gray-700/50"
+                  : isDarkMode
+                    ? "bg-gray-900/60 text-gray-400 hover:text-white hover:bg-gray-800/60 border border-gray-700/50"
+                    : "bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 shadow-sm"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -159,7 +173,9 @@ const FeaturedProductsSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center text-gray-300 mb-16 text-lg max-w-2xl mx-auto"
+          className={`text-center mb-16 text-lg max-w-2xl mx-auto ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+          }`}
         >
           {categories.find((cat) => cat.id === activeCategory)?.description}
         </motion.p>
@@ -187,12 +203,18 @@ const FeaturedProductsSection = () => {
                     key={product._id}
                     variants={itemVariants}
                     layout
-                    className="group bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-700/40 shadow-lg hover:shadow-purple-500/20 transition-all duration-500 overflow-hidden hover:-translate-y-2"
+                    className={`group rounded-2xl border shadow-lg transition-all duration-500 overflow-hidden hover:-translate-y-2 ${
+                      isDarkMode 
+                        ? 'bg-gray-900/60 backdrop-blur-xl border-gray-700/40 hover:shadow-purple-500/20' 
+                        : 'bg-white backdrop-blur-xl border-gray-200 hover:shadow-xl hover:shadow-purple-500/10'
+                    }`}
                     onMouseEnter={() => setHoveredProduct(product._id)}
                     onMouseLeave={() => setHoveredProduct(null)}
                   >
                     {/* image (fully visible, contain) */}
-                    <div className="relative w-full h-60 bg-gray-800 flex justify-center items-center overflow-hidden">
+                    <div className={`relative w-full h-60 flex justify-center items-center overflow-hidden ${
+                      isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+                    }`}>
                       {product.images?.[0]?.url ? (
                         <img
                           src={product.images[0].url}
@@ -211,24 +233,28 @@ const FeaturedProductsSection = () => {
 
                     {/* info */}
                     <div className="p-5 flex flex-col justify-between min-h-[180px]">
-                      <h3 className="font-bold text-xl mb-2 line-clamp-1 text-white group-hover:text-purple-300">
+                      <h3 className={`font-bold text-xl mb-2 line-clamp-1 group-hover:text-purple-500 ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}>
                         {product.title}
                       </h3>
-                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                      <p className={`text-sm mb-3 line-clamp-2 ${
+                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
                         {product.description}
                       </p>
 
                       <div className="flex items-center justify-between mt-auto">
-                        <div className="text-2xl font-semibold text-green-400">
+                        <div className="text-2xl font-semibold text-green-500">
                           ₹{product.price.toLocaleString()}
                         </div>
                         <span
                           className={`text-xs px-2 py-1 rounded-full ${
                             product.stock > 10
-                              ? "bg-green-500/20 text-green-400"
+                              ? "bg-green-500/20 text-green-500"
                               : product.stock > 0
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-red-500/20 text-red-400"
+                              ? "bg-yellow-500/20 text-yellow-500"
+                              : "bg-red-500/20 text-red-500"
                           }`}
                         >
                           {product.stock > 0

@@ -4,8 +4,10 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
+import { useTheme } from '../context/ThemeContext';
 
 const GlobalContactForm = () => {
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,20 +45,30 @@ const GlobalContactForm = () => {
   };
 
   return (
-    <div className="bg-black rounded-2xl border border-gray-800 p-6 md:p-8">
+    <div className={`rounded-2xl border p-6 md:p-8 transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-black border-gray-800' 
+        : 'bg-white border-gray-200 shadow-lg'
+    }`}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Contact Information */}
         <div>
-          <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
+          <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Contact Information
+          </h3>
           
           <div className="space-y-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-6 h-6 text-purple-400" />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
+              }`}>
+                <MapPin className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-1">Head Office</h4>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Head Office
+                </h4>
+                <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   Empire Square, Plot No 233-A, 234 & 235,<br />
                   3rd Fl, Rd No 36, Jubilee Hills,<br />
                   Hyderabad- 500 033, Telangana, India
@@ -65,12 +77,16 @@ const GlobalContactForm = () => {
             </div>
             
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                <Phone className="w-6 h-6 text-purple-400" />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
+              }`}>
+                <Phone className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-1">Phone Numbers</h4>
-                <p className="text-gray-300 text-sm">
+                <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Phone Numbers
+                </h4>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   +91- 40-27531324 to 26<br />
                   +91 9396610682
                 </p>
@@ -78,12 +94,16 @@ const GlobalContactForm = () => {
             </div>
             
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                <Mail className="w-6 h-6 text-purple-400" />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
+              }`}>
+                <Mail className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-white mb-1">Email Addresses</h4>
-                <p className="text-gray-300 text-sm">
+                <h4 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Email Addresses
+                </h4>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   marketing@telogica.com<br />
                   sales@telogica.com<br />
                   support@telogica.com
@@ -95,11 +115,13 @@ const GlobalContactForm = () => {
         
         {/* Contact Form */}
         <div>
-          <h3 className="text-2xl font-bold text-white mb-6">Send us a Message</h3>
+          <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Send us a Message
+          </h3>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Full Name *
               </label>
               <Input
@@ -108,13 +130,17 @@ const GlobalContactForm = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-900 border-gray-700 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
                 placeholder="Your full name"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Email Address *
               </label>
               <Input
@@ -123,13 +149,17 @@ const GlobalContactForm = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-900 border-gray-700 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
                 placeholder="your.email@company.com"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Message *
               </label>
               <Textarea
@@ -138,7 +168,11 @@ const GlobalContactForm = () => {
                 onChange={handleInputChange}
                 required
                 rows={5}
-                className="bg-gray-900 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-900 border-gray-700 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
                 placeholder="Please provide details about your requirements..."
               />
             </div>

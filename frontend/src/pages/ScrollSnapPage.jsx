@@ -12,10 +12,12 @@ import {
   Network,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 const ScrollSnapPage = () => {
   const [activeSection, setActiveSection] = useState("defence");
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,9 +102,15 @@ const ScrollSnapPage = () => {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-black text-white">
+    <div className={`flex flex-col lg:flex-row min-h-screen transition-colors duration-300 ${
+      isDarkMode ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'
+    }`}>
       {/* Sidebar */}
-      <div className="lg:sticky lg:top-0 lg:h-screen lg:w-80 w-full bg-black/70 z-20 flex items-center justify-center py-4 lg:py-0 border-b border-gray-800 lg:border-b-0">
+      <div className={`lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)] lg:w-80 w-full z-20 flex items-center justify-center py-4 lg:py-0 border-b lg:border-b-0 transition-colors duration-300 ${
+        isDarkMode 
+          ? 'bg-black/70 border-gray-800 backdrop-blur-md' 
+          : 'bg-white/70 border-gray-200 backdrop-blur-md shadow-sm'
+      }`}>
         <nav className="space-y-3 w-full px-4 sm:px-6 overflow-x-auto flex lg:block gap-3 lg:gap-0">
           {sections.map((section) => (
             <button
@@ -110,8 +118,12 @@ const ScrollSnapPage = () => {
               onClick={() => scrollToSection(section.id)}
               className={`w-full text-left p-4 rounded-xl transition-all duration-300 group flex-shrink-0 ${
                 activeSection === section.id
-                  ? "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-indigo-700/30 shadow-md"
-                  : "hover:bg-gray-900/40 border border-transparent"
+                  ? isDarkMode
+                    ? "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-indigo-700/30 shadow-md"
+                    : "bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-200 shadow-md"
+                  : isDarkMode
+                    ? "hover:bg-gray-900/40 border border-transparent"
+                    : "hover:bg-gray-100 border border-transparent"
               }`}
             >
               <div className="flex items-center space-x-3">
@@ -119,7 +131,7 @@ const ScrollSnapPage = () => {
                   className={`w-5 h-5 ${
                     activeSection === section.id
                       ? section.color
-                      : "text-gray-500 group-hover:text-gray-300"
+                      : isDarkMode ? "text-gray-500 group-hover:text-gray-300" : "text-gray-400 group-hover:text-gray-600"
                   }`}
                 />
                 <div className="flex-1">
@@ -127,12 +139,14 @@ const ScrollSnapPage = () => {
                     className={`font-semibold ${
                       activeSection === section.id
                         ? section.color
-                        : "text-gray-300 group-hover:text-white"
+                        : isDarkMode ? "text-gray-300 group-hover:text-white" : "text-gray-600 group-hover:text-gray-900"
                     }`}
                   >
                     {section.title}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className={`text-sm mt-1 ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}>
                     {section.subtitle}
                   </div>
                 </div>
@@ -146,20 +160,22 @@ const ScrollSnapPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto scroll-smooth">
+      <div className="flex-1">
         {sections.map((section) => (
           <section
             key={section.id}
             id={section.id}
-            className={`min-h-screen flex items-center justify-center ${section.bg} relative overflow-hidden px-4 sm:px-6 lg:px-10 py-12 sm:py-20`}
+            className={`min-h-screen flex items-center justify-center relative overflow-hidden px-4 sm:px-6 lg:px-10 py-12 sm:py-20 transition-colors duration-300 ${
+              isDarkMode ? 'bg-black' : 'bg-white'
+            }`}
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
               <div
                 className="absolute inset-0"
                 style={{
-                  backgroundImage: `radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
-                                    radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)`,
+                  backgroundImage: `radial-gradient(circle at 25% 25%, ${isDarkMode ? '#ffffff' : '#000000'} 1px, transparent 1px),
+                                    radial-gradient(circle at 75% 75%, ${isDarkMode ? '#ffffff' : '#000000'} 1px, transparent 1px)`,
                   backgroundSize: "50px 50px",
                   backgroundPosition: "0 0, 25px 25px",
                 }}
@@ -197,11 +213,17 @@ const ScrollSnapPage = () => {
                 {/* Text */}
                 <div className="space-y-6 text-center lg:text-left">
                   <div>
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-900 border border-gray-700 mb-6">
+                    <div className={`inline-flex items-center px-4 py-2 rounded-full border mb-6 ${
+                      isDarkMode 
+                        ? 'bg-gray-900 border-gray-700' 
+                        : 'bg-gray-100 border-gray-200'
+                    }`}>
                       <div
                         className={`w-2 h-2 rounded-full ${section.accent} mr-2 animate-pulse`}
                       />
-                      <span className="text-gray-300 text-sm font-medium">
+                      <span className={`text-sm font-medium ${
+                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      }`}>
                         {section.subtitle}
                       </span>
                     </div>
@@ -212,7 +234,9 @@ const ScrollSnapPage = () => {
                       {section.title}
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed">
+                    <p className={`text-lg sm:text-xl mb-8 leading-relaxed ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}>
                       {section.description}
                     </p>
                   </div>
@@ -222,7 +246,9 @@ const ScrollSnapPage = () => {
                     {section.features.map((feature, i) => (
                       <div key={i} className="flex items-center justify-center lg:justify-start space-x-3">
                         <div className={`w-2 h-2 rounded-full ${section.accent}`} />
-                        <span className="text-gray-300 text-base sm:text-lg">
+                        <span className={`text-base sm:text-lg ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}>
                           {feature}
                         </span>
                       </div>
@@ -241,7 +267,11 @@ const ScrollSnapPage = () => {
 
                     <button
                       onClick={() => navigateToRoute("/contact")}
-                      className="inline-flex items-center justify-center px-8 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-xl border border-gray-700 transition-all duration-300"
+                      className={`inline-flex items-center justify-center px-8 py-4 font-semibold rounded-xl border transition-all duration-300 ${
+                        isDarkMode 
+                          ? 'bg-gray-800 hover:bg-gray-700 text-white border-gray-700' 
+                          : 'bg-white hover:bg-gray-50 text-gray-900 border-gray-200 shadow-sm'
+                      }`}
                     >
                       Contact Sales
                     </button>

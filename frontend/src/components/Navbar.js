@@ -90,8 +90,8 @@ const Navbar = () => {
   // Dynamic styling based on theme
   const navbarBg = isScrolled 
     ? isDarkMode 
-      ? 'bg-black/90 backdrop-blur-md border-b border-white/10' 
-      : 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm'
+      ? 'bg-black/40 backdrop-blur-2xl border-b border-white/10 shadow-lg shadow-black/5' 
+      : 'bg-white/40 backdrop-blur-2xl border-b border-white/20 shadow-lg shadow-black/5'
     : 'bg-transparent';
   
   const textColor = isDarkMode ? 'text-white' : 'text-gray-900';
@@ -99,17 +99,17 @@ const Navbar = () => {
   const hoverTextColor = isDarkMode ? 'hover:text-blue-300' : 'hover:text-indigo-600';
   const activeTextColor = isDarkMode ? 'text-blue-300' : 'text-indigo-600';
   const buttonPrimaryBg = isDarkMode 
-    ? 'bg-blue-500/80 hover:bg-blue-600 text-white backdrop-blur-sm' 
-    : 'bg-indigo-600 hover:bg-indigo-700 text-white';
+    ? 'bg-blue-500/80 hover:bg-blue-600 text-white backdrop-blur-sm shadow-lg shadow-blue-500/20' 
+    : 'bg-indigo-600/90 hover:bg-indigo-700 text-white backdrop-blur-sm shadow-lg shadow-indigo-500/20';
   const buttonSecondaryBg = isDarkMode 
-    ? 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20' 
-    : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300';
+    ? 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20' 
+    : 'bg-white/40 hover:bg-white/60 text-gray-900 backdrop-blur-md border border-white/40 shadow-sm';
   const dropdownBg = isDarkMode 
-    ? 'bg-black/90 backdrop-blur-xl border border-white/20' 
-    : 'bg-white backdrop-blur-xl border border-gray-200 shadow-lg';
+    ? 'bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/20' 
+    : 'bg-white/60 backdrop-blur-2xl border border-white/40 shadow-2xl shadow-black/5';
   const mobileMenuBg = isDarkMode 
-    ? 'bg-black/95 backdrop-blur-xl border-t border-white/20' 
-    : 'bg-white/95 backdrop-blur-xl border-t border-gray-200';
+    ? 'bg-black/60 backdrop-blur-2xl border-t border-white/10' 
+    : 'bg-white/60 backdrop-blur-2xl border-t border-white/40';
 
   return (
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${navbarBg}`}>

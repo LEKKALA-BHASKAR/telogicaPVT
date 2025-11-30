@@ -1,348 +1,394 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, CheckCircle, Zap, Shield, Cog, Phone, Satellite, Wrench, Sparkles, Star, TrendingUp, Award, Clock, Users, BarChart3, Target, Lightbulb, Globe, Radio, Activity, Layers, ChevronRight } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { 
+  Phone, 
+  Shield, 
+  Cpu, 
+  ArrowRight, 
+  Target, 
+  Zap, 
+  Settings, 
+  Globe,
+  CheckCircle2,
+  BarChart3,
+  Users,
+  Layers,
+  Activity,
+  Wifi,
+  Server,
+  Anchor
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { gsap } from 'gsap';
-import Footer from '@/components/Footer';
 import { useTheme } from '../context/ThemeContext';
 
-function Services() {
+const Services = () => {
   const { isDarkMode } = useTheme();
-  const [activeService, setActiveService] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef(null);
-  const heroRef = useRef(null);
-  const sectionsRef = useRef([]);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // GSAP Animations for Hero Section
-    gsap.fromTo(
-      heroRef.current,
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out' }
-    );
-
-    // GSAP Animations for Sections
-    sectionsRef.current.forEach((section, index) => {
-      gsap.fromTo(
-        section,
-        { opacity: 0, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-        }
-      );
-    });
-
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.body.scrollHeight - window.innerHeight;
-      const progress = (scrollTop / docHeight) * 100;
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const services = [
     {
-      id: 'telecommunications',
-      icon: Phone,
+      id: 'telecom',
       title: 'Telecommunications',
-      subtitle: 'Advanced Testing & Measuring Equipment',
-      description: 'Comprehensive solutions for telecom infrastructure, including fiber optic testing and network analysis.',
-      features: [
-        'Fiber Optic Test Equipment (OTDR)',
-        'Cable Fault Locators',
-        'Spectrum Analyzers',
-        'Vector Network Analyzers',
-      ],
-      color: 'from-cyan-500 to-blue-600',
-      bgColor: 'rgba(6, 182, 212, 0.1)',
-      stats: { number: '500+', label: 'Telecom Projects' },
-      image: 'https://media.istockphoto.com/id/1602617670/photo/satellite-dish-antenna-communication-technology-concept.jpg?s=612x612&w=0&k=20&c=XjMfP8m2WEykJGAcWOMAmIJI3MWvFBnxDdKXI6ufYVE=',
+      subtitle: 'Next-Gen Connectivity',
+      description: 'Architecting the future of global communication with precision testing for 5G, fiber optics, and satellite networks.',
+      icon: Wifi,
+      image: 'https://images.unsplash.com/photo-1562408590-e32931084e23?q=80&w=2070&auto=format&fit=crop',
+      features: ['5G Network Validation', 'Fiber Optic Analysis (OTDR)', 'Spectrum Management', 'Signal Intelligence'],
+      color: 'blue',
+      gradient: 'from-blue-600 to-cyan-400'
     },
     {
       id: 'defense',
+      title: 'Defense Systems',
+      subtitle: 'Mission Critical',
+      description: 'Ruggedized tactical solutions designed for the most demanding operational environments on Earth.',
       icon: Shield,
-      title: 'Defense Solutions',
-      subtitle: 'Specialized Equipment for Defense',
-      description: 'Military-grade testing equipment for stringent defense requirements.',
-      features: [
-        'Ruggedized Testing Equipment',
-        'Military Communication Systems',
-        'Radar Testing Equipment',
-        'EMI/EMC Testing Solutions',
-      ],
-      color: 'from-emerald-500 to-green-600',
-      bgColor: 'rgba(16, 185, 129, 0.1)',
-      stats: { number: '200+', label: 'Defense Contracts' },
-      image: 'https://images.unsplash.com/photo-1717749789408-f6f73c9e6aac?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170',
+      image: 'https://images.unsplash.com/photo-1614728853911-0941581eb58a?q=80&w=2071&auto=format&fit=crop',
+      features: ['Electronic Warfare Testing', 'Radar Systems Calibration', 'Secure Comms', 'Field-Deployable Units'],
+      color: 'purple',
+      gradient: 'from-purple-600 to-pink-500'
     },
     {
       id: 'manufacturing',
-      icon: Cog,
-      title: 'Manufacturing Services',
-      subtitle: 'Custom Manufacturing & Design',
-      description: 'End-to-end manufacturing from concept to production.',
-      features: [
-        'Custom Equipment Design',
-        'Prototype Development',
-        'Mass Production',
-        'Quality Assurance',
-      ],
-      color: 'from-violet-500 to-purple-600',
-      bgColor: 'rgba(139, 92, 246, 0.1)',
-      stats: { number: '1000+', label: 'Custom Products' },
-      image: 'https://media.istockphoto.com/id/2155877725/photo/male-and-female-engineers-in-neat-work-clothes-prepare-and-control-the-production-system-of.jpg?s=612x612&w=0&k=20&c=6E6nQfie8dZIROGrqe9vO4ADz68Sw67LIjC_neaDg6Q=',
-    },
+      title: 'Smart Manufacturing',
+      subtitle: 'Industry 4.0',
+      description: 'End-to-end electronic manufacturing services (EMS) leveraging automation and AI for zero-defect production.',
+      icon: Cpu,
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop',
+      features: ['PCB Assembly & Testing', 'IoT Integration', 'Automated Quality Control', 'Rapid Prototyping'],
+      color: 'emerald',
+      gradient: 'from-emerald-500 to-teal-400'
+    }
   ];
 
-  const stats = [
-    { number: '15+', label: 'Years Experience', icon: Award },
-    { number: '500+', label: 'Projects Completed', icon: Target },
-    { number: '50+', label: 'Global Clients', icon: Globe },
-    { number: '24/7', label: 'Support', icon: Clock },
+  const processSteps = [
+    {
+      number: '01',
+      title: 'Discovery',
+      desc: 'Deep dive analysis of operational requirements and technical constraints.',
+      icon: Activity
+    },
+    {
+      number: '02',
+      title: 'Engineering',
+      desc: 'Custom solution architecture designed by industry veterans.',
+      icon: Layers
+    },
+    {
+      number: '03',
+      title: 'Production',
+      desc: 'Precision manufacturing with rigorous military-grade testing.',
+      icon: Settings
+    },
+    {
+      number: '04',
+      title: 'Deployment',
+      desc: 'Global logistics, installation, and 24/7 technical support.',
+      icon: Globe
+    }
   ];
 
   return (
-    <div className={`transition-colors duration-300 ${
-      isDarkMode ? 'bg-gray-950 text-white' : 'bg-slate-50 text-gray-900'
-    }`} ref={containerRef}>
-      {/* Scroll Progress Indicator */}
-      <div className={`fixed top-0 left-0 w-full h-1 z-50 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
-        <div
-          className={`h-full transition-all duration-300 ${
-            isDarkMode 
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600' 
-              : 'bg-gradient-to-r from-cyan-500 to-indigo-500'
-          }`}
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
+    <div ref={containerRef} className={`min-h-screen font-sans overflow-x-hidden transition-colors duration-500 ${
+      isDarkMode ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'
+    }`}>
+      
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 origin-left z-50"
+        style={{ scaleX }}
+      />
 
       {/* Animated Background */}
-      <div className={`fixed inset-0 z-0 ${isDarkMode ? 'opacity-10' : 'opacity-5'}`}>
-        <div
-          className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center transition-transform duration-1000"
-          style={{
-            transform: `translate(${scrollProgress * 0.5}px, ${scrollProgress * 0.5}px)`,
-          }}
-        />
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className={`absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] rounded-full blur-[150px] opacity-20 animate-pulse ${
+          isDarkMode ? 'bg-blue-900' : 'bg-blue-200'
+        }`} />
+        <div className={`absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full blur-[150px] opacity-20 animate-pulse delay-1000 ${
+          isDarkMode ? 'bg-purple-900' : 'bg-purple-200'
+        }`} />
+        <div className={`absolute top-[40%] left-[30%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-10 ${
+          isDarkMode ? 'bg-cyan-900' : 'bg-cyan-200'
+        }`} />
       </div>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className={`absolute inset-0 ${
-          isDarkMode 
-            ? 'bg-gradient-to-b from-gray-950/80 to-black/80' 
-            : 'bg-gradient-to-b from-slate-50/90 to-white/90'
-        }`} />
-        <div className="relative z-10 max-w-6xl mx-auto text-center">
-          <div className={`w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center ${
-            isDarkMode 
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600' 
-              : 'bg-gradient-to-r from-cyan-500 to-indigo-600'
-          }`}>
-            <Sparkles className="h-10 w-10 text-white" />
-          </div>
-          <h1 className={`text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent tracking-tight ${
-            isDarkMode 
-              ? 'bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400' 
-              : 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600'
-          }`}>
-            Services
-          </h1>
-          <p className={`text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Precision-engineered solutions for{' '}
-            <span className={`font-medium ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>telecommunications</span>,{' '}
-            <span className={`font-medium ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>defense</span>, and{' '}
-            <span className={`font-medium ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>manufacturing</span> sectors.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mt-20">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="relative inline-flex items-center justify-center mb-4">
-                  <div className={`absolute inset-0 rounded-full blur-md transition-all duration-500 ${
-                    isDarkMode 
-                      ? 'bg-cyan-500/10 group-hover:bg-cyan-500/20' 
-                      : 'bg-cyan-400/10 group-hover:bg-cyan-400/20'
-                  }`}></div>
-                  <div className={`relative w-16 h-16 rounded-2xl border flex items-center justify-center transition-all duration-300 ${
-                    isDarkMode 
-                      ? 'bg-gray-900/50 border-gray-700 group-hover:border-cyan-500/30' 
-                      : 'bg-white/80 border-gray-200 group-hover:border-cyan-500/50'
-                  }`}>
-                    <stat.icon className={`h-8 w-8 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
-                  </div>
-                </div>
-                <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stat.number}</div>
-                <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className={`w-6 h-10 border-2 rounded-full flex justify-center ${
-              isDarkMode ? 'border-cyan-500/50' : 'border-cyan-500/70'
-            }`}>
-              <div className={`w-1 h-3 rounded-full mt-2 ${isDarkMode ? 'bg-cyan-400' : 'bg-cyan-500'}`}></div>
-            </div>
-          </div>
+      <section className="relative min-h-[90vh] flex items-center justify-center px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className={`absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0b4?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10 ${
+            isDarkMode ? 'mix-blend-overlay' : 'mix-blend-multiply'
+          }`} />
+          <div className={`absolute inset-0 bg-gradient-to-b ${
+            isDarkMode ? 'from-black via-black/90 to-black' : 'from-white via-white/90 to-slate-50'
+          }`} />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="inline-flex items-center px-6 py-2 rounded-full mb-8 border backdrop-blur-md bg-white/5 border-white/10 shadow-2xl"
+          >
+            <span className="relative flex h-3 w-3 mr-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+            </span>
+            <span className={`text-sm font-bold tracking-wider uppercase ${isDarkMode ? 'text-blue-300' : 'text-blue-700'}`}>
+              Engineering The Future
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-tight"
+          >
+            Advanced <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+              Technology Solutions
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className={`text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed mb-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}
+          >
+            We provide mission-critical infrastructure and testing equipment for the world's most demanding industries.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center"
+          >
+            <Link to="/contact">
+              <button className="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-lg shadow-lg shadow-blue-600/30 transition-all hover:scale-105 hover:shadow-blue-600/50 flex items-center justify-center gap-2">
+                Start Your Project <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+            <button 
+              onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
+              className={`px-10 py-5 rounded-2xl font-bold text-lg border-2 transition-all hover:scale-105 ${
+                isDarkMode 
+                  ? 'border-white/20 hover:bg-white/10 text-white' 
+                  : 'border-gray-300 hover:bg-gray-100 text-gray-900'
+              }`}
+            >
+              Explore Capabilities
+            </button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Services Showcase */}
-      <section className="relative py-20" ref={(el) => (sectionsRef.current[0] = el)}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-              Our <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Expertise</span>
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Delivering cutting-edge solutions with precision and reliability.
-            </p>
-          </div>
-          <div className="flex justify-center mb-12">
-            <div className="inline-flex rounded-2xl bg-gray-900/50 backdrop-blur-sm border border-gray-700 p-2">
-              {services.map((service, index) => (
-                <button
-                  key={service.id}
-                  onClick={() => setActiveService(index)}
-                  className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-500 ${
-                    activeService === index
-                      ? `bg-gradient-to-r ${service.color} text-white shadow-2xl`
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                  }`}
+      {/* Services Grid */}
+      <section id="services-grid" className="py-32 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto space-y-40">
+          {services.map((service, index) => (
+            <motion.div
+              key={service.id}
+              initial={{ opacity: 0, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-20 items-center`}
+            >
+              {/* Image Side */}
+              <div className="w-full lg:w-1/2 relative group perspective-1000">
+                <div className={`absolute -inset-10 rounded-[3rem] blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 bg-gradient-to-r ${service.gradient}`} />
+                
+                <motion.div 
+                  whileHover={{ rotateY: index % 2 === 0 ? 5 : -5, rotateX: 5 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 aspect-[4/3] bg-gray-900"
                 >
-                  {service.title}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="relative">
-            {services.map((service, index) => (
-              <div
-                key={service.id}
-                className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 transition-all duration-700 ${
-                  activeService === index ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 absolute inset-0 pointer-events-none'
-                }`}
-              >
-                <div className="w-full lg:w-1/2">
-                  <div className="relative">
-                    <img
-                      src={service.image}
-                      alt={service.title}
-                      className="w-full h-80 object-cover rounded-lg transform group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-lg" />
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${
+                    isDarkMode ? 'from-black/90 via-black/20' : 'from-black/60 via-transparent'
+                  } to-transparent`} />
+                  
+                  {/* Floating Icon Card */}
+                  <div className={`absolute bottom-8 ${index % 2 === 0 ? 'left-8' : 'right-8'} p-6 rounded-2xl backdrop-blur-xl border shadow-2xl ${
+                    isDarkMode ? 'bg-white/10 border-white/20' : 'bg-white/90 border-white/40'
+                  }`}>
+                    <service.icon className={`w-10 h-10 ${
+                      service.color === 'blue' ? 'text-blue-400' :
+                      service.color === 'purple' ? 'text-purple-400' :
+                      'text-emerald-400'
+                    }`} />
                   </div>
-                </div>
-                <div className="w-full lg:w-1/2 text-left">
-                  <div className="flex items-center space-x-6 mb-6">
-                    <div className={`w-20 h-20 rounded-full bg-gradient-to-r ${service.color} flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300`}>
-                      <service.icon className="h-10 w-10 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-4xl font-bold text-white mb-2">{service.title}</h3>
-                      <p className={`text-xl font-semibold bg-gradient-to-r ${service.color} bg-clip-text text-transparent`}>
-                        {service.subtitle}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-lg text-gray-300 leading-relaxed">{service.description}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {service.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center space-x-3 group">
-                        <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${service.color}`}></div>
-                        <span className="text-gray-300 group-hover:text-white transition-colors duration-300">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center space-x-6 pt-8">
-                    <Link to={`/products?category=${service.id}`}>
-                      <button className={`px-8 py-4 bg-gradient-to-r ${service.color} text-white rounded-full font-semibold hover:shadow-2xl transition-all duration-300 group`}>
-                        Explore Solutions
-                        <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
-                      </button>
-                    </Link>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${service.color} flex items-center justify-center text-white font-bold text-lg`}>
-                        {service.stats.number}
-                      </div>
-                      <span className="text-gray-400 text-sm">{service.stats.label}</span>
-                    </div>
-                  </div>
-                </div>
+                </motion.div>
               </div>
-            ))}
-          </div>
+
+              {/* Content Side */}
+              <div className="w-full lg:w-1/2 space-y-10">
+                <div>
+                  <div className={`inline-block px-4 py-1 rounded-full text-sm font-bold tracking-wider uppercase mb-4 border ${
+                    service.color === 'blue' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                    service.color === 'purple' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
+                    'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                  }`}>
+                    {service.subtitle}
+                  </div>
+                  <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">{service.title}</h2>
+                  <p className={`text-xl leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {service.description}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {service.features.map((feature, idx) => (
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + (idx * 0.1) }}
+                      className="flex items-start gap-4"
+                    >
+                      <div className={`mt-1 p-1 rounded-full ${
+                        service.color === 'blue' ? 'bg-blue-500/20 text-blue-500' :
+                        service.color === 'purple' ? 'bg-purple-500/20 text-purple-500' :
+                        'bg-emerald-500/20 text-emerald-500'
+                      }`}>
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                      <span className={`font-medium text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {feature}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <Link to={`/products?category=${service.id}`}>
+                  <button className={`group flex items-center gap-3 text-lg font-bold transition-all ${
+                    service.color === 'blue' ? 'text-blue-500 hover:text-blue-400' :
+                    service.color === 'purple' ? 'text-purple-500 hover:text-purple-400' :
+                    'text-emerald-500 hover:text-emerald-400'
+                  }`}>
+                    <span className="border-b-2 border-current pb-1">Explore Solutions</span>
+                    <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2" />
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Process Section */}
-      <section className="relative py-20" ref={(el) => (sectionsRef.current[1] = el)}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-              Our <span className="bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">Process</span>
-            </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              A systematic approach to delivering exceptional solutions.
+      <section className={`py-32 px-6 relative overflow-hidden ${isDarkMode ? 'bg-gray-900/30' : 'bg-gray-50'}`}>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Operational Workflow</h2>
+            <p className={`text-xl max-w-2xl mx-auto ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Our proven methodology ensures precision, compliance, and rapid deployment for every project.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-            <div className="hidden md:block absolute top-20 left-20 right-20 h-0.5 bg-gradient-to-r from-cyan-500/20 via-emerald-500/20 to-purple-500/20"></div>
-            {[
-              { step: '01', title: 'Consultation', desc: 'Deep dive into requirements', icon: Target, color: 'from-cyan-500 to-blue-500' },
-              { step: '02', title: 'Design', desc: 'Custom solution architecture', icon: Layers, color: 'from-emerald-500 to-green-500' },
-              { step: '03', title: 'Implementation', desc: 'Precision execution', icon: Activity, color: 'from-violet-500 to-purple-500' },
-              { step: '04', title: 'Support', desc: 'Continuous optimization', icon: Users, color: 'from-orange-500 to-red-500' },
-            ].map((process, index) => (
-              <div key={index} className="text-center group">
-                <div className="relative mb-8">
-                  <div className="absolute inset-0 bg-cyan-500/10 rounded-full blur-lg group-hover:bg-cyan-500/20 transition-all duration-500"></div>
-                  <div className="relative w-20 h-20 mx-auto rounded-2xl bg-gray-900/50 border border-gray-700 flex items-center justify-center group-hover:border-cyan-500/30 transition-all duration-300">
-                    <span className="text-2xl font-extrabold text-white">{process.step}</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+            {/* Connecting Line (Desktop) */}
+            <div className={`hidden lg:block absolute top-12 left-0 right-0 h-0.5 ${
+              isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+            }`} />
+
+            {processSteps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15 }}
+                className="relative group"
+              >
+                <div className={`w-24 h-24 mx-auto rounded-3xl flex items-center justify-center mb-8 relative z-10 transition-all duration-500 group-hover:scale-110 ${
+                  isDarkMode 
+                    ? 'bg-gray-900 border-2 border-gray-700 group-hover:border-blue-500 shadow-[0_0_30px_-10px_rgba(59,130,246,0.3)]' 
+                    : 'bg-white border-2 border-gray-200 group-hover:border-blue-500 shadow-xl'
+                }`}>
+                  <step.icon className={`w-10 h-10 transition-colors duration-500 ${
+                    isDarkMode ? 'text-gray-400 group-hover:text-blue-400' : 'text-gray-500 group-hover:text-blue-600'
+                  }`} />
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm border-4 border-gray-900">
+                    {step.number}
                   </div>
                 </div>
-                <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${process.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-2xl`}>
-                  <process.icon className="h-8 w-8 text-white" />
+                
+                <div className="text-center px-4">
+                  <h3 className={`text-2xl font-bold mb-4 group-hover:text-blue-500 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {step.title}
+                  </h3>
+                  <p className={`leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {step.desc}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{process.title}</h3>
-                <p className="text-gray-300">{process.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-float {
-          animation: float 15s ease-in-out infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(1.05); }
-        }
-        .animate-pulse {
-          animation: pulse 8s ease-in-out infinite;
-        }
-      `}</style>
+      {/* CTA Section */}
+      <section className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className={`relative rounded-[3rem] overflow-hidden p-12 md:p-32 text-center group ${
+            isDarkMode ? 'bg-gray-900' : 'bg-blue-900'
+          }`}>
+            {/* Animated Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-90 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+            
+            {/* Floating Shapes */}
+            <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 blur-[100px] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-400 opacity-10 blur-[100px] rounded-full animate-pulse delay-700" />
+
+            <div className="relative z-10">
+              <h2 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tight">
+                Ready to Scale?
+              </h2>
+              <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+                Join industry leaders who trust Telogica for their most critical infrastructure needs.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link to="/contact">
+                  <button className="px-12 py-5 bg-white text-blue-900 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-white/20 hover:scale-105 transition-all duration-300">
+                    Get a Quote
+                  </button>
+                </Link>
+                <Link to="/products">
+                  <button className="px-12 py-5 bg-transparent border-2 border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/10 hover:border-white transition-all duration-300">
+                    View Catalog
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
-}
+};
 
 export default Services;

@@ -19,12 +19,9 @@ const Home = () => {
     <div className={`transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
       <Hero />
       <AboutHero />
-      <div className="my-16">
       <ScrollSnapPage />
-      </div>
       <FeaturedProductsSection/>
       <Clients />
-      <FAQSection />
     </div>
   );
 };
