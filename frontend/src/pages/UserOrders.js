@@ -343,46 +343,47 @@ const UserOrders = () => {
                           {/* Progress Tracker */}
                           <div className="py-6">
                             <div className="flex items-center justify-between relative">
-                              {['processing', 'shipped', 'delivered'].map((step, i) => {
-                                const steps = ['processing', 'shipped', 'delivered'];
-                                const currentIndex = steps.indexOf(order.orderStatus);
-                                const isCompleted = i <= currentIndex;
-                                const isCurrent = i === currentIndex;
+                              {(() => {
+                                const orderSteps = ['processing', 'shipped', 'delivered'];
+                                const currentIndex = orderSteps.indexOf(order.orderStatus);
                                 
-                                return (
-                                  <React.Fragment key={step}>
-                                    <div className="flex flex-col items-center z-10">
-                                      <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
-                                        isCompleted
-                                          ? isDarkMode 
-                                            ? 'bg-green-500 border-green-500 text-white' 
-                                            : 'bg-green-500 border-green-500 text-white'
-                                          : isDarkMode 
-                                            ? 'bg-gray-800 border-gray-700 text-gray-500' 
-                                            : 'bg-gray-100 border-gray-300 text-gray-400'
-                                      } ${isCurrent ? 'ring-4 ring-green-500/20' : ''}`}>
-                                        {step === 'processing' && <Clock className="w-4 h-4" />}
-                                        {step === 'shipped' && <Truck className="w-4 h-4" />}
-                                        {step === 'delivered' && <CheckCircle className="w-4 h-4" />}
+                                return orderSteps.map((step, i) => {
+                                  const isCompleted = i <= currentIndex;
+                                  const isCurrent = i === currentIndex;
+                                  
+                                  return (
+                                    <React.Fragment key={step}>
+                                      <div className="flex flex-col items-center z-10">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                                          isCompleted
+                                            ? 'bg-green-500 border-green-500 text-white'
+                                            : isDarkMode 
+                                              ? 'bg-gray-800 border-gray-700 text-gray-500' 
+                                              : 'bg-gray-100 border-gray-300 text-gray-400'
+                                        } ${isCurrent ? 'ring-4 ring-green-500/20' : ''}`}>
+                                          {step === 'processing' && <Clock className="w-4 h-4" />}
+                                          {step === 'shipped' && <Truck className="w-4 h-4" />}
+                                          {step === 'delivered' && <CheckCircle className="w-4 h-4" />}
+                                        </div>
+                                        <span className={`mt-2 text-xs font-medium ${
+                                          isCompleted 
+                                            ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                                            : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                                        }`}>
+                                          {step.charAt(0).toUpperCase() + step.slice(1)}
+                                        </span>
                                       </div>
-                                      <span className={`mt-2 text-xs font-medium ${
-                                        isCompleted 
-                                          ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                          : isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                                      }`}>
-                                        {step.charAt(0).toUpperCase() + step.slice(1)}
-                                      </span>
-                                    </div>
-                                    {i < 2 && (
-                                      <div className={`flex-1 h-1 mx-4 rounded-full ${
-                                        i < currentIndex
-                                          ? 'bg-green-500'
-                                          : isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
-                                      }`} />
-                                    )}
-                                  </React.Fragment>
-                                );
-                              })}
+                                      {i < 2 && (
+                                        <div className={`flex-1 h-1 mx-4 rounded-full ${
+                                          i < currentIndex
+                                            ? 'bg-green-500'
+                                            : isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                                        }`} />
+                                      )}
+                                    </React.Fragment>
+                                  );
+                                });
+                              })()}
                             </div>
                           </div>
 
