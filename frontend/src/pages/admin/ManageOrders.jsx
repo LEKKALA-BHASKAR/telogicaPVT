@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { toast } from 'sonner';
-import { Search, Filter, Download, Eye, MoreVertical, Truck, CheckCircle, Clock, XCircle, Package, User, CreditCard, Calendar } from 'lucide-react';
+import { Search, Filter, Download, Eye, MoreVertical, Truck, CheckCircle, Clock, XCircle, Package, User, CreditCard, Calendar, MapPin, Phone, Mail, FileDown, X, ChevronRight, Box, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useTheme } from '../../context/ThemeContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../../components/ui/button';
 
 const ManageOrders = () => {
   const { isDarkMode } = useTheme();
@@ -15,6 +16,7 @@ const ManageOrders = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -39,9 +41,17 @@ const ManageOrders = () => {
       await axios.put(`${API_URL}/api/admin/orders/${orderId}`, { orderStatus: status });
       toast.success('Order status updated successfully');
       fetchOrders();
+      if (selectedOrder?._id === orderId) {
+        setSelectedOrder({ ...selectedOrder, orderStatus: status });
+      }
     } catch (error) {
       toast.error('Failed to update order status');
     }
+  };
+
+  const viewOrderDetails = (order) => {
+    setSelectedOrder(order);
+    setShowOrderModal(true);
   };
 
   const getStatusIcon = (status) => {
@@ -56,18 +66,32 @@ const ManageOrders = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'processing': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'shipped': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'delivered': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'cancelled': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'processing': return isDarkMode 
+        ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
+        : 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'shipped': return isDarkMode 
+        ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+        : 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'delivered': return isDarkMode 
+        ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+        : 'bg-green-100 text-green-700 border-green-200';
+      case 'cancelled': return isDarkMode 
+        ? 'bg-red-500/20 text-red-400 border-red-500/30' 
+        : 'bg-red-100 text-red-700 border-red-200';
+      default: return isDarkMode 
+        ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' 
+        : 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
   const getPaymentColor = (status) => {
     return status === 'completed' 
-      ? 'bg-green-500/20 text-green-400 border-green-500/30'
-      : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      ? isDarkMode 
+        ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+        : 'bg-green-100 text-green-700 border-green-200'
+      : isDarkMode 
+        ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
+        : 'bg-yellow-100 text-yellow-700 border-yellow-200';
   };
 
   const filteredOrders = orders.filter(order => {
@@ -76,6 +100,10 @@ const ManageOrders = () => {
     const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const totalRevenue = orders
+    .filter(o => o.paymentStatus === 'completed')
+    .reduce((sum, o) => sum + o.totalAmount, 0);
 
   if (loading) {
     return (
@@ -318,7 +346,8 @@ const ManageOrders = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button 
-                          className={`p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100 ${
+                          onClick={() => viewOrderDetails(order)}
+                          className={`p-2 rounded-lg transition-all ${
                             isDarkMode 
                               ? 'bg-gray-700/50 text-gray-400 hover:bg-blue-500/20 hover:text-blue-400' 
                               : 'bg-gray-100 text-gray-500 hover:bg-blue-50 hover:text-blue-600'
@@ -327,16 +356,19 @@ const ManageOrders = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button 
-                          className={`p-2 rounded-lg transition-colors ${
-                            isDarkMode 
-                              ? 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50 hover:text-white' 
-                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900'
-                          }`}
-                          title="More Options"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
+                        {order.invoiceUrl && (
+                          <button 
+                            onClick={() => window.open(order.invoiceUrl, '_blank')}
+                            className={`p-2 rounded-lg transition-all ${
+                              isDarkMode 
+                                ? 'bg-gray-700/50 text-gray-400 hover:bg-purple-500/20 hover:text-purple-400' 
+                                : 'bg-gray-100 text-gray-500 hover:bg-purple-50 hover:text-purple-600'
+                            }`}
+                            title="Download Invoice"
+                          >
+                            <FileDown className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -364,11 +396,199 @@ const ManageOrders = () => {
           <div>
             Showing {filteredOrders.length} of {orders.length} orders
           </div>
-          <div className="flex items-center gap-4">
-            <button className="hover:text-purple-500 transition-colors">Previous</button>
-            <button className="hover:text-purple-500 transition-colors">Next</button>
+          <div className={`font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+            Total Revenue: ₹{totalRevenue.toLocaleString()}
           </div>
         </div>
+
+        {/* Order Details Modal */}
+        <AnimatePresence>
+          {showOrderModal && selectedOrder && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              onClick={() => setShowOrderModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className={`rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto ${
+                  isDarkMode ? 'bg-gray-900 border border-white/10' : 'bg-white border border-gray-200'
+                }`}
+              >
+                {/* Modal Header */}
+                <div className={`p-6 border-b sticky top-0 z-10 flex justify-between items-center ${
+                  isDarkMode ? 'bg-gray-900 border-white/10' : 'bg-white border-gray-100'
+                }`}>
+                  <div>
+                    <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Order Details
+                    </h2>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      #{selectedOrder._id.slice(-8).toUpperCase()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowOrderModal(false)}
+                    className={`p-2 rounded-xl transition-colors ${
+                      isDarkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  {/* Status and Date */}
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border ${getStatusColor(selectedOrder.orderStatus)}`}>
+                        {getStatusIcon(selectedOrder.orderStatus)}
+                        {selectedOrder.orderStatus?.charAt(0).toUpperCase() + selectedOrder.orderStatus?.slice(1)}
+                      </span>
+                      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border ${getPaymentColor(selectedOrder.paymentStatus)}`}>
+                        <CreditCard className="w-4 h-4" />
+                        {selectedOrder.paymentStatus?.charAt(0).toUpperCase() + selectedOrder.paymentStatus?.slice(1)}
+                      </span>
+                    </div>
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <Calendar className="w-4 h-4 inline mr-1" />
+                      {new Date(selectedOrder.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Customer & Shipping Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                      <h4 className={`font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <User className="w-4 h-4" />
+                        Customer Information
+                      </h4>
+                      <div className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {selectedOrder.user?.name || selectedOrder.shippingAddress?.name || 'N/A'}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          {selectedOrder.user?.email || selectedOrder.shippingAddress?.email || 'N/A'}
+                        </p>
+                        {selectedOrder.shippingAddress?.phone && (
+                          <p className="flex items-center gap-2">
+                            <Phone className="w-4 h-4" />
+                            {selectedOrder.shippingAddress.phone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {selectedOrder.shippingAddress && (
+                      <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                        <h4 className={`font-semibold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          <MapPin className="w-4 h-4" />
+                          Shipping Address
+                        </h4>
+                        <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <p>{selectedOrder.shippingAddress.address}</p>
+                          <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.pincode}</p>
+                          <p>{selectedOrder.shippingAddress.country || 'India'}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Order Items */}
+                  <div className={`rounded-2xl border overflow-hidden ${
+                    isDarkMode ? 'border-white/10' : 'border-gray-200'
+                  }`}>
+                    <div className={`p-4 ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                      <h4 className={`font-semibold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <Box className="w-4 h-4" />
+                        Order Items ({selectedOrder.products?.length || 0})
+                      </h4>
+                    </div>
+                    <div className="divide-y divide-gray-200/10">
+                      {selectedOrder.products?.map((item, idx) => (
+                        <div key={idx} className={`flex items-center gap-4 p-4 ${
+                          isDarkMode ? 'hover:bg-white/5' : 'hover:bg-gray-50'
+                        }`}>
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.title}
+                              className="w-16 h-16 object-cover rounded-xl border border-gray-200/20"
+                            />
+                          ) : (
+                            <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                              isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                            }`}>
+                              <Package className={`w-8 h-8 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <h5 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {item.title}
+                            </h5>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              ₹{item.price?.toLocaleString()} × {item.quantity}
+                            </p>
+                          </div>
+                          <div className={`text-right font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                            ₹{(item.price * item.quantity).toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Order Total */}
+                  <div className={`p-4 rounded-2xl ${
+                    isDarkMode ? 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20' : 'bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-100'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Total Amount
+                      </span>
+                      <span className={`text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                        ₹{selectedOrder.totalAmount?.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap gap-3 justify-end">
+                    {selectedOrder.invoiceUrl && (
+                      <Button
+                        onClick={() => window.open(selectedOrder.invoiceUrl, '_blank')}
+                        className={`${isDarkMode ? 'bg-purple-600 hover:bg-purple-700' : 'bg-violet-600 hover:bg-violet-700'} text-white`}
+                      >
+                        <FileDown className="w-4 h-4 mr-2" />
+                        Download Invoice
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowOrderModal(false)}
+                      className={isDarkMode ? 'border-gray-700 hover:bg-gray-800' : ''}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AdminLayout>
   );

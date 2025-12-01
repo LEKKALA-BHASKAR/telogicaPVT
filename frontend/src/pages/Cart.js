@@ -3,13 +3,16 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles, Heart, X, AlertCircle, CheckCircle, Gift, Percent } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 const Cart = () => {
+  const { isDarkMode } = useTheme();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingItem, setUpdatingItem] = useState(null);
+  const [removingItem, setRemovingItem] = useState(null);
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -49,39 +52,53 @@ const Cart = () => {
   };
 
   const removeItem = async (productId) => {
+    setRemovingItem(productId);
     try {
       const res = await axios.delete(`${API_URL}/api/products/cart/remove/${productId}`);
       setCart(res.data.data);
       toast.success('Item removed from cart');
     } catch (error) {
       toast.error('Failed to remove item');
+    } finally {
+      setRemovingItem(null);
     }
   };
 
   const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const tax = total * 0.18;
+  const shipping = total > 10000 ? 0 : 500;
+  const finalTotal = total + tax + shipping;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center pt-24">
+      <div className={`min-h-screen flex items-center justify-center pt-24 ${isDarkMode ? 'bg-black' : 'bg-slate-50'}`}>
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500"></div>
-          <p className="text-gray-400 text-lg">Loading your cart...</p>
+          <div className={`animate-spin rounded-full h-16 w-16 border-b-2 ${isDarkMode ? 'border-purple-500' : 'border-violet-600'}`}></div>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Loading your cart...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-0 left-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl animate-pulse delay-500" />
+    <div className={`min-h-screen font-sans relative overflow-hidden transition-colors duration-500 ${
+      isDarkMode ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'
+    }`}>
+      {/* Background Elements */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className={`absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 ${
+          isDarkMode ? 'bg-purple-600' : 'bg-purple-400'
+        }`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[100px] opacity-15 ${
+          isDarkMode ? 'bg-blue-600' : 'bg-blue-400'
+        }`} />
+        <div className={`absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full blur-[80px] opacity-10 ${
+          isDarkMode ? 'bg-green-600' : 'bg-green-400'
+        }`} />
       </div>
 
-      <div className="container mx-auto pt-24 pb-16 px-4 relative z-10">
+      <div className="container mx-auto pt-28 pb-16 px-4 relative z-10 max-w-7xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -89,12 +106,16 @@ const Cart = () => {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center mb-4">
-            <ShoppingBag className="w-8 h-8 text-purple-400 mr-3" />
-            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <ShoppingBag className={`w-8 h-8 mr-3 ${isDarkMode ? 'text-purple-400' : 'text-violet-600'}`} />
+            <h1 className={`text-4xl lg:text-5xl font-bold ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent' 
+                : 'bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent'
+            }`}>
               Shopping Cart
             </h1>
           </div>
-          <p className="text-gray-400 text-lg">
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
             Review and manage your selected items
           </p>
         </motion.div>
@@ -108,17 +129,31 @@ const Cart = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="text-center py-20"
             >
-              <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl p-12 border border-gray-700/50 shadow-2xl max-w-md mx-auto">
-                <ShoppingCart className="w-24 h-24 text-gray-600 mx-auto mb-6" />
-                <h3 className="text-2xl font-semibold text-gray-400 mb-4">Your cart is empty</h3>
-                <p className="text-gray-500 mb-8">
+              <div className={`p-12 rounded-3xl border backdrop-blur-xl max-w-lg mx-auto ${
+                isDarkMode 
+                  ? 'bg-white/5 border-white/10' 
+                  : 'bg-white border-gray-200 shadow-xl'
+              }`}>
+                <div className={`w-32 h-32 mx-auto mb-8 rounded-full flex items-center justify-center ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                }`}>
+                  <ShoppingCart className={`w-16 h-16 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                </div>
+                <h3 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Your cart is empty
+                </h3>
+                <p className={`mb-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Discover our amazing products and add them to your cart
                 </p>
                 <Button
                   onClick={() => navigate('/products')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg hover:scale-105 transition-all"
+                  className={`${
+                    isDarkMode 
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-500' 
+                      : 'bg-gradient-to-r from-violet-600 to-purple-600'
+                  } text-white hover:shadow-lg hover:scale-105 transition-all px-8 py-6 text-lg`}
                 >
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <Sparkles className="w-5 h-5 mr-2" />
                   Explore Products
                 </Button>
               </div>
@@ -128,104 +163,159 @@ const Cart = () => {
               key="cart-with-items"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+              className="grid lg:grid-cols-3 gap-8"
             >
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-6" data-testid="cart-items">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Your Items ({itemCount} {itemCount === 1 ? 'item' : 'items'})
                   </h2>
                   <button
                     onClick={() => navigate('/products')}
-                    className="text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-2"
+                    className={`flex items-center gap-2 transition-colors ${
+                      isDarkMode ? 'text-purple-400 hover:text-purple-300' : 'text-violet-600 hover:text-violet-700'
+                    }`}
                   >
                     <Sparkles className="w-4 h-4" />
                     Continue Shopping
                   </button>
                 </div>
 
-                {cart.map((item, index) => (
-                  <motion.div
-                    key={item.product?._id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 shadow-xl hover:shadow-2xl hover:border-purple-500/30 transition-all duration-300"
-                  >
-                    <div className="flex gap-6">
-                      {/* Product Image */}
-                      <div className="relative">
-                        <img
-                          src={item.product?.images?.[0]?.url || ''}
-                          alt={item.product?.title}
-                          className="w-20 h-20 lg:w-24 lg:h-24 object-cover rounded-xl border border-gray-600"
-                        />
-                        <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          {item.quantity}
-                        </div>
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="text-lg font-bold text-white mb-1">{item.product?.title}</h3>
-                            <p className="text-gray-400 text-sm line-clamp-2">
-                              {item.product?.description}
-                            </p>
+                <AnimatePresence>
+                  {cart.map((item, index) => (
+                    <motion.div
+                      key={item.product?._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20, height: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`group rounded-3xl p-6 border backdrop-blur-xl transition-all duration-300 ${
+                        isDarkMode 
+                          ? 'bg-white/5 border-white/10 hover:border-purple-500/30' 
+                          : 'bg-white border-gray-200 shadow-lg hover:shadow-xl'
+                      } ${removingItem === item.product?._id ? 'opacity-50 scale-95' : ''}`}
+                    >
+                      <div className="flex gap-6">
+                        {/* Product Image */}
+                        <div className="relative shrink-0">
+                          <div className={`w-24 h-24 lg:w-32 lg:h-32 rounded-2xl overflow-hidden ${
+                            isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                          }`}>
+                            {item.product?.images?.[0]?.url ? (
+                              <img
+                                src={item.product.images[0].url}
+                                alt={item.product?.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className={`w-10 h-10 ${isDarkMode ? 'text-gray-700' : 'text-gray-400'}`} />
+                              </div>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-green-400">
-                              ₹{(item.product?.price || 0).toLocaleString()}
-                            </p>
-                            <p className="text-sm text-gray-400">
-                              ₹{((item.product?.price || 0) * item.quantity).toLocaleString()} total
-                            </p>
+                          {/* Quantity Badge */}
+                          <div className={`absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${
+                            isDarkMode 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-violet-600 text-white'
+                          }`}>
+                            {item.quantity}
                           </div>
                         </div>
 
-                        {/* Quantity Controls */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="text-gray-400 text-sm">Quantity:</span>
-                            <div className="flex items-center gap-2 bg-gray-800/50 rounded-xl border border-gray-600">
-                              <button
-                                onClick={() => updateQuantity(item.product?._id, Math.max(1, item.quantity - 1))}
-                                disabled={updatingItem === item.product?._id || item.quantity <= 1}
-                                className="p-2 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="font-bold text-white min-w-8 text-center">
-                                {updatingItem === item.product?._id ? (
-                                  <div className="animate-spin rounded-full w-4 h-4 border-b-2 border-purple-500 mx-auto"></div>
-                                ) : (
-                                  item.quantity
-                                )}
-                              </span>
-                              <button
-                                onClick={() => updateQuantity(item.product?._id, item.quantity + 1)}
-                                disabled={updatingItem === item.product?._id}
-                                className="p-2 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="pr-4">
+                              <h3 className={`text-lg font-bold mb-1 line-clamp-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {item.product?.title}
+                              </h3>
+                              <p className={`text-sm line-clamp-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {item.product?.description}
+                              </p>
+                              {item.product?.category && (
+                                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
+                                  isDarkMode 
+                                    ? 'bg-purple-500/20 text-purple-400' 
+                                    : 'bg-violet-100 text-violet-700'
+                                }`}>
+                                  {item.product.category}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className={`text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                                ₹{(item.product?.price || 0).toLocaleString()}
+                              </p>
+                              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                ₹{((item.product?.price || 0) * item.quantity).toLocaleString()} total
+                              </p>
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => removeItem(item.product?._id)}
-                            className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors"
-                            title="Remove from cart"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {/* Quantity Controls & Remove */}
+                          <div className="flex items-center justify-between mt-4">
+                            <div className="flex items-center gap-3">
+                              <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Quantity:</span>
+                              <div className={`flex items-center gap-1 rounded-xl border ${
+                                isDarkMode 
+                                  ? 'bg-gray-800/50 border-gray-700' 
+                                  : 'bg-gray-50 border-gray-200'
+                              }`}>
+                                <button
+                                  onClick={() => updateQuantity(item.product?._id, Math.max(1, item.quantity - 1))}
+                                  disabled={updatingItem === item.product?._id || item.quantity <= 1}
+                                  className={`p-2.5 rounded-l-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                                    isDarkMode 
+                                      ? 'text-gray-400 hover:text-white hover:bg-white/10' 
+                                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className={`font-bold min-w-10 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {updatingItem === item.product?._id ? (
+                                    <div className={`animate-spin rounded-full w-4 h-4 border-b-2 mx-auto ${
+                                      isDarkMode ? 'border-purple-500' : 'border-violet-600'
+                                    }`}></div>
+                                  ) : (
+                                    item.quantity
+                                  )}
+                                </span>
+                                <button
+                                  onClick={() => updateQuantity(item.product?._id, item.quantity + 1)}
+                                  disabled={updatingItem === item.product?._id}
+                                  className={`p-2.5 rounded-r-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                                    isDarkMode 
+                                      ? 'text-gray-400 hover:text-white hover:bg-white/10' 
+                                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => removeItem(item.product?._id)}
+                              disabled={removingItem === item.product?._id}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                                isDarkMode 
+                                  ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' 
+                                  : 'bg-red-50 text-red-500 hover:bg-red-100'
+                              }`}
+                              title="Remove from cart"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span className="text-sm font-medium">Remove</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
 
               {/* Order Summary */}
@@ -234,65 +324,101 @@ const Cart = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 shadow-xl sticky top-24"
+                  className={`rounded-3xl p-6 border backdrop-blur-xl sticky top-24 ${
+                    isDarkMode 
+                      ? 'bg-white/5 border-white/10' 
+                      : 'bg-white border-gray-200 shadow-xl'
+                  }`}
                 >
-                  <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                    <Package className="w-6 h-6 text-purple-400" />
+                  <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <Package className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-violet-600'}`} />
                     Order Summary
                   </h2>
 
                   <div className="space-y-4 mb-6">
-                    <div className="flex justify-between text-gray-300">
-                      <span>Items ({itemCount})</span>
-                      <span>₹{total.toLocaleString()}</span>
+                    <div className={`flex justify-between ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <span>Subtotal ({itemCount} items)</span>
+                      <span className="font-medium">₹{total.toLocaleString()}</span>
                     </div>
                     
-                    <div className="flex justify-between text-gray-300">
+                    <div className={`flex justify-between ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <span>Shipping</span>
-                      <span className="text-green-400">FREE</span>
+                      {shipping === 0 ? (
+                        <span className={`font-medium ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>FREE</span>
+                      ) : (
+                        <span className="font-medium">₹{shipping.toLocaleString()}</span>
+                      )}
                     </div>
                     
-                    <div className="flex justify-between text-gray-300">
-                      <span>Tax</span>
-                      <span>₹{(total * 0.18).toLocaleString()}</span>
+                    <div className={`flex justify-between ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <span>Tax (18% GST)</span>
+                      <span className="font-medium">₹{tax.toLocaleString()}</span>
                     </div>
 
-                    <div className="border-t border-gray-700/50 pt-4">
+                    {shipping > 0 && (
+                      <div className={`p-3 rounded-xl text-sm ${
+                        isDarkMode 
+                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' 
+                          : 'bg-blue-50 text-blue-600 border border-blue-100'
+                      }`}>
+                        <Gift className="w-4 h-4 inline mr-2" />
+                        Add ₹{(10000 - total).toLocaleString()} more for free shipping!
+                      </div>
+                    )}
+
+                    <div className={`border-t pt-4 ${isDarkMode ? 'border-white/10' : 'border-gray-200'}`}>
                       <div className="flex justify-between text-xl font-bold">
-                        <span>Total</span>
-                        <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent" data-testid="cart-total">
-                          ₹{(total * 1.18).toLocaleString()}
+                        <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Total</span>
+                        <span className={`${
+                          isDarkMode 
+                            ? 'bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent' 
+                            : 'bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent'
+                        }`} data-testid="cart-total">
+                          ₹{finalTotal.toLocaleString()}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Features */}
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-3 text-sm text-gray-400">
-                      <Truck className="w-4 h-4 text-green-400" />
+                  <div className={`space-y-3 mb-6 p-4 rounded-2xl ${
+                    isDarkMode ? 'bg-black/30' : 'bg-gray-50'
+                  }`}>
+                    <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-green-500/20' : 'bg-green-100'}`}>
+                        <Truck className={`w-4 h-4 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
+                      </div>
                       <span>Free shipping on orders over ₹10,000</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-400">
-                      <Shield className="w-4 h-4 text-blue-400" />
+                    <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
+                        <Shield className={`w-4 h-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                      </div>
                       <span>2-year warranty included</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-400">
-                      <CreditCard className="w-4 h-4 text-purple-400" />
+                    <div className={`flex items-center gap-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`p-1.5 rounded-lg ${isDarkMode ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                        <CreditCard className={`w-4 h-4 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                      </div>
                       <span>Secure payment processing</span>
                     </div>
                   </div>
 
                   <Button
                     onClick={() => navigate('/checkout')}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg hover:scale-105 transition-all py-3 text-lg font-semibold"
+                    className={`w-full py-6 text-lg font-semibold transition-all hover:scale-105 ${
+                      isDarkMode 
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:shadow-lg hover:shadow-purple-500/25' 
+                        : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-lg hover:shadow-violet-600/25'
+                    } text-white`}
                     data-testid="proceed-checkout-btn"
                   >
                     Proceed to Checkout
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
 
-                  <p className="text-center text-gray-500 text-sm mt-4">
+                  <p className={`text-center text-sm mt-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <CheckCircle className="w-4 h-4 inline mr-1" />
                     You won't be charged until the next step
                   </p>
                 </motion.div>
