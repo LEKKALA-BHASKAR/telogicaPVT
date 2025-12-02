@@ -44,7 +44,13 @@ const ProductDetails = () => {
   
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    // Reset state when navigating to a new product
+    setSelectedImage(0);
+    setImageLoading(true);
+    setLoading(true);
+    setQuantity(1);
+    setIsWishlisted(false);
+  }, [id]);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
