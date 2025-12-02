@@ -117,6 +117,16 @@ router.get('/my-quotes', protect, async (req, res) => {
 router.get('/by-email/:email', async (req, res) => {
   try {
     const email = decodeURIComponent(req.params.email);
+    
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+    
     const quotes = await Quote.find({ 'buyer.email': email.toLowerCase() })
       .sort({ createdAt: -1 })
       .populate('products.product');
