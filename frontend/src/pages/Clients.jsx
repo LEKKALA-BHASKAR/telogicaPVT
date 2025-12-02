@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Handshake, CheckCircle, Calendar, Star, Quote, ArrowRight, MessageSquare, ChevronLeft, ChevronRight, Play, Pause, Users, Award, TrendingUp, Globe, Shield, Network, Target, Zap, Sparkles, ArrowUpRight, Layers, Cpu, Radio, Wifi, BarChart3, Clock, MapPin, Phone, Mail } from "lucide-react";
+import { Handshake, CheckCircle, Calendar, Star, Quote, ArrowRight, MessageSquare, ChevronLeft, ChevronRight, Play, Pause, Users, Award, TrendingUp, Globe, Shield, Network, Target, Zap, Sparkles, ArrowUpRight, Layers, Cpu, Radio, Wifi, BarChart3, Clock, MapPin, Phone, Mail, Building2, Rocket } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useTheme } from '../context/ThemeContext';
+import { Link } from "react-router-dom";
 
 // Import your logos (keeping the same imports)
 import jioLogo from "../assets/jio.png";
@@ -113,9 +114,9 @@ const TESTIMONIALS = [
 ];
 
 const ENTERPRISE_STATS = [
-  { number: "50+", label: "Enterprise Partners", icon: Users, description: "Trusted by industry leaders" },
-  { number: "200+", label: "Successful Projects", icon: CheckCircle, description: "Delivered on time and budget" },
-  { number: "15+", label: "Years Excellence", icon: Calendar, description: "Proven track record" },
+  { number: "50+", label: "Enterprise Partners", icon: Building2, description: "Trusted by industry leaders" },
+  { number: "200+", label: "Successful Projects", icon: Rocket, description: "Delivered on time and budget" },
+  { number: "15+", label: "Years Excellence", icon: Award, description: "Proven track record" },
   { number: "99.2%", label: "Client Retention", icon: Shield, description: "Long-term partnerships" },
 ];
 
@@ -201,47 +202,56 @@ const ServiceCard = ({ service, index }) => {
   return (
     <motion.div
       ref={ref}
-      className="relative group"
+      className="relative group h-full"
       variants={fadeInUp}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className={`relative rounded-2xl p-8 border h-full transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10 overflow-hidden ${
+      {/* Gradient Border Effect */}
+      <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 blur transition-opacity duration-500`} />
+      
+      <div className={`relative rounded-3xl p-8 h-full transition-all duration-500 overflow-hidden ${
         isDarkMode 
-          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
-          : 'bg-white/50 backdrop-blur-sm border-gray-200'
+          ? 'bg-gray-900/90 backdrop-blur-xl border border-gray-800'
+          : 'bg-white/90 backdrop-blur-xl border border-gray-100 shadow-lg'
       }`}>
-        {/* Animated background gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-          isDarkMode 
-            ? 'from-purple-500/5 via-transparent to-pink-500/5'
-            : 'from-blue-500/5 via-transparent to-indigo-500/5'
-        }`} />
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, ${isDarkMode ? '#fff' : '#000'} 1px, transparent 0)`,
+            backgroundSize: '32px 32px'
+          }} />
+        </div>
         
         <div className="relative z-10">
-          <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r mb-6 group-hover:scale-110 transition-transform duration-500 ${
-            isDarkMode ? service.color : 'from-blue-500 to-indigo-500'
-          }`}>
-            <Icon className="w-7 h-7 text-white" />
+          {/* Icon */}
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg ${service.color}`}>
+            <Icon className="w-8 h-8 text-white" />
           </div>
           
-          <h3 className={`text-xl font-semibold mb-3 ${
+          {/* Title */}
+          <h3 className={`text-2xl font-bold mb-3 ${
             isDarkMode ? 'text-white' : 'text-gray-900'
           }`}>{service.title}</h3>
+          
+          {/* Description */}
           <p className={`mb-6 leading-relaxed ${
-            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+            isDarkMode ? 'text-gray-400' : 'text-gray-600'
           }`}>{service.description}</p>
           
-          <ul className="space-y-2">
+          {/* Features */}
+          <ul className="space-y-3">
             {service.features.map((feature, idx) => (
-              <li className={`flex items-center text-sm ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                <div className={`w-1.5 h-1.5 rounded-full mr-3 ${
-                  isDarkMode ? 'bg-purple-500' : 'bg-blue-500'
+              <li key={idx} className="flex items-center">
+                <CheckCircle className={`w-5 h-5 mr-3 flex-shrink-0 ${
+                  isDarkMode ? 'text-emerald-400' : 'text-emerald-500'
                 }`} />
-                {feature}
+                <span className={`text-sm font-medium ${
+                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  {feature}
+                </span>
               </li>
             ))}
           </ul>
@@ -256,6 +266,13 @@ const EnterpriseStatCard = ({ stat, index }) => {
   const Icon = stat.icon;
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
   const [count, setCount] = useState(0);
+
+  const gradients = [
+    "from-blue-500 to-cyan-500",
+    "from-purple-500 to-pink-500",
+    "from-orange-500 to-red-500",
+    "from-emerald-500 to-teal-500",
+  ];
 
   useEffect(() => {
     if (inView) {
@@ -284,31 +301,32 @@ const EnterpriseStatCard = ({ stat, index }) => {
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className={`relative rounded-2xl p-8 border text-center transition-all duration-500 group-hover:border-purple-500/50 group-hover:shadow-xl group-hover:shadow-purple-500/10 ${
+      {/* Gradient Border Effect */}
+      <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-r ${gradients[index]} opacity-0 group-hover:opacity-100 blur transition-opacity duration-500`} />
+      
+      <div className={`relative rounded-3xl p-8 text-center transition-all duration-500 h-full ${
         isDarkMode 
-          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
-          : 'bg-white/50 backdrop-blur-sm border-gray-200'
+          ? 'bg-gray-900/90 backdrop-blur-xl border border-gray-800'
+          : 'bg-white/90 backdrop-blur-xl border border-gray-100 shadow-lg'
       }`}>
-        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-500 ${
-          isDarkMode 
-            ? 'bg-purple-500/10 border border-purple-500/20'
-            : 'bg-blue-500/10 border border-blue-500/20'
-        }`}>
-          <Icon className={`w-8 h-8 ${
-            isDarkMode ? 'text-purple-400' : 'text-blue-600'
-          }`} />
+        {/* Icon Container */}
+        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 transition-all duration-500 group-hover:scale-110 bg-gradient-to-br ${gradients[index]} shadow-lg`}>
+          <Icon className="w-10 h-10 text-white" />
         </div>
         
-        <div className={`text-4xl font-bold mb-2 ${
-          isDarkMode ? 'text-white' : 'text-gray-900'
-        }`}>
+        {/* Number */}
+        <div className={`text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r ${gradients[index]}`}>
           {inView ? (stat.number.includes("%") ? `${count}%` : `${count}+`) : `0${stat.number.slice(-1)}`}
         </div>
-        <div className={`text-lg font-semibold mb-2 ${
-          isDarkMode ? 'text-purple-400' : 'text-blue-600'
+        
+        {/* Label */}
+        <div className={`text-xl font-bold mb-2 ${
+          isDarkMode ? 'text-white' : 'text-gray-900'
         }`}>{stat.label}</div>
+        
+        {/* Description */}
         <div className={`text-sm ${
-          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+          isDarkMode ? 'text-gray-400' : 'text-gray-500'
         }`}>{stat.description}</div>
       </div>
     </motion.div>
@@ -327,62 +345,51 @@ const TestimonialSlide = ({ testimonial, isActive, direction }) => {
       exit={{ opacity: 0, x: direction > 0 ? -100 : 100 }}
       transition={{ duration: 0.5 }}
     >
-      <div className={`rounded-2xl p-6 border ${
-        isDarkMode 
-          ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
-          : 'bg-white/50 backdrop-blur-sm border-gray-200'
-      }`}>
-        <div className="flex flex-col h-full">
-          {/* Header with logo and info */}
-          <div className="flex items-start gap-4 mb-4">
-            <div className={`w-12 h-12 rounded-lg p-2 flex items-center justify-center border flex-shrink-0 ${
-              isDarkMode 
-                ? 'bg-gray-800/50 border-gray-700/50'
-                : 'bg-gray-100 border-gray-200'
-            }`}>
-              {CompanyLogoSrc ? (
-                <img src={CompanyLogoSrc} alt={`${testimonial.company} logo`} className="w-8 h-8 object-contain" />
-              ) : (
-                <div className={`text-xs ${
-                  isDarkMode ? 'text-gray-600' : 'text-gray-400'
-                }`}>Logo</div>
-              )}
-            </div>
-            <div className="flex-1">
-              <div className={`font-semibold text-base mb-1 ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}>{testimonial.name}</div>
-              <div className={`text-xs mb-1 ${
-                isDarkMode ? 'text-purple-400' : 'text-blue-600'
-              }`}>{testimonial.position}</div>
-              <div className={`text-xs ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>{testimonial.company}</div>
-            </div>
-          </div>
-          
-          {/* Rating */}
-          <div className="flex gap-1 mb-3">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`w-4 h-4 ${i < testimonial.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`} />
-            ))}
-          </div>
-          
-          {/* Content */}
-          <p className={`text-sm leading-relaxed flex-1 mb-3 ${
-            isDarkMode ? 'text-gray-200' : 'text-gray-800'
-          }`}>{testimonial.content}</p>
-          
-          {/* Project */}
-          <div className={`pt-3 border-t ${
-            isDarkMode ? 'border-gray-700/50' : 'border-gray-200'
+      <div className="flex flex-col h-full">
+        {/* Rating Stars */}
+        <div className="flex gap-1 mb-6">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className={`w-6 h-6 ${i < testimonial.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`} />
+          ))}
+        </div>
+        
+        {/* Content */}
+        <p className={`text-xl md:text-2xl leading-relaxed mb-8 font-medium ${
+          isDarkMode ? 'text-gray-200' : 'text-gray-700'
+        }`}>
+          "{testimonial.content}"
+        </p>
+        
+        {/* Author Info */}
+        <div className="flex items-center gap-5 mt-auto">
+          <div className={`w-16 h-16 rounded-2xl p-3 flex items-center justify-center border ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-700'
+              : 'bg-gray-50 border-gray-200'
           }`}>
-            <div className={`text-xs ${
+            {CompanyLogoSrc ? (
+              <img src={CompanyLogoSrc} alt={`${testimonial.company} logo`} className="w-10 h-10 object-contain" />
+            ) : (
+              <Building2 className={`w-8 h-8 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+            )}
+          </div>
+          <div className="flex-1">
+            <div className={`font-bold text-lg ${
+              isDarkMode ? 'text-white' : 'text-gray-900'
+            }`}>{testimonial.name}</div>
+            <div className={`text-sm ${
+              isDarkMode ? 'text-blue-400' : 'text-blue-600'
+            }`}>{testimonial.position}</div>
+            <div className={`text-sm font-medium ${
               isDarkMode ? 'text-gray-400' : 'text-gray-500'
-            }`}>Project:</div>
-            <div className={`font-medium text-sm ${
-              isDarkMode ? 'text-purple-400' : 'text-blue-600'
-            }`}>{testimonial.project}</div>
+            }`}>{testimonial.company}</div>
+          </div>
+          <div className={`hidden sm:block px-4 py-2 rounded-full text-sm font-semibold ${
+            isDarkMode 
+              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+              : 'bg-blue-50 text-blue-600 border border-blue-100'
+          }`}>
+            {testimonial.project}
           </div>
         </div>
       </div>
@@ -470,38 +477,63 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
   const duplicatedSecondRow = [...secondRowClients, ...secondRowClients];
 
   return (
-    <section className={`py-24 relative overflow-hidden transition-colors duration-300 ${
+    <section className={`py-32 relative overflow-hidden transition-colors duration-300 ${
       isDarkMode 
-        ? 'bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white'
-        : 'bg-gradient-to-b from-gray-50 via-white to-gray-100 text-gray-900'
+        ? 'bg-black text-white'
+        : 'bg-white text-gray-900'
     }`}>
-      {/* glowing gradients */}
+      {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className={`absolute -top-20 -left-20 w-[30rem] h-[30rem] blur-[180px] ${
-          isDarkMode ? 'bg-purple-600/20' : 'bg-blue-500/10'
+        <div className={`absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-[200px] ${
+          isDarkMode ? 'bg-blue-600/20' : 'bg-blue-500/10'
         }`} />
-        <div className={`absolute bottom-0 right-0 w-[28rem] h-[28rem] blur-[150px] ${
-          isDarkMode ? 'bg-blue-500/10' : 'bg-indigo-500/10'
+        <div className={`absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full blur-[180px] ${
+          isDarkMode ? 'bg-purple-600/15' : 'bg-purple-500/10'
         }`} />
+        <div className={`absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full blur-[150px] ${
+          isDarkMode ? 'bg-emerald-600/10' : 'bg-emerald-500/5'
+        }`} />
+        
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: `linear-gradient(${isDarkMode ? '#fff' : '#000'} 1px, transparent 1px), linear-gradient(90deg, ${isDarkMode ? '#fff' : '#000'} 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
+        }} />
       </div>
 
       {/* Trusted Partners Section - Logo Only in Two Rows with Marquee */}
-      <section className="py-8 px-4 z-10 relative">
+      <section className="py-12 px-4 z-10 relative">
         <div className="max-w-7xl mx-auto">
           <motion.div 
-            className="text-center mb-8"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
+            {/* Badge */}
+            <div className={`inline-flex items-center px-5 py-2.5 rounded-full mb-6 border backdrop-blur-sm ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10' 
+                : 'bg-gray-50 border-gray-200'
             }`}>
-              Trusted by <span className={`${
-                isDarkMode ? 'text-purple-400' : 'text-blue-600'
-              }`}>Visionary</span> Enterprises
+              <Users className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <span className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Trusted Partners
+              </span>
+            </div>
+            
+            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Trusted by </span>
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${
+                isDarkMode 
+                  ? 'from-blue-400 via-purple-400 to-pink-400' 
+                  : 'from-blue-600 via-purple-600 to-pink-600'
+              }`}>Visionary</span>
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}> Enterprises</span>
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${
+            
+            <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${
               isDarkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
               Collaborating with industry pioneers to drive innovation and excellence in telecommunications
@@ -535,10 +567,10 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
       </section>
 
       {/* Enterprise Stats */}
-      <section className="py-12 px-4 z-10 relative">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-20 px-4 z-10 relative">
+        <div className="max-w-7xl mx-auto">
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
             initial="hidden"
             whileInView="visible"
             variants={staggerContainer}
@@ -552,22 +584,37 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
       </section>
 
       {/* Services Section */}
-      <section className="py-12 px-4 z-10 relative">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-20 px-4 z-10 relative">
+        <div className="max-w-7xl mx-auto">
           <motion.div 
-            className="text-center mb-10"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
+            {/* Badge */}
+            <div className={`inline-flex items-center px-5 py-2.5 rounded-full mb-6 border backdrop-blur-sm ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10' 
+                : 'bg-gray-50 border-gray-200'
             }`}>
-              Enterprise <span className={`${
-                isDarkMode ? 'text-purple-400' : 'text-blue-600'
+              <Zap className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+              <span className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                What We Offer
+              </span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Enterprise </span>
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${
+                isDarkMode 
+                  ? 'from-emerald-400 via-teal-400 to-cyan-400' 
+                  : 'from-emerald-500 via-teal-500 to-cyan-500'
               }`}>Solutions</span>
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${
+            
+            <p className={`text-xl max-w-2xl mx-auto ${
               isDarkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
               Comprehensive telecommunications solutions tailored for enterprise needs
@@ -575,7 +622,7 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
           </motion.div>
 
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
             initial="hidden"
             whileInView="visible"
             variants={staggerContainer}
@@ -589,35 +636,56 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
       </section>
 
       {/* Compact Testimonials Section */}
-      <section className="py-12 px-4 z-10 relative">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-20 px-4 z-10 relative">
+        <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="text-center mb-10"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
+            {/* Badge */}
+            <div className={`inline-flex items-center px-5 py-2.5 rounded-full mb-6 border backdrop-blur-sm ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10' 
+                : 'bg-gray-50 border-gray-200'
             }`}>
-              Client <span className={`${
-                isDarkMode ? 'text-purple-400' : 'text-blue-600'
-              }`}>Success</span> Stories
+              <Star className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />
+              <span className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Success Stories
+              </span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>Client </span>
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${
+                isDarkMode 
+                  ? 'from-yellow-400 via-orange-400 to-red-400' 
+                  : 'from-yellow-500 via-orange-500 to-red-500'
+              }`}>Success</span>
+              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}> Stories</span>
             </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${
+            
+            <p className={`text-xl max-w-2xl mx-auto ${
               isDarkMode ? 'text-gray-400' : 'text-gray-600'
             }`}>
               Hear from industry leaders about their experience partnering with us
             </p>
           </motion.div>
 
-          <div className={`relative rounded-2xl p-8 border ${
+          <div className={`relative rounded-3xl p-10 border ${
             isDarkMode 
-              ? 'bg-gray-900/50 backdrop-blur-sm border-gray-700/50'
-              : 'bg-white/50 backdrop-blur-sm border-gray-200'
+              ? 'bg-gray-900/80 backdrop-blur-xl border-gray-800'
+              : 'bg-white/80 backdrop-blur-xl border-gray-100 shadow-xl'
           }`}>
+            {/* Quote Icon */}
+            <div className={`absolute top-8 right-8 ${isDarkMode ? 'text-gray-800' : 'text-gray-100'}`}>
+              <Quote className="w-20 h-20" />
+            </div>
+            
             {/* Testimonial Slide */}
-            <div className="h-64 mb-6">
+            <div className="min-h-[280px] mb-8">
               <AnimatePresence mode="wait" initial={false}>
                 <TestimonialSlide
                   key={activeTestimonial}
@@ -628,29 +696,29 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
               </AnimatePresence>
             </div>
 
-            {/* Compact Controls */}
+            {/* Controls */}
             <div className="flex items-center justify-between">
               <div className="flex gap-3">
                 {TESTIMONIALS.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => handleTestimonialChange(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    className={`h-3 rounded-full transition-all duration-300 ${
                       activeTestimonial === index 
-                        ? (isDarkMode ? "bg-purple-400" : "bg-blue-600") + " w-8" 
-                        : isDarkMode ? "bg-gray-600 hover:bg-gray-400" : "bg-gray-400 hover:bg-gray-600"
+                        ? `${isDarkMode ? "bg-gradient-to-r from-blue-400 to-purple-400" : "bg-gradient-to-r from-blue-600 to-purple-600"} w-10` 
+                        : `${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-300 hover:bg-gray-400"} w-3`
                     }`}
                   />
                 ))}
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <button 
                   onClick={() => handleTestimonialChange((activeTestimonial - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
+                  className={`p-4 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 ${
                     isDarkMode 
-                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
-                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                      ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 shadow-sm'
                   }`}
                 >
                   <ChevronLeft className={`w-5 h-5 ${
@@ -660,10 +728,10 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
                 
                 <button 
                   onClick={() => setIsTestimonialPaused(!isTestimonialPaused)}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
+                  className={`p-4 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 ${
                     isDarkMode 
-                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
-                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                      ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 shadow-sm'
                   }`}
                 >
                   {isTestimonialPaused ? (
@@ -679,10 +747,10 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
                 
                 <button 
                   onClick={() => handleTestimonialChange((activeTestimonial + 1) % TESTIMONIALS.length)}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
+                  className={`p-4 rounded-2xl transition-all duration-300 hover:-translate-y-0.5 ${
                     isDarkMode 
-                      ? 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
-                      : 'bg-gray-200/50 border border-gray-300/50 hover:bg-gray-300/50'
+                      ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600'
+                      : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 shadow-sm'
                   }`}
                 >
                   <ChevronRight className={`w-5 h-5 ${
@@ -692,6 +760,27 @@ export default function EnterpriseClients({ clients: clientsProp = null, logosEn
               </div>
             </div>
           </div>
+          
+          {/* CTA Section */}
+          <motion.div 
+            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Link
+              to="/contact"
+              className={`inline-flex items-center px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-300 hover:-translate-y-1 shadow-xl hover:shadow-2xl ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+              }`}
+            >
+              Become a Partner
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
+          </motion.div>
         </div>
       </section>
     </section>

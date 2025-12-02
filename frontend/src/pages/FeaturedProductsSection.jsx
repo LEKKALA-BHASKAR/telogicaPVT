@@ -224,7 +224,7 @@ const FeaturedProductsSection = () => {
                       onMouseLeave={() => setHoveredProduct(null)}
                     >
                       {/* Image Area */}
-                      <div className={`relative h-[280px] p-8 flex items-center justify-center overflow-hidden ${
+                      <div className={`relative h-[240px] p-6 flex items-center justify-center overflow-hidden ${
                         isDarkMode ? 'bg-black/40' : 'bg-gray-50'
                       }`}>
                         <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${
@@ -240,20 +240,6 @@ const FeaturedProductsSection = () => {
                         ) : (
                           <Package className={`w-20 h-20 ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
                         )}
-
-                        {/* Quick Action Overlay */}
-                        <div className={`absolute inset-0 flex items-center justify-center gap-4 bg-black/20 backdrop-blur-sm transition-all duration-300 ${
-                          hoveredProduct === product._id ? 'opacity-100 visible' : 'opacity-0 invisible'
-                        }`}>
-                          <Button
-                            asChild
-                            className="rounded-full w-12 h-12 p-0 bg-white text-black hover:bg-gray-100 hover:scale-110 transition-all"
-                          >
-                            <Link to={`/products/${product._id}`}>
-                              <Eye className="w-5 h-5" />
-                            </Link>
-                          </Button>
-                        </div>
                       </div>
 
                       {/* Content Area */}
@@ -265,22 +251,28 @@ const FeaturedProductsSection = () => {
                           }`}>
                             {product.category}
                           </span>
-                          <h3 className={`text-lg font-bold mt-1 line-clamp-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${
+                          <h3 className={`text-lg font-bold mt-1 line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r ${
                             categories.find(c => c.id === activeCategory)?.gradient
                           } ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             {product.title}
                           </h3>
                         </div>
 
-                        <div className="flex items-end justify-end">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                            isDarkMode ? 'bg-white/10 group-hover:bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
-                          }`}>
-                            <ArrowRight className={`w-5 h-5 -rotate-45 group-hover:rotate-0 transition-transform duration-300 ${
-                              isDarkMode ? 'text-white' : 'text-gray-900'
-                            }`} />
-                          </div>
-                        </div>
+                        {/* View Details Button - Always Visible */}
+                        <Button
+                          asChild
+                          className={`w-full rounded-xl py-5 font-semibold transition-all duration-300 group-hover:scale-[1.02] ${
+                            isDarkMode 
+                              ? 'bg-white/10 hover:bg-white/20 text-white border border-white/10' 
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                          }`}
+                        >
+                          <Link to={`/products/${product._id}`} className="flex items-center justify-center gap-2">
+                            <Eye className="w-4 h-4" />
+                            View Details
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                        </Button>
                       </div>
                     </motion.div>
                   ))
