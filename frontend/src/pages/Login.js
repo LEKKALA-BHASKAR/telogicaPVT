@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useQuotation } from '../context/QuotationContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = () => {
   const { isDarkMode } = useTheme();
+  const { pendingQuoteData, submitPendingQuote } = useQuotation();
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
   
   useEffect(()=>{
     window.scrollTo(0,0);
@@ -19,6 +23,16 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  // Pre-fill email from pending quote if available
+  useEffect(() => {
+    if (pendingQuoteData?.buyer?.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: pendingQuoteData.buyer.email
+      }));
+    }
+  }, [pendingQuoteData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -28,6 +42,16 @@ const Login = () => {
       setLoading(false);
 
       if (result.success) {
+        // Check if there's a pending quote to submit
+        if (pendingQuoteData) {
+          try {
+            const profileRes = await axios.get(`${API_URL}/api/auth/profile`);
+            const userId = profileRes.data.data._id;
+            await submitPendingQuote(userId);
+          } catch (error) {
+            console.error('Error getting user profile:', error);
+          }
+        }
         navigate('/');
       }
     } catch (error) {
@@ -106,6 +130,33 @@ const Login = () => {
               Please enter your details to sign in
             </p>
           </div>
+
+          {/* Pending Quote Banner */}
+          {pendingQuoteData && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-4 rounded-xl border ${
+                isDarkMode 
+                  ? 'bg-purple-500/10 border-purple-500/20' 
+                  : 'bg-purple-50 border-purple-200'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                  <FileText className={`w-5 h-5 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                </div>
+                <div>
+                  <h3 className={`font-semibold ${isDarkMode ? 'text-purple-300' : 'text-purple-700'}`}>
+                    Quote Request Pending
+                  </h3>
+                  <p className={`text-sm mt-1 ${isDarkMode ? 'text-purple-400/80' : 'text-purple-600'}`}>
+                    Sign in to submit your quote request with {pendingQuoteData.products?.length || 0} product(s).
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">

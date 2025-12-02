@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 const QuotationContext = createContext();
 
@@ -13,6 +15,9 @@ export const useQuotation = () => {
 export const QuotationProvider = ({ children }) => {
   const [quotationItems, setQuotationItems] = useState([]);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [pendingQuoteData, setPendingQuoteData] = useState(null);
+
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
 
   // Load quotation items from localStorage on mount
   useEffect(() => {
@@ -23,6 +28,17 @@ export const QuotationProvider = ({ children }) => {
       } catch (error) {
         console.error('Error parsing quotation items:', error);
         localStorage.removeItem('quotationItems');
+      }
+    }
+    
+    // Load pending quote data if exists
+    const savedPendingQuote = localStorage.getItem('pendingQuoteData');
+    if (savedPendingQuote) {
+      try {
+        setPendingQuoteData(JSON.parse(savedPendingQuote));
+      } catch (error) {
+        console.error('Error parsing pending quote data:', error);
+        localStorage.removeItem('pendingQuoteData');
       }
     }
   }, []);
@@ -89,9 +105,49 @@ export const QuotationProvider = ({ children }) => {
     return quotationItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  const savePendingQuote = (quoteData) => {
+    setPendingQuoteData(quoteData);
+    localStorage.setItem('pendingQuoteData', JSON.stringify(quoteData));
+  };
+
+  const clearPendingQuote = () => {
+    setPendingQuoteData(null);
+    localStorage.removeItem('pendingQuoteData');
+  };
+
+  const submitPendingQuote = useCallback(async (userId) => {
+    if (!pendingQuoteData) return { success: false };
+
+    try {
+      const quoteData = {
+        buyer: pendingQuoteData.buyer,
+        address: pendingQuoteData.address,
+        products: pendingQuoteData.products.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity
+        })),
+        userId: userId,
+        userMessage: pendingQuoteData.userMessage || null
+      };
+
+      await axios.post(`${API_URL}/api/quotes`, quoteData);
+      
+      toast.success('Your quote request has been submitted successfully!');
+      clearPendingQuote();
+      setQuotationItems([]);
+      localStorage.removeItem('quotationItems');
+      return { success: true };
+    } catch (error) {
+      console.error('Error submitting pending quote:', error);
+      toast.error('Failed to submit quote. Please try again from My Quotes.');
+      return { success: false, error };
+    }
+  }, [pendingQuoteData, API_URL]);
+
   const value = {
     quotationItems,
     isQuotationModalOpen,
+    pendingQuoteData,
     addToQuotation,
     updateQuotationQuantity,
     removeFromQuotation,
@@ -99,7 +155,10 @@ export const QuotationProvider = ({ children }) => {
     openQuotationModal,
     closeQuotationModal,
     getQuotationTotal,
-    getQuotationCount
+    getQuotationCount,
+    savePendingQuote,
+    clearPendingQuote,
+    submitPendingQuote
   };
 
   return (
