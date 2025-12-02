@@ -110,6 +110,12 @@ const quoteSchema = new mongoose.Schema({
   validUntil: {
     type: Date
   },
+  // Conversation status for admin to manage quote conversations
+  conversationStatus: {
+    type: String,
+    enum: ['open', 'closed'],
+    default: 'open'
+  },
   // Linked order if quote was converted to order
   order: {
     type: mongoose.Schema.Types.ObjectId,

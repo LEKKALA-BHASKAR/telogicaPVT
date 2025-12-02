@@ -8,6 +8,19 @@ const router = express.Router();
 // Constants
 const DEFAULT_QUOTE_VALIDITY_DAYS = 7;
 
+/**
+ * Calculate discount percentage from original total and quoted total
+ * @param {number} originalTotal - The original total amount
+ * @param {number} quotedTotal - The quoted total amount
+ * @returns {number} - The discount percentage (0 if originalTotal is 0 or invalid)
+ */
+const calculateDiscountPercentage = (originalTotal, quotedTotal) => {
+  if (!originalTotal || originalTotal <= 0) {
+    return 0;
+  }
+  return ((originalTotal - quotedTotal) / originalTotal * 100);
+};
+
 /* -------------------------------------------------------------------------- */
 /* 🟢 CREATE QUOTE REQUEST (POST) - Public endpoint */
 /* -------------------------------------------------------------------------- */
@@ -220,9 +233,7 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
     }
 
     quote.quotedTotal = calculatedQuotedTotal;
-    // Avoid division by zero when calculating discount percentage
-    quote.discountPercentage = discountPercentage || 
-      (quote.originalTotal > 0 ? ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100) : 0);
+    quote.discountPercentage = discountPercentage || calculateDiscountPercentage(quote.originalTotal, calculatedQuotedTotal);
     quote.adminNotes = adminNotes;
     quote.validUntil = validUntil || new Date(Date.now() + DEFAULT_QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
     quote.status = 'quoted';
@@ -335,6 +346,113 @@ router.put('/admin/:id/reject', protect, admin, async (req, res) => {
     res.json({
       success: true,
       message: 'Quote rejected successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟠 ADMIN: UPDATE QUOTED PRICE - Allow admin to update price on quoted quotes */
+/* -------------------------------------------------------------------------- */
+router.put('/admin/:id/update-price', protect, admin, async (req, res) => {
+  try {
+    const { quotedTotal, discountPercentage, adminNotes, validUntil } = req.body;
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Only allow updating price on quoted quotes (user may have requested more discount)
+    if (!['quoted', 'pending'].includes(quote.status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Can only update price on pending or quoted quotes'
+      });
+    }
+
+    // Calculate quoted total if discount percentage is provided
+    let calculatedQuotedTotal = quotedTotal;
+    if (discountPercentage && !quotedTotal) {
+      calculatedQuotedTotal = quote.originalTotal * (1 - discountPercentage / 100);
+    }
+
+    if (!calculatedQuotedTotal) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a quoted price or discount percentage'
+      });
+    }
+
+    quote.quotedTotal = calculatedQuotedTotal;
+    quote.discountPercentage = discountPercentage || calculateDiscountPercentage(quote.originalTotal, calculatedQuotedTotal);
+    
+    if (adminNotes !== undefined) {
+      quote.adminNotes = adminNotes;
+    }
+    
+    quote.validUntil = validUntil || new Date(Date.now() + DEFAULT_QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
+    quote.status = 'quoted';
+
+    await quote.save();
+
+    // Populate for response
+    await quote.populate('products.product');
+
+    res.json({
+      success: true,
+      message: 'Quote price updated successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟠 ADMIN: UPDATE CONVERSATION STATUS - Close/reopen quote conversations */
+/* -------------------------------------------------------------------------- */
+router.put('/admin/:id/conversation-status', protect, admin, async (req, res) => {
+  try {
+    const { conversationStatus } = req.body;
+
+    if (!['open', 'closed'].includes(conversationStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid conversation status. Must be "open" or "closed"'
+      });
+    }
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    quote.conversationStatus = conversationStatus;
+    await quote.save();
+
+    // Populate for response
+    await quote.populate('products.product');
+
+    res.json({
+      success: true,
+      message: `Conversation ${conversationStatus === 'closed' ? 'closed' : 'reopened'} successfully`,
       data: quote
     });
   } catch (error) {
