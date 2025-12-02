@@ -8,11 +8,10 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, ShieldCheck, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 
 const Register = () => {
   const { isDarkMode } = useTheme();
-  const { pendingQuoteData, clearPendingQuote, clearQuotation } = useQuotation();
+  const { pendingQuoteData, submitPendingQuote } = useQuotation();
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
   useEffect(() => {
@@ -40,32 +39,6 @@ const Register = () => {
     }
   }, [pendingQuoteData]);
 
-  const submitPendingQuote = async (userId) => {
-    if (!pendingQuoteData) return;
-
-    try {
-      const quoteData = {
-        buyer: pendingQuoteData.buyer,
-        address: pendingQuoteData.address,
-        products: pendingQuoteData.products.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity
-        })),
-        userId: userId,
-        userMessage: pendingQuoteData.userMessage || null
-      };
-
-      await axios.post(`${API_URL}/api/quotes`, quoteData);
-      
-      toast.success('Your quote request has been submitted successfully!');
-      clearPendingQuote();
-      clearQuotation();
-    } catch (error) {
-      console.error('Error submitting pending quote:', error);
-      toast.error('Registration successful, but failed to submit quote. Please try again from My Quotes.');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -75,7 +48,6 @@ const Register = () => {
     if (result.success) {
       // Check if there's a pending quote to submit
       if (pendingQuoteData) {
-        // Get user ID from the response (we need to fetch user profile after registration)
         try {
           const profileRes = await axios.get(`${API_URL}/api/auth/profile`);
           const userId = profileRes.data.data._id;
