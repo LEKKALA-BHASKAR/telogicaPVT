@@ -1,0 +1,297 @@
+import express from 'express';
+import Quote from '../models/Quote.js';
+import Product from '../models/Product.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+/* -------------------------------------------------------------------------- */
+/* 🟢 CREATE QUOTE REQUEST (POST) - Public endpoint */
+/* -------------------------------------------------------------------------- */
+router.post('/', async (req, res) => {
+  try {
+    const { buyer, address, products, userId } = req.body;
+
+    // Validate required fields
+    if (!buyer?.fullName || !buyer?.email || !buyer?.mobile) {
+      return res.status(400).json({
+        success: false,
+        message: 'Full name, email, and mobile are required'
+      });
+    }
+
+    if (!address?.houseFlat || !address?.streetArea || !address?.city || !address?.state || !address?.pincode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Complete address is required'
+      });
+    }
+
+    if (!products || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one product is required'
+      });
+    }
+
+    // Fetch product details and calculate total
+    const productDetails = [];
+    let originalTotal = 0;
+
+    for (const item of products) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product not found: ${item.productId}`
+        });
+      }
+
+      const productData = {
+        product: product._id,
+        title: product.title,
+        price: product.price,
+        quantity: item.quantity,
+        image: product.images?.[0]?.url || ''
+      };
+
+      productDetails.push(productData);
+      originalTotal += product.price * item.quantity;
+    }
+
+    // Create quote
+    const quote = await Quote.create({
+      buyer,
+      address,
+      products: productDetails,
+      originalTotal,
+      user: userId || null,
+      status: 'pending'
+    });
+
+    // Populate product details
+    await quote.populate('products.product');
+
+    res.status(201).json({
+      success: true,
+      message: 'Quote request submitted successfully',
+      data: quote
+    });
+
+  } catch (error) {
+    console.error('Create quote error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🔵 GET USER QUOTES - For logged-in users */
+/* -------------------------------------------------------------------------- */
+router.get('/my-quotes', protect, async (req, res) => {
+  try {
+    const quotes = await Quote.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate('products.product');
+
+    res.json({
+      success: true,
+      data: quotes
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🔵 GET QUOTES BY EMAIL - For guest users */
+/* -------------------------------------------------------------------------- */
+router.get('/by-email/:email', async (req, res) => {
+  try {
+    const email = decodeURIComponent(req.params.email);
+    const quotes = await Quote.find({ 'buyer.email': email.toLowerCase() })
+      .sort({ createdAt: -1 })
+      .populate('products.product');
+
+    res.json({
+      success: true,
+      data: quotes
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🔵 GET SINGLE QUOTE */
+/* -------------------------------------------------------------------------- */
+router.get('/:id', async (req, res) => {
+  try {
+    const quote = await Quote.findById(req.params.id)
+      .populate('products.product')
+      .populate('user', 'name email');
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟡 ADMIN: GET ALL QUOTES */
+/* -------------------------------------------------------------------------- */
+router.get('/admin/all', protect, admin, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const query = status ? { status } : {};
+
+    const quotes = await Quote.find(query)
+      .sort({ createdAt: -1 })
+      .populate('products.product')
+      .populate('user', 'name email');
+
+    res.json({
+      success: true,
+      data: quotes
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟠 ADMIN: RESPOND TO QUOTE - Send quoted price */
+/* -------------------------------------------------------------------------- */
+router.put('/admin/:id/respond', protect, admin, async (req, res) => {
+  try {
+    const { quotedTotal, discountPercentage, adminNotes, validUntil } = req.body;
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Calculate quoted total if discount percentage is provided
+    let calculatedQuotedTotal = quotedTotal;
+    if (discountPercentage && !quotedTotal) {
+      calculatedQuotedTotal = quote.originalTotal * (1 - discountPercentage / 100);
+    }
+
+    quote.quotedTotal = calculatedQuotedTotal;
+    quote.discountPercentage = discountPercentage || 
+      ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100);
+    quote.adminNotes = adminNotes;
+    quote.validUntil = validUntil || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
+    quote.status = 'quoted';
+
+    await quote.save();
+
+    // Populate for response
+    await quote.populate('products.product');
+
+    res.json({
+      success: true,
+      message: 'Quote response sent successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟠 UPDATE QUOTE STATUS */
+/* -------------------------------------------------------------------------- */
+router.put('/:id/status', protect, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Check if user owns the quote or is admin
+    if (quote.user?.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized'
+      });
+    }
+
+    quote.status = status;
+    await quote.save();
+
+    res.json({
+      success: true,
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🔴 DELETE QUOTE (Admin only) */
+/* -------------------------------------------------------------------------- */
+router.delete('/:id', protect, admin, async (req, res) => {
+  try {
+    const quote = await Quote.findByIdAndDelete(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Quote deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+export default router;
