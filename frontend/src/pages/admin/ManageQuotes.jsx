@@ -8,7 +8,7 @@ import {
   FileText, Clock, CheckCircle, XCircle, AlertCircle,
   Package, Calendar, Mail, Phone, MapPin, Building,
   ChevronDown, ChevronUp, DollarSign, Send, Loader2,
-  User, RefreshCw, Percent, Eye, Trash2, Search
+  User, RefreshCw, Percent, Eye, Trash2, Search, MessageCircle
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -29,6 +29,10 @@ const ManageQuotes = () => {
     validUntil: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [messageInput, setMessageInput] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [rejectingQuote, setRejectingQuote] = useState(null);
+  const [rejectNotes, setRejectNotes] = useState('');
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -79,6 +83,46 @@ const ManageQuotes = () => {
       toast.error('Failed to send quote response');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRejectQuote = async (quoteId) => {
+    try {
+      setSubmitting(true);
+      await axios.put(`${API_URL}/api/quotes/admin/${quoteId}/reject`, {
+        adminNotes: rejectNotes
+      });
+      toast.success('Quote rejected successfully');
+      setRejectingQuote(null);
+      setRejectNotes('');
+      fetchQuotes();
+    } catch (error) {
+      console.error('Error rejecting quote:', error);
+      toast.error('Failed to reject quote');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSendMessage = async (quoteId) => {
+    if (!messageInput.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
+
+    try {
+      setSendingMessage(true);
+      await axios.post(`${API_URL}/api/quotes/admin/${quoteId}/message`, {
+        content: messageInput
+      });
+      toast.success('Message sent successfully');
+      setMessageInput('');
+      fetchQuotes();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -569,19 +613,88 @@ const ManageQuotes = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center justify-between">
                                   <p className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                                     This quote is pending your response
                                   </p>
-                                  <Button
-                                    onClick={() => setRespondingQuote(quote._id)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                                  >
-                                    <DollarSign className="w-4 h-4 mr-2" />
-                                    Respond with Price
-                                  </Button>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      onClick={() => setRespondingQuote(quote._id)}
+                                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                                    >
+                                      <DollarSign className="w-4 h-4 mr-2" />
+                                      Respond with Price
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      onClick={() => setRejectingQuote(quote._id)}
+                                    >
+                                      <XCircle className="w-4 h-4 mr-2" />
+                                      Reject
+                                    </Button>
+                                  </div>
                                 </div>
                               )}
+                            </div>
+                          )}
+
+                          {/* Reject Quote Form */}
+                          {rejectingQuote === quote._id && (
+                            <div className={`mt-4 p-4 rounded-xl ${
+                              isDarkMode ? 'bg-red-500/10 border border-red-500/20' : 'bg-red-50 border border-red-200'
+                            }`}>
+                              <h4 className={`font-semibold mb-3 ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>
+                                Reject Quote
+                              </h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className={`text-sm font-medium mb-1 block ${
+                                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                  }`}>
+                                    Rejection Reason (Optional)
+                                  </label>
+                                  <textarea
+                                    placeholder="Add a reason for rejection..."
+                                    value={rejectNotes}
+                                    onChange={(e) => setRejectNotes(e.target.value)}
+                                    rows={2}
+                                    className={`w-full p-3 rounded-lg border ${
+                                      isDarkMode 
+                                        ? 'bg-gray-800 border-gray-700 text-white' 
+                                        : 'bg-white border-gray-200'
+                                    }`}
+                                  />
+                                </div>
+                                <div className="flex gap-3">
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => handleRejectQuote(quote._id)}
+                                    disabled={submitting}
+                                  >
+                                    {submitting ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Rejecting...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <XCircle className="w-4 h-4 mr-2" />
+                                        Confirm Reject
+                                      </>
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setRejectingQuote(null);
+                                      setRejectNotes('');
+                                    }}
+                                    className={isDarkMode ? 'border-gray-700' : ''}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
                             </div>
                           )}
 
@@ -598,6 +711,77 @@ const ManageQuotes = () => {
                               </p>
                             </div>
                           )}
+
+                          {/* Messages Section */}
+                          <div className={`mt-4 p-4 rounded-xl ${
+                            isDarkMode ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'
+                          }`}>
+                            <h4 className={`font-semibold mb-3 flex items-center gap-2 ${
+                              isDarkMode ? 'text-purple-400' : 'text-purple-700'
+                            }`}>
+                              <MessageCircle className="w-4 h-4" />
+                              Negotiation Messages ({quote.messages?.length || 0})
+                            </h4>
+                            
+                            {/* Messages List */}
+                            {quote.messages && quote.messages.length > 0 && (
+                              <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                                {quote.messages.map((msg, idx) => (
+                                  <div 
+                                    key={idx} 
+                                    className={`p-3 rounded-lg ${
+                                      msg.sender === 'admin'
+                                        ? isDarkMode ? 'bg-blue-500/20 ml-4' : 'bg-blue-100 ml-4'
+                                        : isDarkMode ? 'bg-gray-700 mr-4' : 'bg-gray-200 mr-4'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className={`text-xs font-medium ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                      }`}>
+                                        {msg.senderName || (msg.sender === 'admin' ? 'Admin' : 'User')}
+                                        {msg.sender === 'admin' && (
+                                          <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${
+                                            isDarkMode ? 'bg-blue-500/30 text-blue-300' : 'bg-blue-200 text-blue-700'
+                                          }`}>
+                                            Admin
+                                          </span>
+                                        )}
+                                      </span>
+                                      <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {new Date(msg.createdAt).toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <p className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                                      {msg.content}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Send Message Input */}
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Type a message to the customer..."
+                                value={messageInput}
+                                onChange={(e) => setMessageInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(quote._id)}
+                                className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                              />
+                              <Button
+                                onClick={() => handleSendMessage(quote._id)}
+                                disabled={sendingMessage || !messageInput.trim()}
+                                className="bg-purple-500 hover:bg-purple-600 text-white"
+                              >
+                                {sendingMessage ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Send className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
 
                           {/* Actions */}
                           <div className="mt-4 flex justify-end gap-3">

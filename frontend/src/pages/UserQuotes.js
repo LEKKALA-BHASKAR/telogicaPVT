@@ -9,9 +9,10 @@ import {
   FileText, Clock, CheckCircle, XCircle, AlertCircle,
   Package, Calendar, Mail, Phone, MapPin, Building,
   ChevronDown, ChevronUp, DollarSign, Percent, ArrowRight,
-  ShoppingCart, Loader2, User, RefreshCw
+  ShoppingCart, Loader2, User, RefreshCw, MessageCircle, Send, Search
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 const UserQuotes = () => {
   const { isDarkMode } = useTheme();
@@ -22,6 +23,11 @@ const UserQuotes = () => {
   const [loading, setLoading] = useState(true);
   const [expandedQuote, setExpandedQuote] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [messageInput, setMessageInput] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestEmailSubmitted, setGuestEmailSubmitted] = useState(false);
+  const [searchingGuest, setSearchingGuest] = useState(false);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -29,6 +35,8 @@ const UserQuotes = () => {
     window.scrollTo(0, 0);
     if (isAuthenticated) {
       fetchQuotes();
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -45,27 +53,113 @@ const UserQuotes = () => {
     }
   };
 
+  const fetchGuestQuotes = async () => {
+    if (!guestEmail || !guestEmail.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      setSearchingGuest(true);
+      const res = await axios.get(`${API_URL}/api/quotes/by-email/${encodeURIComponent(guestEmail)}`);
+      setQuotes(res.data.data || []);
+      setGuestEmailSubmitted(true);
+      if (res.data.data.length === 0) {
+        toast.info('No quotes found for this email');
+      } else {
+        toast.success(`Found ${res.data.data.length} quote(s)`);
+      }
+    } catch (error) {
+      console.error('Error fetching guest quotes:', error);
+      toast.error('Failed to load quotes');
+    } finally {
+      setSearchingGuest(false);
+    }
+  };
+
+  const handleSendMessage = async (quoteId) => {
+    if (!messageInput.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
+
+    try {
+      setSendingMessage(true);
+      if (isAuthenticated) {
+        await axios.post(`${API_URL}/api/quotes/${quoteId}/message`, {
+          content: messageInput
+        });
+      } else {
+        await axios.post(`${API_URL}/api/quotes/${quoteId}/guest-message`, {
+          content: messageInput,
+          email: guestEmail,
+          fullName: quotes.find(q => q._id === quoteId)?.buyer?.fullName
+        });
+      }
+      toast.success('Message sent successfully');
+      setMessageInput('');
+      // Refresh quotes to show new message
+      if (isAuthenticated) {
+        fetchQuotes();
+      } else {
+        fetchGuestQuotes();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error(error.response?.data?.message || 'Failed to send message');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   const handleAcceptQuote = async (quoteId) => {
     try {
-      await axios.put(`${API_URL}/api/quotes/${quoteId}/status`, { status: 'accepted' });
+      if (isAuthenticated) {
+        await axios.put(`${API_URL}/api/quotes/${quoteId}/status`, { status: 'accepted' });
+      } else {
+        await axios.put(`${API_URL}/api/quotes/${quoteId}/guest-status`, { 
+          status: 'accepted',
+          email: guestEmail
+        });
+      }
       toast.success('Quote accepted! Redirecting to checkout...');
-      fetchQuotes();
+      if (isAuthenticated) {
+        fetchQuotes();
+      } else {
+        fetchGuestQuotes();
+      }
       // Navigate to checkout with quote data
       navigate(`/checkout?quoteId=${quoteId}`);
     } catch (error) {
       console.error('Error accepting quote:', error);
-      toast.error('Failed to accept quote');
+      toast.error(error.response?.data?.message || 'Failed to accept quote');
     }
   };
 
   const handleRejectQuote = async (quoteId) => {
     try {
-      await axios.put(`${API_URL}/api/quotes/${quoteId}/status`, { status: 'rejected' });
+      if (isAuthenticated) {
+        await axios.put(`${API_URL}/api/quotes/${quoteId}/status`, { status: 'rejected' });
+      } else {
+        await axios.put(`${API_URL}/api/quotes/${quoteId}/guest-status`, { 
+          status: 'rejected',
+          email: guestEmail
+        });
+      }
       toast.success('Quote rejected');
-      fetchQuotes();
+      if (isAuthenticated) {
+        fetchQuotes();
+      } else {
+        fetchGuestQuotes();
+      }
     } catch (error) {
       console.error('Error rejecting quote:', error);
-      toast.error('Failed to reject quote');
+      toast.error(error.response?.data?.message || 'Failed to reject quote');
     }
   };
 
@@ -118,30 +212,109 @@ const UserQuotes = () => {
     accepted: quotes.filter(q => q.status === 'accepted').length,
   };
 
+  // Guest user view - show email input form or quotes
   if (!isAuthenticated) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center pt-24 ${isDarkMode ? 'bg-black' : 'bg-slate-50'}`}>
-        <div className="text-center">
-          <User className={`w-16 h-16 mx-auto mb-6 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
-          <h3 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Login Required
-          </h3>
-          <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            Please login to view your quotes
-          </p>
-          <Button
-            onClick={() => navigate('/login')}
-            className={`${
-              isDarkMode 
-                ? 'bg-gradient-to-r from-purple-600 to-pink-500' 
-                : 'bg-gradient-to-r from-violet-600 to-purple-600'
-            } text-white`}
-          >
-            Login
-          </Button>
+    if (!guestEmailSubmitted) {
+      return (
+        <div className={`min-h-screen pt-24 ${isDarkMode ? 'bg-black' : 'bg-slate-50'}`}>
+          {/* Background Elements */}
+          <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+            <div className={`absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 ${
+              isDarkMode ? 'bg-purple-600' : 'bg-purple-400'
+            }`} />
+            <div className={`absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[100px] opacity-15 ${
+              isDarkMode ? 'bg-blue-600' : 'bg-blue-400'
+            }`} />
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10 max-w-xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-8 rounded-3xl border backdrop-blur-xl ${
+                isDarkMode 
+                  ? 'bg-white/5 border-white/10' 
+                  : 'bg-white border-gray-200 shadow-xl'
+              }`}
+            >
+              <div className="text-center mb-8">
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+                  isDarkMode ? 'bg-purple-500/20' : 'bg-purple-100'
+                }`}>
+                  <FileText className={`w-8 h-8 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                </div>
+                <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Track Your Quotes
+                </h2>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Enter your email to view your quotation requests
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className={`text-sm font-medium mb-2 block ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Email Address
+                  </label>
+                  <Input
+                    type="email"
+                    placeholder="Enter the email used for quotes"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && fetchGuestQuotes()}
+                    className={`h-12 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                  />
+                </div>
+                
+                <Button
+                  onClick={fetchGuestQuotes}
+                  disabled={searchingGuest}
+                  className={`w-full h-12 ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-500' 
+                      : 'bg-gradient-to-r from-violet-600 to-purple-600'
+                  } text-white`}
+                >
+                  {searchingGuest ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 mr-2" />
+                      Find My Quotes
+                    </>
+                  )}
+                </Button>
+
+                <div className="relative my-6">
+                  <div className={`absolute inset-0 flex items-center ${isDarkMode ? 'text-gray-600' : 'text-gray-300'}`}>
+                    <div className={`w-full border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className={`px-3 ${isDarkMode ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}>
+                      or
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/login')}
+                  className={`w-full h-12 ${isDarkMode ? 'border-gray-700 hover:bg-gray-800' : ''}`}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Login to Your Account
+                </Button>
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   if (loading) {
@@ -189,6 +362,25 @@ const UserQuotes = () => {
           <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
             Track and manage your quotation requests
           </p>
+          {/* Guest Email Info */}
+          {!isAuthenticated && guestEmailSubmitted && (
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Viewing quotes for: <strong className={isDarkMode ? 'text-white' : 'text-gray-900'}>{guestEmail}</strong>
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setGuestEmailSubmitted(false);
+                  setQuotes([]);
+                }}
+                className={isDarkMode ? 'border-gray-700 hover:bg-gray-800' : ''}
+              >
+                Change Email
+              </Button>
+            </div>
+          )}
         </motion.div>
 
         {/* Stats Cards */}
@@ -554,6 +746,79 @@ const UserQuotes = () => {
                               </div>
                             );
                           })()}
+
+                          {/* Messages Section */}
+                          <div className={`p-4 rounded-2xl mb-4 ${
+                            isDarkMode ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'
+                          }`}>
+                            <h4 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
+                              isDarkMode ? 'text-purple-400' : 'text-purple-700'
+                            }`}>
+                              <MessageCircle className="w-4 h-4" />
+                              Negotiation Messages ({quote.messages?.length || 0})
+                            </h4>
+                            
+                            {/* Messages List */}
+                            {quote.messages && quote.messages.length > 0 && (
+                              <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                                {quote.messages.map((msg, idx) => (
+                                  <div 
+                                    key={idx} 
+                                    className={`p-3 rounded-lg ${
+                                      msg.sender === 'admin'
+                                        ? isDarkMode ? 'bg-blue-500/20 ml-4' : 'bg-blue-100 ml-4'
+                                        : isDarkMode ? 'bg-gray-700 mr-4' : 'bg-gray-200 mr-4'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className={`text-xs font-medium ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                      }`}>
+                                        {msg.senderName || (msg.sender === 'admin' ? 'Admin' : 'You')}
+                                        {msg.sender === 'admin' && (
+                                          <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${
+                                            isDarkMode ? 'bg-blue-500/30 text-blue-300' : 'bg-blue-200 text-blue-700'
+                                          }`}>
+                                            Admin
+                                          </span>
+                                        )}
+                                      </span>
+                                      <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {new Date(msg.createdAt).toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <p className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                                      {msg.content}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Send Message Input */}
+                            {quote.status !== 'ordered' && quote.status !== 'rejected' && (
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Type a message..."
+                                  value={messageInput}
+                                  onChange={(e) => setMessageInput(e.target.value)}
+                                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(quote._id)}
+                                  className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                                />
+                                <Button
+                                  onClick={() => handleSendMessage(quote._id)}
+                                  disabled={sendingMessage || !messageInput.trim()}
+                                  className="bg-purple-500 hover:bg-purple-600 text-white"
+                                >
+                                  {sendingMessage ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Send className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
 
                           {/* Action Buttons */}
                           {quote.status === 'quoted' && quote.validUntil && new Date(quote.validUntil) > new Date() && (
