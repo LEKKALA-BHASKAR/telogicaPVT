@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles, Heart, X, AlertCircle, CheckCircle, Gift, Percent } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles, Heart, X, AlertCircle, CheckCircle, Gift, Percent, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
@@ -181,6 +181,44 @@ const Cart = () => {
                     Continue Shopping
                   </button>
                 </div>
+
+                {/* Discount Banner - Show when more than 3 products */}
+                {cart.length > 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-4 rounded-2xl border flex items-center gap-4 ${
+                      isDarkMode 
+                        ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20' 
+                        : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-xl ${
+                      isDarkMode ? 'bg-green-500/20' : 'bg-green-100'
+                    }`}>
+                      <Percent className={`w-6 h-6 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-bold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                        Bulk Discount Available!
+                      </h4>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        You have more than 3 products in your cart. Contact our admin for special price discounts.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => navigate('/contact')}
+                      className={`shrink-0 ${
+                        isDarkMode 
+                          ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30' 
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Contact Admin
+                    </Button>
+                  </motion.div>
+                )}
 
                 <AnimatePresence>
                   {cart.map((item, index) => (

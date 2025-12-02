@@ -272,15 +272,7 @@ const FeaturedProductsSection = () => {
                           </h3>
                         </div>
 
-                        <div className="flex items-end justify-between">
-                          <div>
-                            <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                              Starting from
-                            </p>
-                            <p className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              ₹{product.price.toLocaleString()}
-                            </p>
-                          </div>
+                        <div className="flex items-end justify-end">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
                             isDarkMode ? 'bg-white/10 group-hover:bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
                           }`}>
