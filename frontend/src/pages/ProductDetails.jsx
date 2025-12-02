@@ -48,6 +48,8 @@ const ProductDetails = () => {
     setSelectedImage(0);
     setImageLoading(true);
     setLoading(true);
+    setQuantity(1);
+    setIsWishlisted(false);
   }, [id]);
 
   const fadeInUp = {
