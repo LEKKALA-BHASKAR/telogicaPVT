@@ -22,10 +22,12 @@ The email server uses the following environment variables (already configured in
 
 ```
 EMAIL_USER=telogicaweb@gmail.com
-EMAIL_PASSWORD=yuis lgyt qfim odti
+EMAIL_PASSWORD=your_app_password_here
 ADMIN_EMAIL=telogicaweb@gmail.com
 PORT=8002
 ```
+
+> **⚠️ Security Note**: For production deployments, ensure the `.env` file is not committed to version control. Add `.env` to your `.gitignore` file and manage credentials securely through environment variables or a secret management system.
 
 ## Running the Server
 

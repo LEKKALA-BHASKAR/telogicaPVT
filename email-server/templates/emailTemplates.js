@@ -237,7 +237,7 @@ export const quoteResponseUserTemplate = (data) => {
           <div class="info-box" style="background-color: #F3E8FF;">
             <table style="width: 100%;">
               <tr><td style="padding: 5px 0;"><strong>Original Price:</strong></td><td style="text-align: right;">${formatCurrency(originalTotal)}</td></tr>
-              <tr><td style="padding: 5px 0;"><strong>Discount:</strong></td><td style="text-align: right; color: #059669;">${discountPercentage?.toFixed(1) || 0}%</td></tr>
+              <tr><td style="padding: 5px 0;"><strong>Discount:</strong></td><td style="text-align: right; color: #059669;">${(discountPercentage !== undefined && discountPercentage !== null) ? discountPercentage.toFixed(1) : '0.0'}%</td></tr>
               <tr><td style="padding: 5px 0;"><strong>Your Savings:</strong></td><td style="text-align: right; color: #059669;">${formatCurrency(savings)}</td></tr>
               <tr style="border-top: 2px solid #7C3AED;"><td style="padding: 10px 0;"><strong style="font-size: 18px;">Your Price:</strong></td><td style="text-align: right; font-size: 24px; color: #7C3AED; font-weight: bold;">${formatCurrency(quotedTotal)}</td></tr>
             </table>
