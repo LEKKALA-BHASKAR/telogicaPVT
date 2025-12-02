@@ -99,11 +99,13 @@ const ProductDetails = () => {
 
   const fetchRecommendedProducts = async (category) => {
     try {
-      const res = await axios.get(`${API_URL}/api/products?category=${category}&limit=4`);
+      // Fetch 5 products to ensure we have 4 after filtering out the current product
+      const res = await axios.get(`${API_URL}/api/products?category=${category}&limit=5`);
       // Filter out the current product from recommendations
       const filtered = (res.data.data || []).filter(p => p._id !== id);
       setRecommendedProducts(filtered.slice(0, 4));
     } catch (error) {
+      // Silently fail - recommended products are a nice-to-have feature
       console.error("Error fetching recommended products:", error);
     }
   };
