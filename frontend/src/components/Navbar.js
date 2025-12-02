@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useQuotation } from '../context/QuotationContext';
 import axios from 'axios';
 import { 
   Menu, 
@@ -15,7 +16,9 @@ import {
   Mail,
   MapPin,
   Sun,
-  Moon
+  Moon,
+  FileText,
+  ClipboardList
 } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -28,6 +31,7 @@ const Navbar = () => {
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { openQuotationModal, getQuotationCount } = useQuotation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -158,6 +162,32 @@ const Navbar = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
+            {/* Get Quote Button */}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                openQuotationModal();
+                setIsOpen(false);
+              }}
+              className={`flex items-center justify-between rounded-xl px-4 py-3 shadow-md transition-all duration-300 ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-purple-800/50 hover:shadow-lg hover:shadow-purple-500/30' 
+                  : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-100 hover:shadow-lg hover:shadow-violet-500/30'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="font-medium">Get Quote</span>
+              </div>
+              {getQuotationCount() > 0 && (
+                <span className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center font-bold ml-2 ${
+                  isDarkMode ? 'bg-white/20' : 'bg-white/30'
+                }`}>
+                  {getQuotationCount() > 99 ? '99+' : getQuotationCount()}
+                </span>
+              )}
+            </Button>
+
             {/* Theme Toggle Button */}
             <Button
               variant="ghost"
@@ -268,6 +298,21 @@ const Navbar = () => {
                         </Button>
                         <Button
                           variant="ghost"
+                          onClick={() => {
+                            navigate('/my-quotes');
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full justify-start transition-all duration-300 ${
+                            isDarkMode 
+                              ? 'text-white/80 hover:text-white hover:bg-white/10' 
+                              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                          }`}
+                        >
+                          <ClipboardList className="w-4 h-4 mr-2" />
+                          My Quotes
+                        </Button>
+                        <Button
+                          variant="ghost"
                           onClick={handleLogout}
                           className={`w-full justify-start transition-all duration-300 ${
                             isDarkMode 
@@ -336,6 +381,30 @@ const Navbar = () => {
             </Button>
           </div>
 
+          {/* Get Quote Button - Mobile */}
+          <Button
+            variant="ghost"
+            onClick={() => {
+              openQuotationModal();
+              setIsOpen(false);
+            }}
+            className={`w-full justify-start rounded-xl px-4 py-3 shadow-md transition-all duration-300 mb-2 ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-purple-800/50' 
+                : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-100'
+            }`}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Get Quote
+            {getQuotationCount() > 0 && (
+              <span className={`w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold ml-auto ${
+                isDarkMode ? 'bg-white/20' : 'bg-white/30'
+              }`}>
+                {getQuotationCount() > 99 ? '99+' : getQuotationCount()}
+              </span>
+            )}
+          </Button>
+
           {/* Navigation Links */}
           <div className="space-y-2">
             {navLinks.map((link) => (
@@ -400,6 +469,21 @@ const Navbar = () => {
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    navigate('/my-quotes');
+                    setIsOpen(false);
+                  }}
+                  className={`w-full justify-start transition-all duration-300 ${
+                    isDarkMode 
+                      ? `${secondaryTextColor} ${hoverTextColor} hover:bg-white/10`
+                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  My Quotes
                 </Button>
                 <Button
                   variant="ghost"

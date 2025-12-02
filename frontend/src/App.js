@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { QuotationProvider, useQuotation } from './context/QuotationContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -22,10 +23,13 @@ import ManageProducts from './pages/admin/ManageProducts';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageOrders from './pages/admin/ManageOrders';
 import ManageInvestorDocs from './pages/admin/ManageInvestorDocs';
+import ManageQuotes from './pages/admin/ManageQuotes';
 import UserOrders from './pages/UserOrders';
+import UserQuotes from './pages/UserQuotes';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import QuotationModal from './components/QuotationModal';
 import { Toaster } from './components/ui/sonner';
 import { GlobalContactForm } from './components';
 import { HelpCircle } from 'lucide-react';
@@ -39,7 +43,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent showContactForm={showContactForm} setShowContactForm={setShowContactForm} />
+        <QuotationProvider>
+          <AppContent showContactForm={showContactForm} setShowContactForm={setShowContactForm} />
+        </QuotationProvider>
       </AuthProvider>
     </ThemeProvider>
   );
@@ -82,6 +88,11 @@ function AppContent({ showContactForm, setShowContactForm }) {
               <UserOrders />
             </ProtectedRoute>
           } />
+          <Route path="/my-quotes" element={
+            <ProtectedRoute>
+              <UserQuotes />
+            </ProtectedRoute>
+          } />
           
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={
@@ -109,6 +120,11 @@ function AppContent({ showContactForm, setShowContactForm }) {
               <ManageInvestorDocs />
             </AdminRoute>
           } />
+          <Route path="/admin/quotes" element={
+            <AdminRoute>
+              <ManageQuotes />
+            </AdminRoute>
+          } />
           
           {/* 404 Not Found - Must be last */}
           <Route path="*" element={<NotFound />} />
@@ -116,6 +132,7 @@ function AppContent({ showContactForm, setShowContactForm }) {
       </main>
       <Footer />
       <ScrollToTop />
+      <QuotationModal />
       <Toaster position="top-right" richColors />
       
       {/* Floating Help Icon */}
