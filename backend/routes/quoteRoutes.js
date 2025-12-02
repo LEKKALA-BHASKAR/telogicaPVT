@@ -2,11 +2,18 @@ import express from 'express';
 import Quote from '../models/Quote.js';
 import Product from '../models/Product.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import { MailService } from '../services/mailService.js';
 
 const router = express.Router();
 
 // Constants
 const DEFAULT_QUOTE_VALIDITY_DAYS = 7;
+
+const mapProductsForEmail = (products = []) => products.map(item => ({
+  title: item.title || item.product?.title || 'Product',
+  quantity: item.quantity,
+  price: item.price ?? item.product?.price ?? 0
+}));
 
 /**
  * Calculate discount percentage from original total and quoted total
@@ -88,6 +95,15 @@ router.post('/', async (req, res) => {
 
     // Populate product details
     await quote.populate('products.product');
+
+    await MailService.sendQuoteRequest({
+      buyer,
+      address,
+      products: mapProductsForEmail(productDetails),
+      originalTotal,
+      quoteId: quote._id.toString(),
+      userMessage: userMessage || ''
+    });
 
     res.status(201).json({
       success: true,
@@ -217,6 +233,8 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
   try {
     const { quotedTotal, discountPercentage, adminNotes, validUntil } = req.body;
 
+    const messageContent = content.trim();
+
     const quote = await Quote.findById(req.params.id);
 
     if (!quote) {
@@ -242,6 +260,17 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
 
     // Populate for response
     await quote.populate('products.product');
+
+    await MailService.sendQuoteResponse({
+      buyer: quote.buyer,
+      products: mapProductsForEmail(quote.products),
+      originalTotal: quote.originalTotal,
+      quotedTotal: quote.quotedTotal,
+      discountPercentage: quote.discountPercentage,
+      adminNotes,
+      validUntil: quote.validUntil,
+      quoteId: quote._id.toString()
+    });
 
     res.json({
       success: true,
@@ -281,6 +310,24 @@ router.put('/:id/status', protect, async (req, res) => {
 
     quote.status = status;
     await quote.save();
+
+    await quote.populate('products.product');
+
+    if (status === 'accepted') {
+      await MailService.sendQuoteAccepted({
+        buyer: quote.buyer,
+        products: mapProductsForEmail(quote.products),
+        quotedTotal: quote.quotedTotal || quote.originalTotal,
+        quoteId: quote._id.toString()
+      });
+    } else if (status === 'rejected') {
+      await MailService.sendQuoteRejected({
+        buyer: quote.buyer,
+        products: mapProductsForEmail(quote.products),
+        quoteId: quote._id.toString(),
+        originalTotal: quote.originalTotal
+      });
+    }
 
     res.json({
       success: true,
@@ -408,6 +455,17 @@ router.put('/admin/:id/update-price', protect, admin, async (req, res) => {
     // Populate for response
     await quote.populate('products.product');
 
+    await MailService.sendQuoteResponse({
+      buyer: quote.buyer,
+      products: mapProductsForEmail(quote.products),
+      originalTotal: quote.originalTotal,
+      quotedTotal: quote.quotedTotal,
+      discountPercentage: quote.discountPercentage,
+      adminNotes: quote.adminNotes,
+      validUntil: quote.validUntil,
+      quoteId: quote._id.toString()
+    });
+
     res.json({
       success: true,
       message: 'Quote price updated successfully',
@@ -477,6 +535,8 @@ router.post('/admin/:id/message', protect, admin, async (req, res) => {
       });
     }
 
+    const messageContent = content.trim();
+
     const quote = await Quote.findById(req.params.id);
 
     if (!quote) {
@@ -486,13 +546,22 @@ router.post('/admin/:id/message', protect, admin, async (req, res) => {
       });
     }
 
+    const senderName = req.user.name || 'Admin';
+
     quote.messages.push({
       sender: 'admin',
-      senderName: req.user.name || 'Admin',
-      content: content.trim()
+      senderName,
+      content: messageContent
     });
 
     await quote.save();
+
+    await MailService.sendUserMessage({
+      buyer: quote.buyer,
+      quoteId: quote._id.toString(),
+      messageContent,
+      senderName
+    });
 
     res.json({
       success: true,
@@ -538,13 +607,22 @@ router.post('/:id/message', protect, async (req, res) => {
       });
     }
 
+    const senderName = req.user.name || quote.buyer?.fullName || 'User';
+
     quote.messages.push({
       sender: 'user',
-      senderName: req.user.name || quote.buyer?.fullName || 'User',
-      content: content.trim()
+      senderName,
+      content: messageContent
     });
 
     await quote.save();
+
+    await MailService.sendAdminMessage({
+      buyer: quote.buyer,
+      quoteId: quote._id.toString(),
+      messageContent,
+      senderName
+    });
 
     res.json({
       success: true,
@@ -580,6 +658,8 @@ router.post('/:id/guest-message', async (req, res) => {
       });
     }
 
+    const messageContent = content.trim();
+
     const quote = await Quote.findById(req.params.id);
 
     if (!quote) {
@@ -597,13 +677,26 @@ router.post('/:id/guest-message', async (req, res) => {
       });
     }
 
+    const senderName = fullName || quote.buyer?.fullName || 'User';
+
     quote.messages.push({
       sender: 'user',
-      senderName: fullName || quote.buyer?.fullName || 'User',
-      content: content.trim()
+      senderName,
+      content: messageContent
     });
 
     await quote.save();
+
+    await MailService.sendAdminMessage({
+      buyer: {
+        ...quote.buyer,
+        email: email.toLowerCase(),
+        fullName: senderName
+      },
+      quoteId: quote._id.toString(),
+      messageContent,
+      senderName
+    });
 
     res.json({
       success: true,
@@ -658,6 +751,24 @@ router.put('/:id/guest-status', async (req, res) => {
 
     quote.status = status;
     await quote.save();
+
+    await quote.populate('products.product');
+
+    if (status === 'accepted') {
+      await MailService.sendQuoteAccepted({
+        buyer: quote.buyer,
+        products: mapProductsForEmail(quote.products),
+        quotedTotal: quote.quotedTotal || quote.originalTotal,
+        quoteId: quote._id.toString()
+      });
+    } else if (status === 'rejected') {
+      await MailService.sendQuoteRejected({
+        buyer: quote.buyer,
+        products: mapProductsForEmail(quote.products),
+        quoteId: quote._id.toString(),
+        originalTotal: quote.originalTotal
+      });
+    }
 
     res.json({
       success: true,

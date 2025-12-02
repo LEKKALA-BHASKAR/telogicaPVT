@@ -6,6 +6,8 @@ import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
 import { useTheme } from '../context/ThemeContext';
 
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
 const GlobalContactForm = () => {
   const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
@@ -28,17 +30,29 @@ const GlobalContactForm = () => {
     setLoading(true);
 
     try {
-      // In a real application, you would send this data to your backend
-      console.log('Form submitted:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      if (!API_URL) {
+        throw new Error('Backend URL is not configured.');
+      }
+
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to send message.');
+      }
+
       toast.success('Message sent successfully! We\'ll get back to you soon.');
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
       console.error('Contact form error:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error(error.message || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }

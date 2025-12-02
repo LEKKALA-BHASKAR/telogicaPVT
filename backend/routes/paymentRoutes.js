@@ -9,8 +9,15 @@ import { protect } from '../middleware/authMiddleware.js';
 import PDFDocument from 'pdfkit';
 import cloudinary from '../config/cloudinary.js';
 import { Readable } from 'stream';
+import { MailService } from '../services/mailService.js';
 
 const router = express.Router();
+
+const formatOrderProductsForEmail = (items = []) => items.map(item => ({
+  title: item.title,
+  quantity: item.quantity,
+  price: item.price
+}));
 
 // Create Razorpay order
 router.post('/create-order', protect, async (req, res) => {
@@ -214,6 +221,19 @@ router.post('/verify-payment', protect, async (req, res) => {
       user.cart = [];
       await user.save();
     }
+
+    await MailService.sendOrderPlaced({
+      user: {
+        email: req.user.email,
+        name: req.user.name
+      },
+      products: formatOrderProductsForEmail(orderProducts),
+      totalAmount,
+      orderId: order._id.toString(),
+      paymentId: razorpay_payment_id,
+      shippingAddress,
+      invoiceUrl
+    });
     
     res.json({
       success: true,

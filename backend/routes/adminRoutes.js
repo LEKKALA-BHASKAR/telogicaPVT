@@ -7,6 +7,7 @@ import Section from '../models/Section.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import cloudinary from '../config/cloudinary.js';
 import multer from 'multer';
+import { MailService } from '../services/mailService.js';
 
 const router = express.Router();
 
@@ -133,6 +134,27 @@ router.put('/orders/:id', protect, admin, async (req, res) => {
     
     order.orderStatus = orderStatus;
     await order.save();
+
+    await order.populate('user', 'name email');
+
+    if (order.user?.email) {
+      await MailService.sendOrderStatusUpdate({
+        user: {
+          email: order.user.email,
+          name: order.user.name
+        },
+        orderId: order._id.toString(),
+        orderStatus,
+        products: order.products.map(item => ({
+          title: item.title,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        totalAmount: order.totalAmount,
+        trackingNumber: order.trackingNumber,
+        estimatedDelivery: order.estimatedDelivery
+      });
+    }
     
     res.json({
       success: true,

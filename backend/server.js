@@ -13,6 +13,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import quoteRoutes from './routes/quoteRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/quotes', quoteRoutes);
+app.use('/api/contact', contactRoutes);
 
 // ✅ Temporary route to list all routes (for debugging)
 app.get('/api/routes', (req, res) => {
