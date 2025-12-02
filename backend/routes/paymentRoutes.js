@@ -67,6 +67,7 @@ router.post('/verify-payment', protect, async (req, res) => {
     
     let orderProducts = [];
     let quote = null;
+    let productsToUpdate = []; // Track products for stock update
     
     // Check if this is a quote-based order
     if (quoteId && quoteItems) {
@@ -80,7 +81,7 @@ router.post('/verify-payment', protect, async (req, res) => {
         });
       }
       
-      // Process quote items
+      // First pass: validate all stock before making any changes
       for (const item of quoteItems) {
         const product = await Product.findById(item.product);
         
@@ -94,6 +95,15 @@ router.post('/verify-payment', protect, async (req, res) => {
           });
         }
         
+        productsToUpdate.push({
+          product,
+          item,
+          isQuoteItem: true
+        });
+      }
+      
+      // Second pass: update stock and build order products
+      for (const { product, item, isQuoteItem } of productsToUpdate) {
         // Reduce stock
         product.stock -= item.quantity;
         await product.save();
@@ -117,6 +127,7 @@ router.post('/verify-payment', protect, async (req, res) => {
       }
     } else if (cartItems) {
       // Cart-based checkout
+      // First pass: validate all stock before making any changes
       for (const item of cartItems) {
         const product = await Product.findById(item.product._id);
         
@@ -130,6 +141,15 @@ router.post('/verify-payment', protect, async (req, res) => {
           });
         }
         
+        productsToUpdate.push({
+          product,
+          item,
+          isQuoteItem: false
+        });
+      }
+      
+      // Second pass: update stock and build order products
+      for (const { product, item } of productsToUpdate) {
         // Reduce stock
         product.stock -= item.quantity;
         await product.save();
@@ -148,7 +168,7 @@ router.post('/verify-payment', protect, async (req, res) => {
           title: product.title,
           price: product.price,
           quantity: item.quantity,
-          image: product.images[0]?.url || ''
+          image: product.images?.[0]?.url || ''
         });
       }
     } else {

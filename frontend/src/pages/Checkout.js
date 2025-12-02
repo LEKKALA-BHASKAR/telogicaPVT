@@ -55,14 +55,36 @@ const Checkout = () => {
     try {
       const res = await axios.get(`${API_URL}/api/quotes/${quoteId}`);
       const quoteData = res.data.data;
+      
+      // Validate quote status - only 'accepted' quotes can proceed to checkout
+      if (quoteData.status !== 'accepted') {
+        toast.error('This quote cannot be checked out. Only accepted quotes are allowed.');
+        navigate('/my-quotes');
+        return;
+      }
+      
+      // Check if quote has expired
+      if (quoteData.validUntil && new Date(quoteData.validUntil) < new Date()) {
+        toast.error('This quote has expired.');
+        navigate('/my-quotes');
+        return;
+      }
+      
       setQuote(quoteData);
       
       // Pre-populate form with quote's buyer and address info
+      // Build address string properly to avoid leading/trailing commas
+      const addressParts = [
+        quoteData.address?.houseFlat,
+        quoteData.address?.streetArea,
+        quoteData.address?.landmark
+      ].filter(Boolean);
+      
       setFormData({
         name: quoteData.buyer?.fullName || '',
         email: quoteData.buyer?.email || '',
         phone: quoteData.buyer?.mobile || '',
-        address: `${quoteData.address?.houseFlat || ''}, ${quoteData.address?.streetArea || ''}${quoteData.address?.landmark ? ', ' + quoteData.address.landmark : ''}`,
+        address: addressParts.join(', '),
         city: quoteData.address?.city || '',
         pincode: quoteData.address?.pincode || '',
         country: 'India'
