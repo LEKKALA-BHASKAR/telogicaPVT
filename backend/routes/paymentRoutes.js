@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import Quote from '../models/Quote.js';
 import { protect } from '../middleware/authMiddleware.js';
 import PDFDocument from 'pdfkit';
 import cloudinary from '../config/cloudinary.js';
@@ -44,6 +45,8 @@ router.post('/verify-payment', protect, async (req, res) => {
       razorpay_payment_id,
       razorpay_signature,
       cartItems,
+      quoteId,
+      quoteItems,
       totalAmount,
       shippingAddress
     } = req.body;
@@ -62,41 +65,116 @@ router.post('/verify-payment', protect, async (req, res) => {
       });
     }
     
-    // Create order
-    const orderProducts = [];
+    let orderProducts = [];
+    let quote = null;
+    let productsToUpdate = []; // Track products for stock update
     
-    for (const item of cartItems) {
-      const product = await Product.findById(item.product._id);
+    // Check if this is a quote-based order
+    if (quoteId && quoteItems) {
+      // Quote-based checkout
+      quote = await Quote.findById(quoteId);
       
-      if (!product) continue;
-      
-      // Check stock
-      if (product.stock < item.quantity) {
-        return res.status(400).json({
+      if (!quote) {
+        return res.status(404).json({
           success: false,
-          message: `Insufficient stock for ${product.title}`
+          message: 'Quote not found'
         });
       }
       
-      // Reduce stock
-      product.stock -= item.quantity;
-      await product.save();
-      
-      // Emit socket event for real-time stock update
-      const io = req.app.get('io');
-      if (io) {
-        io.emit('stockUpdate', {
-          productId: product._id,
-          stock: product.stock
+      // First pass: validate all stock before making any changes
+      for (const item of quoteItems) {
+        const product = await Product.findById(item.product);
+        
+        if (!product) continue;
+        
+        // Check stock
+        if (product.stock < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${item.title || product.title}`
+          });
+        }
+        
+        productsToUpdate.push({
+          product,
+          item,
+          isQuoteItem: true
         });
       }
       
-      orderProducts.push({
-        product: product._id,
-        title: product.title,
-        price: product.price,
-        quantity: item.quantity,
-        image: product.images[0]?.url || ''
+      // Second pass: update stock and build order products
+      for (const { product, item, isQuoteItem } of productsToUpdate) {
+        // Reduce stock
+        product.stock -= item.quantity;
+        await product.save();
+        
+        // Emit socket event for real-time stock update
+        const io = req.app.get('io');
+        if (io) {
+          io.emit('stockUpdate', {
+            productId: product._id,
+            stock: product.stock
+          });
+        }
+        
+        orderProducts.push({
+          product: product._id,
+          title: item.title || product.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || product.images?.[0]?.url || ''
+        });
+      }
+    } else if (cartItems) {
+      // Cart-based checkout
+      // First pass: validate all stock before making any changes
+      for (const item of cartItems) {
+        const product = await Product.findById(item.product._id);
+        
+        if (!product) continue;
+        
+        // Check stock
+        if (product.stock < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${product.title}`
+          });
+        }
+        
+        productsToUpdate.push({
+          product,
+          item,
+          isQuoteItem: false
+        });
+      }
+      
+      // Second pass: update stock and build order products
+      for (const { product, item } of productsToUpdate) {
+        // Reduce stock
+        product.stock -= item.quantity;
+        await product.save();
+        
+        // Emit socket event for real-time stock update
+        const io = req.app.get('io');
+        if (io) {
+          io.emit('stockUpdate', {
+            productId: product._id,
+            stock: product.stock
+          });
+        }
+        
+        orderProducts.push({
+          product: product._id,
+          title: product.title,
+          price: product.price,
+          quantity: item.quantity,
+          image: product.images?.[0]?.url || ''
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'No items provided for order'
       });
     }
     
@@ -107,7 +185,8 @@ router.post('/verify-payment', protect, async (req, res) => {
       user: req.user,
       products: orderProducts,
       totalAmount,
-      shippingAddress
+      shippingAddress,
+      quoteId: quote?._id
     });
     
     // Create order record
@@ -120,13 +199,21 @@ router.post('/verify-payment', protect, async (req, res) => {
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
       shippingAddress,
-      invoiceUrl
+      invoiceUrl,
+      quote: quote?._id || null
     });
     
-    // Clear user cart
-    const user = await User.findById(req.user._id);
-    user.cart = [];
-    await user.save();
+    // Update quote status to 'ordered' and link order if this was a quote checkout
+    if (quote) {
+      quote.status = 'ordered';
+      quote.order = order._id;
+      await quote.save();
+    } else {
+      // Clear user cart only for cart-based checkout
+      const user = await User.findById(req.user._id);
+      user.cart = [];
+      await user.save();
+    }
     
     res.json({
       success: true,

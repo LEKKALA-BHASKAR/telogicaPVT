@@ -51,6 +51,11 @@ const orderSchema = new mongoose.Schema({
   deliveredAt: Date,
   invoiceUrl: String,
   notes: String,
+  // Reference to quote if order was created from a quote
+  quote: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Quote'
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -61,5 +66,6 @@ const orderSchema = new mongoose.Schema({
 orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ orderStatus: 1 });
 orderSchema.index({ paymentStatus: 1 });
+orderSchema.index({ quote: 1 });
 
 export default mongoose.model('Order', orderSchema);

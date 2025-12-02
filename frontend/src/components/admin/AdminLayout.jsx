@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Package, Users, ShoppingCart, Settings, 
-  Menu, X, LogOut, Sun, Moon, ChevronRight
+  Menu, X, LogOut, Sun, Moon, ChevronRight, FileText
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -17,6 +17,7 @@ const AdminLayout = ({ children, title, subtitle, actions }) => {
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
+    { name: 'Quotes', path: '/admin/quotes', icon: FileText },
     { name: 'Documents', path: '/admin/investor-docs', icon: Settings }
   ];
 
