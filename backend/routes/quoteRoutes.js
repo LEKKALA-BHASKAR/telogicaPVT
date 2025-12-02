@@ -8,6 +8,19 @@ const router = express.Router();
 // Constants
 const DEFAULT_QUOTE_VALIDITY_DAYS = 7;
 
+/**
+ * Calculate discount percentage from original total and quoted total
+ * @param {number} originalTotal - The original total amount
+ * @param {number} quotedTotal - The quoted total amount
+ * @returns {number} - The discount percentage (0 if originalTotal is 0 or invalid)
+ */
+const calculateDiscountPercentage = (originalTotal, quotedTotal) => {
+  if (!originalTotal || originalTotal <= 0) {
+    return 0;
+  }
+  return ((originalTotal - quotedTotal) / originalTotal * 100);
+};
+
 /* -------------------------------------------------------------------------- */
 /* 🟢 CREATE QUOTE REQUEST (POST) - Public endpoint */
 /* -------------------------------------------------------------------------- */
@@ -220,9 +233,7 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
     }
 
     quote.quotedTotal = calculatedQuotedTotal;
-    // Avoid division by zero when calculating discount percentage
-    quote.discountPercentage = discountPercentage || 
-      (quote.originalTotal > 0 ? ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100) : 0);
+    quote.discountPercentage = discountPercentage || calculateDiscountPercentage(quote.originalTotal, calculatedQuotedTotal);
     quote.adminNotes = adminNotes;
     quote.validUntil = validUntil || new Date(Date.now() + DEFAULT_QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
     quote.status = 'quoted';
@@ -383,9 +394,7 @@ router.put('/admin/:id/update-price', protect, admin, async (req, res) => {
     }
 
     quote.quotedTotal = calculatedQuotedTotal;
-    // Avoid division by zero when calculating discount percentage
-    quote.discountPercentage = discountPercentage || 
-      (quote.originalTotal > 0 ? ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100) : 0);
+    quote.discountPercentage = discountPercentage || calculateDiscountPercentage(quote.originalTotal, calculatedQuotedTotal);
     
     if (adminNotes !== undefined) {
       quote.adminNotes = adminNotes;

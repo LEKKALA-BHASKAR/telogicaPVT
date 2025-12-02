@@ -577,7 +577,7 @@ const ManageQuotes = () => {
                                         onChange={(e) => setResponseData(prev => ({ 
                                           ...prev, 
                                           quotedTotal: e.target.value,
-                                          discountPercentage: e.target.value 
+                                          discountPercentage: e.target.value && quote.originalTotal > 0
                                             ? ((quote.originalTotal - parseFloat(e.target.value)) / quote.originalTotal * 100).toFixed(1)
                                             : ''
                                         }))}
@@ -598,7 +598,7 @@ const ManageQuotes = () => {
                                         onChange={(e) => setResponseData(prev => ({ 
                                           ...prev, 
                                           discountPercentage: e.target.value,
-                                          quotedTotal: e.target.value 
+                                          quotedTotal: e.target.value && quote.originalTotal > 0
                                             ? (quote.originalTotal * (1 - parseFloat(e.target.value) / 100)).toFixed(2)
                                             : ''
                                         }))}
@@ -789,7 +789,7 @@ const ManageQuotes = () => {
                                         onChange={(e) => setResponseData(prev => ({ 
                                           ...prev, 
                                           quotedTotal: e.target.value,
-                                          discountPercentage: e.target.value 
+                                          discountPercentage: e.target.value && quote.originalTotal > 0
                                             ? ((quote.originalTotal - parseFloat(e.target.value)) / quote.originalTotal * 100).toFixed(1)
                                             : ''
                                         }))}
@@ -810,7 +810,7 @@ const ManageQuotes = () => {
                                         onChange={(e) => setResponseData(prev => ({ 
                                           ...prev, 
                                           discountPercentage: e.target.value,
-                                          quotedTotal: e.target.value 
+                                          quotedTotal: e.target.value && quote.originalTotal > 0
                                             ? (quote.originalTotal * (1 - parseFloat(e.target.value) / 100)).toFixed(2)
                                             : ''
                                         }))}
