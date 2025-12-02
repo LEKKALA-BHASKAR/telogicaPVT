@@ -109,7 +109,28 @@ const quoteSchema = new mongoose.Schema({
   order: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order'
-  }
+  },
+  // Messages for negotiation between user and admin
+  messages: [{
+    sender: {
+      type: String,
+      enum: ['user', 'admin'],
+      required: true
+    },
+    senderName: {
+      type: String,
+      trim: true
+    },
+    content: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, { timestamps: true });
 
 // Index for faster queries
