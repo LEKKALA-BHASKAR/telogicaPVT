@@ -298,4 +298,249 @@ router.delete('/:id', protect, admin, async (req, res) => {
   }
 });
 
+/* -------------------------------------------------------------------------- */
+/* 🟠 ADMIN: REJECT QUOTE */
+/* -------------------------------------------------------------------------- */
+router.put('/admin/:id/reject', protect, admin, async (req, res) => {
+  try {
+    const { adminNotes } = req.body;
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    quote.status = 'rejected';
+    if (adminNotes) {
+      quote.adminNotes = adminNotes;
+    }
+
+    await quote.save();
+
+    res.json({
+      success: true,
+      message: 'Quote rejected successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟢 ADD MESSAGE TO QUOTE (Admin) */
+/* -------------------------------------------------------------------------- */
+router.post('/admin/:id/message', protect, admin, async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message content is required'
+      });
+    }
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    quote.messages.push({
+      sender: 'admin',
+      senderName: req.user.name || 'Admin',
+      content: content.trim()
+    });
+
+    await quote.save();
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟢 ADD MESSAGE TO QUOTE (User - for logged-in users) */
+/* -------------------------------------------------------------------------- */
+router.post('/:id/message', protect, async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message content is required'
+      });
+    }
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Check if user owns the quote
+    if (quote.user?.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to message on this quote'
+      });
+    }
+
+    quote.messages.push({
+      sender: 'user',
+      senderName: req.user.name || quote.buyer?.fullName || 'User',
+      content: content.trim()
+    });
+
+    await quote.save();
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟢 ADD MESSAGE TO QUOTE (Guest - by email verification) */
+/* -------------------------------------------------------------------------- */
+router.post('/:id/guest-message', async (req, res) => {
+  try {
+    const { content, email, fullName } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message content is required'
+      });
+    }
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required for verification'
+      });
+    }
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Verify email matches the quote buyer email
+    if (quote.buyer.email.toLowerCase() !== email.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email does not match quote owner'
+      });
+    }
+
+    quote.messages.push({
+      sender: 'user',
+      senderName: fullName || quote.buyer?.fullName || 'User',
+      content: content.trim()
+    });
+
+    await quote.save();
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully',
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🟠 GUEST: UPDATE QUOTE STATUS (accept/reject by email verification) */
+/* -------------------------------------------------------------------------- */
+router.put('/:id/guest-status', async (req, res) => {
+  try {
+    const { status, email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required for verification'
+      });
+    }
+
+    if (!['accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status. Only accepted or rejected allowed.'
+      });
+    }
+
+    const quote = await Quote.findById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quote not found'
+      });
+    }
+
+    // Verify email matches the quote buyer email
+    if (quote.buyer.email.toLowerCase() !== email.toLowerCase()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Email does not match quote owner'
+      });
+    }
+
+    quote.status = status;
+    await quote.save();
+
+    res.json({
+      success: true,
+      message: `Quote ${status} successfully`,
+      data: quote
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 export default router;
