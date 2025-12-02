@@ -3,12 +3,14 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles, Heart, X, AlertCircle, CheckCircle, Gift, Percent, Mail } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShoppingCart, Package, Truck, Shield, CreditCard, Sparkles, Heart, X, AlertCircle, CheckCircle, Gift, Percent, Mail, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useQuotation } from '../context/QuotationContext';
 
 const Cart = () => {
   const { isDarkMode } = useTheme();
+  const { addToQuotation, clearQuotation, openQuotationModal } = useQuotation();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingItem, setUpdatingItem] = useState(null);
@@ -17,6 +19,8 @@ const Cart = () => {
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
+  // Check if cart has more than 3 products (requires quote)
+  const requiresQuote = cart.length > 3;
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -62,6 +66,23 @@ const Cart = () => {
     } finally {
       setRemovingItem(null);
     }
+  };
+
+  // Handle moving cart items to quotation request
+  const handleRequestQuote = () => {
+    // Clear existing quotation items first
+    clearQuotation();
+    
+    // Add all cart items to the quotation
+    cart.forEach(item => {
+      if (item.product) {
+        addToQuotation(item.product, item.quantity);
+      }
+    });
+    
+    // Open the quotation modal
+    openQuotationModal();
+    toast.success('Cart items added to quotation request. Please fill in your details to receive a discounted quote.');
   };
 
   const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
@@ -183,11 +204,11 @@ const Cart = () => {
                 </div>
 
                 {/* Discount Banner - Show when more than 3 products */}
-                {cart.length > 3 && (
+                {requiresQuote && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`p-4 rounded-2xl border flex items-center gap-4 ${
+                    className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center gap-4 ${
                       isDarkMode 
                         ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20' 
                         : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
@@ -200,22 +221,23 @@ const Cart = () => {
                     </div>
                     <div className="flex-1">
                       <h4 className={`font-bold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
-                        Bulk Discount Available!
+                        🎉 Bulk Discount Available!
                       </h4>
                       <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        You have more than 3 products in your cart. Contact our admin for special price discounts.
+                        You have more than 3 products in your cart. Request a quote to receive special bulk pricing discounts from our team!
                       </p>
                     </div>
                     <Button
-                      onClick={() => navigate('/contact')}
+                      onClick={handleRequestQuote}
                       className={`shrink-0 ${
                         isDarkMode 
-                          ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30' 
+                          ? 'bg-green-500 text-white hover:bg-green-600' 
                           : 'bg-green-600 text-white hover:bg-green-700'
                       }`}
+                      data-testid="request-quote-banner-btn"
                     >
-                      <Mail className="w-4 h-4 mr-2" />
-                      Contact Admin
+                      <FileText className="w-4 h-4 mr-2" />
+                      Request Quote
                     </Button>
                   </motion.div>
                 )}
@@ -442,23 +464,46 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => navigate('/checkout')}
-                    className={`w-full py-6 text-lg font-semibold transition-all hover:scale-105 ${
-                      isDarkMode 
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:shadow-lg hover:shadow-purple-500/25' 
-                        : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-lg hover:shadow-violet-600/25'
-                    } text-white`}
-                    data-testid="proceed-checkout-btn"
-                  >
-                    Proceed to Checkout
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-
-                  <p className={`text-center text-sm mt-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    <CheckCircle className="w-4 h-4 inline mr-1" />
-                    You won't be charged until the next step
-                  </p>
+                  {/* Show different button based on cart size */}
+                  {requiresQuote ? (
+                    <>
+                      <Button
+                        onClick={handleRequestQuote}
+                        className={`w-full py-6 text-lg font-semibold transition-all hover:scale-105 ${
+                          isDarkMode 
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-lg hover:shadow-green-500/25' 
+                            : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg hover:shadow-green-600/25'
+                        } text-white`}
+                        data-testid="request-quote-btn"
+                      >
+                        <FileText className="w-5 h-5 mr-2" />
+                        Request Quote for Discount
+                      </Button>
+                      <p className={`text-center text-sm mt-4 ${isDarkMode ? 'text-green-400/80' : 'text-green-600'}`}>
+                        <Percent className="w-4 h-4 inline mr-1" />
+                        Get special bulk pricing with more than 3 products!
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => navigate('/checkout')}
+                        className={`w-full py-6 text-lg font-semibold transition-all hover:scale-105 ${
+                          isDarkMode 
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:shadow-lg hover:shadow-purple-500/25' 
+                            : 'bg-gradient-to-r from-violet-600 to-purple-600 hover:shadow-lg hover:shadow-violet-600/25'
+                        } text-white`}
+                        data-testid="proceed-checkout-btn"
+                      >
+                        Proceed to Checkout
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                      <p className={`text-center text-sm mt-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        <CheckCircle className="w-4 h-4 inline mr-1" />
+                        You won't be charged until the next step
+                      </p>
+                    </>
+                  )}
                 </motion.div>
               </div>
             </motion.div>
