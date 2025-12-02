@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
@@ -7,16 +7,15 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import {
   FileText, Clock, CheckCircle, XCircle, AlertCircle,
   Package, Calendar, Mail, Phone, MapPin, Building,
-  ChevronDown, ChevronUp, DollarSign, Send, Loader2,
+  ChevronDown, ChevronUp, DollarSign, Loader2,
   User, RefreshCw, Percent, Eye, Trash2, Search, MessageCircle,
-  Edit2, Lock, Unlock, ShoppingCart
+  Edit2, ShoppingCart
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 
 const ManageQuotes = () => {
   const { isDarkMode } = useTheme();
-  const messagesEndRef = useRef(null);
   
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,11 +31,8 @@ const ManageQuotes = () => {
     validUntil: ''
   });
   const [submitting, setSubmitting] = useState(false);
-  const [messageInput, setMessageInput] = useState('');
-  const [sendingMessage, setSendingMessage] = useState(false);
   const [rejectingQuote, setRejectingQuote] = useState(null);
   const [rejectNotes, setRejectNotes] = useState('');
-  const [updatingConversation, setUpdatingConversation] = useState(null);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -108,28 +104,6 @@ const ManageQuotes = () => {
     }
   };
 
-  const handleSendMessage = async (quoteId) => {
-    if (!messageInput.trim()) {
-      toast.error('Please enter a message');
-      return;
-    }
-
-    try {
-      setSendingMessage(true);
-      await axios.post(`${API_URL}/api/quotes/admin/${quoteId}/message`, {
-        content: messageInput
-      });
-      toast.success('Message sent successfully');
-      setMessageInput('');
-      fetchQuotes();
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message');
-    } finally {
-      setSendingMessage(false);
-    }
-  };
-
   const handleDeleteQuote = async (quoteId) => {
     if (!window.confirm('Are you sure you want to delete this quote?')) return;
     
@@ -174,28 +148,6 @@ const ManageQuotes = () => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  // Handle conversation status update
-  const handleUpdateConversationStatus = async (quoteId, newStatus) => {
-    try {
-      setUpdatingConversation(quoteId);
-      await axios.put(`${API_URL}/api/quotes/admin/${quoteId}/conversation-status`, {
-        conversationStatus: newStatus
-      });
-      toast.success(`Conversation ${newStatus === 'closed' ? 'closed' : 'reopened'} successfully`);
-      fetchQuotes();
-    } catch (error) {
-      console.error('Error updating conversation status:', error);
-      toast.error('Failed to update conversation status');
-    } finally {
-      setUpdatingConversation(null);
-    }
-  };
-
-  // Scroll to bottom of messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const getStatusIcon = (status) => {
@@ -938,155 +890,6 @@ const ManageQuotes = () => {
                               </p>
                             </div>
                           )}
-
-                          {/* Messages Section - Chat-like UI */}
-                          <div className={`mt-4 rounded-xl overflow-hidden ${
-                            isDarkMode ? 'bg-gray-900/50 border border-white/10' : 'bg-white border border-gray-200 shadow-sm'
-                          }`}>
-                            {/* Chat Header */}
-                            <div className={`p-4 flex items-center justify-between ${
-                              isDarkMode ? 'bg-purple-500/10 border-b border-white/10' : 'bg-purple-50 border-b border-purple-100'
-                            }`}>
-                              <div className="flex items-center gap-2">
-                                <MessageCircle className={`w-5 h-5 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
-                                <h4 className={`font-semibold ${isDarkMode ? 'text-purple-400' : 'text-purple-700'}`}>
-                                  Conversation ({quote.messages?.length || 0})
-                                </h4>
-                                {/* Conversation Status Badge */}
-                                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  quote.conversationStatus === 'closed'
-                                    ? isDarkMode ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
-                                    : isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
-                                }`}>
-                                  {quote.conversationStatus === 'closed' ? 'Closed' : 'Open'}
-                                </span>
-                              </div>
-                              {/* Conversation Status Toggle */}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleUpdateConversationStatus(
-                                  quote._id, 
-                                  quote.conversationStatus === 'closed' ? 'open' : 'closed'
-                                )}
-                                disabled={updatingConversation === quote._id}
-                                className={`${
-                                  quote.conversationStatus === 'closed'
-                                    ? isDarkMode ? 'text-green-400 hover:bg-green-500/10' : 'text-green-700 hover:bg-green-50'
-                                    : isDarkMode ? 'text-red-400 hover:bg-red-500/10' : 'text-red-700 hover:bg-red-50'
-                                }`}
-                              >
-                                {updatingConversation === quote._id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : quote.conversationStatus === 'closed' ? (
-                                  <>
-                                    <Unlock className="w-4 h-4 mr-1" />
-                                    Reopen
-                                  </>
-                                ) : (
-                                  <>
-                                    <Lock className="w-4 h-4 mr-1" />
-                                    Close
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                            
-                            {/* Messages List - Chat Style */}
-                            <div className={`p-4 max-h-80 overflow-y-auto ${isDarkMode ? 'bg-gray-900/30' : 'bg-gray-50'}`}>
-                              {quote.messages && quote.messages.length > 0 ? (
-                                <div className="space-y-3">
-                                  {quote.messages.map((msg, idx) => (
-                                    <div 
-                                      key={idx} 
-                                      className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
-                                    >
-                                      <div className={`max-w-[75%] ${
-                                        msg.sender === 'admin' ? 'order-2' : 'order-1'
-                                      }`}>
-                                        {/* Sender name */}
-                                        <div className={`flex items-center gap-1 mb-1 ${
-                                          msg.sender === 'admin' ? 'justify-end' : 'justify-start'
-                                        }`}>
-                                          <span className={`text-xs font-medium ${
-                                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                                          }`}>
-                                            {msg.sender === 'admin' ? 'You' : msg.senderName || 'Customer'}
-                                          </span>
-                                          <span className={`text-xs ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}>
-                                            • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                          </span>
-                                        </div>
-                                        {/* Message bubble */}
-                                        <div className={`px-4 py-2.5 rounded-2xl ${
-                                          msg.sender === 'admin'
-                                            ? isDarkMode 
-                                              ? 'bg-purple-600 text-white rounded-br-md' 
-                                              : 'bg-purple-500 text-white rounded-br-md'
-                                            : isDarkMode 
-                                              ? 'bg-gray-700 text-gray-100 rounded-bl-md' 
-                                              : 'bg-white text-gray-900 rounded-bl-md border border-gray-200'
-                                        }`}>
-                                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                                        </div>
-                                        {/* Date for messages on different days */}
-                                        {idx === 0 || new Date(msg.createdAt).toDateString() !== new Date(quote.messages[idx - 1]?.createdAt).toDateString() ? (
-                                          <div className={`text-xs text-center mt-1 ${
-                                            msg.sender === 'admin' ? 'text-right' : 'text-left'
-                                          } ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                            {new Date(msg.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    </div>
-                                  ))}
-                                  <div ref={messagesEndRef} />
-                                </div>
-                              ) : (
-                                <div className={`text-center py-8 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                  <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                                  <p className="text-sm">No messages yet</p>
-                                  <p className="text-xs">Start a conversation with the customer</p>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* Send Message Input */}
-                            {quote.conversationStatus !== 'closed' && quote.status !== 'ordered' && quote.status !== 'rejected' ? (
-                              <div className={`p-3 border-t ${isDarkMode ? 'border-white/10 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
-                                <div className="flex gap-2">
-                                  <Input
-                                    placeholder="Type a message..."
-                                    value={messageInput}
-                                    onChange={(e) => setMessageInput(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage(quote._id)}
-                                    className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                                  />
-                                  <Button
-                                    onClick={() => handleSendMessage(quote._id)}
-                                    disabled={sendingMessage || !messageInput.trim()}
-                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4"
-                                  >
-                                    {sendingMessage ? (
-                                      <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                      <Send className="w-4 h-4" />
-                                    )}
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className={`p-3 border-t text-center ${
-                                isDarkMode ? 'border-white/10 bg-gray-900/30' : 'border-gray-200 bg-gray-50'
-                              }`}>
-                                <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                  {quote.conversationStatus === 'closed' 
-                                    ? 'Conversation is closed. Reopen to send messages.'
-                                    : 'This conversation is no longer active.'}
-                                </p>
-                              </div>
-                            )}
-                          </div>
 
                           {/* Actions */}
                           <div className="mt-4 flex justify-end gap-3">
