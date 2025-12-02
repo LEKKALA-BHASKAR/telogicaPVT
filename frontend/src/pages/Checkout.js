@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { CreditCard, Shield, Lock, Truck, ArrowLeft, Sparkles, Package, CheckCircle, MapPin, User, Mail, Phone, Building, Globe, Wallet, Smartphone, Clock, AlertCircle } from 'lucide-react';
+import { CreditCard, Shield, Lock, Truck, ArrowLeft, Sparkles, Package, CheckCircle, MapPin, User, Mail, Phone, Building, Globe, Wallet, Smartphone, Clock, AlertCircle, FileText, Percent } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
 const Checkout = () => {
   const { isDarkMode } = useTheme();
+  const [searchParams] = useSearchParams();
+  const quoteId = searchParams.get('quoteId');
   const [cart, setCart] = useState([]);
+  const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,9 +36,65 @@ const Checkout = () => {
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
   useEffect(() => {
-    fetchCart();
-    loadRazorpayScript();
-  }, []);
+    const initCheckout = async () => {
+      setInitialLoading(true);
+      await loadRazorpayScript();
+      
+      if (quoteId) {
+        await fetchQuote();
+      } else {
+        await fetchCart();
+      }
+      setInitialLoading(false);
+    };
+    
+    initCheckout();
+  }, [quoteId]);
+
+  const fetchQuote = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/quotes/${quoteId}`);
+      const quoteData = res.data.data;
+      
+      // Validate quote status - only 'accepted' quotes can proceed to checkout
+      if (quoteData.status !== 'accepted') {
+        toast.error('This quote cannot be checked out. Only accepted quotes are allowed.');
+        navigate('/my-quotes');
+        return;
+      }
+      
+      // Check if quote has expired
+      if (quoteData.validUntil && new Date(quoteData.validUntil) < new Date()) {
+        toast.error('This quote has expired.');
+        navigate('/my-quotes');
+        return;
+      }
+      
+      setQuote(quoteData);
+      
+      // Pre-populate form with quote's buyer and address info
+      // Build address string properly to avoid leading/trailing commas
+      const addressParts = [
+        quoteData.address?.houseFlat,
+        quoteData.address?.streetArea,
+        quoteData.address?.landmark
+      ].filter(Boolean);
+      
+      setFormData({
+        name: quoteData.buyer?.fullName || '',
+        email: quoteData.buyer?.email || '',
+        phone: quoteData.buyer?.mobile || '',
+        address: addressParts.join(', '),
+        city: quoteData.address?.city || '',
+        pincode: quoteData.address?.pincode || '',
+        country: 'India'
+      });
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      toast.error('Failed to load quote details');
+      navigate('/my-quotes');
+    }
+  };
 
   const fetchCart = async () => {
     try {
@@ -67,11 +127,32 @@ const Checkout = () => {
     }
   };
 
-  const total = cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+  // Calculate totals based on cart or quote
+  const getCheckoutItems = () => {
+    if (quote) {
+      return quote.products || [];
+    }
+    return cart.map(item => ({
+      product: item.product?._id,
+      title: item.product?.title,
+      price: item.product?.price,
+      quantity: item.quantity,
+      image: item.product?.images?.[0]?.url || ''
+    }));
+  };
+
+  const checkoutItems = getCheckoutItems();
+  
+  // For quote checkout, use quoted total; for cart, calculate from items
+  const total = quote 
+    ? (quote.quotedTotal || quote.originalTotal) 
+    : cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
   const tax = total * 0.18;
   const shipping = total > 10000 ? 0 : 500;
   const finalTotal = total + tax + shipping;
-  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const itemCount = quote 
+    ? (quote.products?.reduce((sum, item) => sum + item.quantity, 0) || 0)
+    : cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const validateForm = () => {
     const newErrors = {};
@@ -128,19 +209,29 @@ const Checkout = () => {
         amount: amount,
         currency: currency,
         name: 'Telogica Ltd',
-        description: 'Premium Telecom Equipment',
+        description: quote ? 'Quote Order - Premium Telecom Equipment' : 'Premium Telecom Equipment',
         order_id: order_id,
         handler: async function (response) {
           try {
-            // Verify payment
-            await axios.post(`${API_URL}/api/payment/verify-payment`, {
+            // Verify payment - include quote info if this is a quote checkout
+            const paymentData = {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              cartItems: cart,
               totalAmount: finalTotal,
               shippingAddress: formData
-            });
+            };
+
+            if (quote) {
+              // Quote-based checkout
+              paymentData.quoteId = quote._id;
+              paymentData.quoteItems = quote.products;
+            } else {
+              // Cart-based checkout
+              paymentData.cartItems = cart;
+            }
+
+            await axios.post(`${API_URL}/api/payment/verify-payment`, paymentData);
 
             toast.success('Payment successful! Order confirmed.');
             navigate('/my-orders');
@@ -180,7 +271,20 @@ const Checkout = () => {
     { id: 'wallet', label: 'Wallets', icon: Wallet, description: 'Paytm, PhonePe, Amazon Pay' },
   ];
 
-  if (cart.length === 0) {
+  // Show loading state while fetching quote or cart
+  if (initialLoading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center pt-24 ${isDarkMode ? 'bg-black' : 'bg-slate-50'}`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full w-16 h-16 border-4 border-t-purple-500 border-gray-300 mx-auto mb-4"></div>
+          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Loading checkout...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state - only show if not quote checkout and cart is empty
+  if (!quote && cart.length === 0) {
     return (
       <div className={`min-h-screen flex items-center justify-center pt-24 ${isDarkMode ? 'bg-black' : 'bg-slate-50'}`}>
         <div className="text-center">
@@ -656,48 +760,116 @@ const Checkout = () => {
                 : 'bg-white border-gray-200 shadow-xl'
             }`}>
               <h2 className={`text-2xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                <Package className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-violet-600'}`} />
-                Order Summary
+                {quote ? (
+                  <FileText className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-violet-600'}`} />
+                ) : (
+                  <Package className={`w-6 h-6 ${isDarkMode ? 'text-purple-400' : 'text-violet-600'}`} />
+                )}
+                {quote ? 'Quote Order' : 'Order Summary'}
               </h2>
+
+              {/* Quote Badge - Show when it's a quote checkout */}
+              {quote && (
+                <div className={`mb-4 p-3 rounded-xl ${
+                  isDarkMode ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-100'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <Percent className={`w-4 h-4 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                      Quote #{quote._id?.slice(-8).toUpperCase()}
+                    </span>
+                  </div>
+                  {quote.discountPercentage > 0 && (
+                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-green-300/70' : 'text-green-600'}`}>
+                      {quote.discountPercentage.toFixed(1)}% discount applied
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Order Items */}
               <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
-                {cart.map((item) => (
-                  <div key={item.product?._id} className={`flex gap-3 p-3 rounded-xl ${
-                    isDarkMode ? 'bg-black/30' : 'bg-gray-50'
-                  }`}>
-                    {item.product?.images?.[0]?.url ? (
-                      <img
-                        src={item.product.images[0].url}
-                        alt={item.product?.title}
-                        className="w-14 h-14 object-cover rounded-lg border border-gray-200/20"
-                      />
-                    ) : (
-                      <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-                        isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
-                      }`}>
-                        <Package className={`w-6 h-6 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                {quote ? (
+                  // Quote items
+                  quote.products?.map((item, idx) => (
+                    <div key={idx} className={`flex gap-3 p-3 rounded-xl ${
+                      isDarkMode ? 'bg-black/30' : 'bg-gray-50'
+                    }`}>
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-14 h-14 object-cover rounded-lg border border-gray-200/20"
+                        />
+                      ) : (
+                        <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                        }`}>
+                          <Package className={`w-6 h-6 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`font-medium text-sm line-clamp-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {item.title}
+                        </h4>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Qty: {item.quantity}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className={`font-medium text-sm line-clamp-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {item.product?.title}
-                      </h4>
-                      <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Qty: {item.quantity}
-                      </p>
+                      <div className="text-right shrink-0">
+                        <p className={`font-semibold text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                          ₹{((item.price || 0) * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className={`font-semibold text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                        ₹{((item.product?.price || 0) * item.quantity).toLocaleString()}
-                      </p>
+                  ))
+                ) : (
+                  // Cart items
+                  cart.map((item) => (
+                    <div key={item.product?._id} className={`flex gap-3 p-3 rounded-xl ${
+                      isDarkMode ? 'bg-black/30' : 'bg-gray-50'
+                    }`}>
+                      {item.product?.images?.[0]?.url ? (
+                        <img
+                          src={item.product.images[0].url}
+                          alt={item.product?.title}
+                          className="w-14 h-14 object-cover rounded-lg border border-gray-200/20"
+                        />
+                      ) : (
+                        <div className={`w-14 h-14 rounded-lg flex items-center justify-center ${
+                          isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                        }`}>
+                          <Package className={`w-6 h-6 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`font-medium text-sm line-clamp-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {item.product?.title}
+                        </h4>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={`font-semibold text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                          ₹{((item.product?.price || 0) * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
+                {/* Show original vs quoted price for quote checkout */}
+                {quote && quote.quotedTotal && quote.originalTotal !== quote.quotedTotal && (
+                  <div className={`flex justify-between text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span>Original Price</span>
+                    <span className="font-medium line-through">₹{quote.originalTotal?.toLocaleString()}</span>
+                  </div>
+                )}
+                
                 <div className={`flex justify-between text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <span>Subtotal ({itemCount} items)</span>
                   <span className="font-medium">₹{total.toLocaleString()}</span>
