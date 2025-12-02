@@ -13,6 +13,7 @@ import {
   CheckCircle,
   Zap,
   Globe,
+  Target,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
