@@ -1034,13 +1034,13 @@ const QuotationModal = () => {
                     </p>
                   </div>
                   
-                  {selectedProduct.specifications && (
+                  {selectedProduct.specifications && Object.keys(selectedProduct.specifications).length > 0 && (
                     <div>
                       <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         Specifications
                       </span>
                       <div className="mt-2 space-y-1">
-                        {Array.from(selectedProduct.specifications || new Map()).map(([key, value]) => (
+                        {Object.entries(selectedProduct.specifications).map(([key, value]) => (
                           <div key={key} className="flex justify-between">
                             <span className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>{key}</span>
                             <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>{value}</span>

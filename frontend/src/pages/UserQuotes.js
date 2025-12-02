@@ -526,31 +526,37 @@ const UserQuotes = () => {
                           )}
 
                           {/* Valid Until */}
-                          {quote.validUntil && quote.status === 'quoted' && (
-                            <div className={`p-4 rounded-2xl mb-4 ${
-                              new Date(quote.validUntil) < new Date()
-                                ? isDarkMode ? 'bg-red-500/10 border border-red-500/20' : 'bg-red-50 border border-red-200'
-                                : isDarkMode ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-200'
-                            }`}>
-                              <p className={`text-sm font-medium ${
-                                new Date(quote.validUntil) < new Date()
-                                  ? isDarkMode ? 'text-red-400' : 'text-red-700'
-                                  : isDarkMode ? 'text-green-400' : 'text-green-700'
+                          {quote.validUntil && quote.status === 'quoted' && (() => {
+                            const validUntilDate = new Date(quote.validUntil);
+                            const now = new Date();
+                            const isExpired = validUntilDate < now;
+                            
+                            return (
+                              <div className={`p-4 rounded-2xl mb-4 ${
+                                isExpired
+                                  ? isDarkMode ? 'bg-red-500/10 border border-red-500/20' : 'bg-red-50 border border-red-200'
+                                  : isDarkMode ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-200'
                               }`}>
-                                {new Date(quote.validUntil) < new Date() 
-                                  ? 'Quote expired on ' 
-                                  : 'Quote valid until '}
-                                {new Date(quote.validUntil).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </p>
-                            </div>
-                          )}
+                                <p className={`text-sm font-medium ${
+                                  isExpired
+                                    ? isDarkMode ? 'text-red-400' : 'text-red-700'
+                                    : isDarkMode ? 'text-green-400' : 'text-green-700'
+                                }`}>
+                                  {isExpired 
+                                    ? 'Quote expired on ' 
+                                    : 'Quote valid until '}
+                                  {validUntilDate.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                            );
+                          })()}
 
                           {/* Action Buttons */}
-                          {quote.status === 'quoted' && new Date(quote.validUntil) > new Date() && (
+                          {quote.status === 'quoted' && quote.validUntil && new Date(quote.validUntil) > new Date() && (
                             <div className="flex flex-wrap gap-3 pt-4 border-t border-dashed border-gray-700/30">
                               <Button
                                 onClick={() => handleAcceptQuote(quote._id)}

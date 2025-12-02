@@ -5,6 +5,9 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Constants
+const DEFAULT_QUOTE_VALIDITY_DAYS = 7;
+
 /* -------------------------------------------------------------------------- */
 /* 🟢 CREATE QUOTE REQUEST (POST) - Public endpoint */
 /* -------------------------------------------------------------------------- */
@@ -206,10 +209,11 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
     }
 
     quote.quotedTotal = calculatedQuotedTotal;
+    // Avoid division by zero when calculating discount percentage
     quote.discountPercentage = discountPercentage || 
-      ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100);
+      (quote.originalTotal > 0 ? ((quote.originalTotal - calculatedQuotedTotal) / quote.originalTotal * 100) : 0);
     quote.adminNotes = adminNotes;
-    quote.validUntil = validUntil || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
+    quote.validUntil = validUntil || new Date(Date.now() + DEFAULT_QUOTE_VALIDITY_DAYS * 24 * 60 * 60 * 1000);
     quote.status = 'quoted';
 
     await quote.save();
