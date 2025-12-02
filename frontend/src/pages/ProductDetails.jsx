@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -22,7 +22,9 @@ import {
   Battery,
   Calendar,
   CheckCircle,
-  ArrowLeft
+  ArrowLeft,
+  Eye,
+  Sparkles
 } from "lucide-react";
 import io from "socket.io-client";
 
@@ -36,6 +38,7 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
@@ -86,9 +89,22 @@ const ProductDetails = () => {
       });
       setProduct(res.data.data);
       setLoading(false);
+      // Fetch recommended products after getting product details
+      fetchRecommendedProducts(res.data.data.category);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load product");
       setLoading(false);
+    }
+  };
+
+  const fetchRecommendedProducts = async (category) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/products?category=${category}&limit=4`);
+      // Filter out the current product from recommendations
+      const filtered = (res.data.data || []).filter(p => p._id !== id);
+      setRecommendedProducts(filtered.slice(0, 4));
+    } catch (error) {
+      console.error("Error fetching recommended products:", error);
     }
   };
 
@@ -316,12 +332,6 @@ const ProductDetails = () => {
                 <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm font-semibold border border-purple-400/20">
                   {product.category}
                 </span>
-                <div className="flex items-center gap-1 text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
-                  ))}
-                  <span className="text-gray-400 text-sm ml-1">(42)</span>
-                </div>
               </div>
 
               <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-300 via-pink-300 to-purple-300 bg-clip-text text-transparent leading-tight">
@@ -461,6 +471,74 @@ const ProductDetails = () => {
             )}
           </motion.div>
         </motion.div>
+
+        {/* Recommended Products Section */}
+        {recommendedProducts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-16"
+          >
+            <div className="flex items-center gap-3 mb-8">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              <h2 className="text-2xl font-bold text-white">Recommended Products</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recommendedProducts.map((recProduct) => (
+                <Link
+                  key={recProduct._id}
+                  to={`/products/${recProduct._id}`}
+                  className="group relative bg-gray-900/40 rounded-2xl border border-gray-800/60 overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:scale-105"
+                >
+                  {/* Image */}
+                  <div className="relative h-48 bg-black/50 flex items-center justify-center p-4">
+                    {recProduct.images?.[0]?.url ? (
+                      <img
+                        src={recProduct.images[0].url}
+                        alt={recProduct.title}
+                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <Package className="w-16 h-16 text-gray-600" />
+                    )}
+                    
+                    {/* Quick View Overlay */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full">
+                        <Eye className="w-5 h-5 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="p-4">
+                    <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                      {recProduct.category}
+                    </span>
+                    <h3 className="text-white font-semibold mt-1 line-clamp-1 group-hover:text-purple-300 transition-colors">
+                      {recProduct.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                      {recProduct.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className={`text-xs font-medium ${
+                        recProduct.stock > 0 ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        {recProduct.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                      </span>
+                      <span className="text-purple-400 text-sm font-semibold group-hover:underline">
+                        View Details →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

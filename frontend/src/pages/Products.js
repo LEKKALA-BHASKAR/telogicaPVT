@@ -198,13 +198,7 @@ const Products = () => {
           </div>
 
           <div className="mt-4 pt-4 border-t border-dashed border-gray-700/30">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500">Price</span>
-                <span className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  ₹{product.price.toLocaleString()}
-                </span>
-              </div>
+            <div className="flex items-center justify-end mb-4">
               <div className={`flex items-center gap-1 text-xs font-medium ${
                 product.stock > 0 ? 'text-green-500' : 'text-red-500'
               }`}>
