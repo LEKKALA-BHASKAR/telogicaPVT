@@ -7,6 +7,9 @@ import { CreditCard, Shield, Lock, Truck, ArrowLeft, Sparkles, Package, CheckCir
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 
+// Minimum number of products required to trigger bulk quote requirement
+const BULK_ORDER_THRESHOLD = 3;
+
 const Checkout = () => {
   const { isDarkMode } = useTheme();
   const [searchParams] = useSearchParams();
@@ -101,9 +104,9 @@ const Checkout = () => {
       const res = await axios.get(`${API_URL}/api/products/cart/items`);
       const cartData = res.data.data;
       
-      // If cart has more than 3 products, redirect to cart for quote request
-      if (cartData.length > 3) {
-        toast.info('You have more than 3 products! Please request a quote to receive bulk discount pricing.');
+      // If cart has more than threshold products, redirect to cart for quote request
+      if (cartData.length > BULK_ORDER_THRESHOLD) {
+        toast.info(`You have more than ${BULK_ORDER_THRESHOLD} products! Please request a quote to receive bulk discount pricing.`);
         navigate('/cart');
         return;
       }

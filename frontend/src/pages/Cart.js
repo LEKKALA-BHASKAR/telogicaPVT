@@ -8,6 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useQuotation } from '../context/QuotationContext';
 
+// Minimum number of products required to trigger bulk quote requirement
+const BULK_ORDER_THRESHOLD = 3;
+
 const Cart = () => {
   const { isDarkMode } = useTheme();
   const { addToQuotation, clearQuotation, openQuotationModal } = useQuotation();
@@ -19,8 +22,8 @@ const Cart = () => {
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
   
-  // Check if cart has more than 3 products (requires quote)
-  const requiresQuote = cart.length > 3;
+  // Check if cart has more than threshold products (requires quote for bulk discount)
+  const requiresQuote = cart.length > BULK_ORDER_THRESHOLD;
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
