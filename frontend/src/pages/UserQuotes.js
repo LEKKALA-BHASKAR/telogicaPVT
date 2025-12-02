@@ -701,6 +701,22 @@ const UserQuotes = () => {
                             </div>
                           </div>
 
+                          {/* User's Original Message */}
+                          {quote.userMessage && (
+                            <div className={`p-4 rounded-2xl mb-4 ${
+                              isDarkMode ? 'bg-gray-500/10 border border-gray-500/20' : 'bg-gray-50 border border-gray-200'
+                            }`}>
+                              <h4 className={`text-sm font-semibold mb-2 ${
+                                isDarkMode ? 'text-gray-400' : 'text-gray-700'
+                              }`}>
+                                Your Message
+                              </h4>
+                              <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                {quote.userMessage}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Admin Notes */}
                           {quote.adminNotes && (
                             <div className={`p-4 rounded-2xl mb-4 ${

@@ -25,7 +25,8 @@ const QuotationModal = () => {
     updateQuotationQuantity,
     removeFromQuotation,
     clearQuotation,
-    getQuotationTotal
+    getQuotationTotal,
+    savePendingQuote
   } = useQuotation();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const QuotationModal = () => {
     pincode: ''
   });
 
+  const [userMessage, setUserMessage] = useState('');
   const [errors, setErrors] = useState({});
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -162,6 +164,28 @@ const QuotationModal = () => {
       return;
     }
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Save quote data for after registration
+      const pendingQuote = {
+        buyer: buyerDetails,
+        address: addressDetails,
+        products: quotationItems.map(item => ({
+          productId: item.product._id,
+          quantity: item.quantity,
+          productData: item.product // Save product data for reference
+        })),
+        userMessage: userMessage || null
+      };
+      
+      savePendingQuote(pendingQuote);
+      closeQuotationModal();
+      
+      toast.info('Please register or login to submit your quote request. Your quote details have been saved.');
+      navigate('/register');
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -172,7 +196,8 @@ const QuotationModal = () => {
           productId: item.product._id,
           quantity: item.quantity
         })),
-        userId: isAuthenticated ? user._id : null
+        userId: user._id,
+        userMessage: userMessage || null
       };
 
       await axios.post(`${API_URL}/api/quotes`, quoteData);
@@ -184,8 +209,8 @@ const QuotationModal = () => {
       // Reset form
       setStep(1);
       setBuyerDetails({
-        fullName: isAuthenticated ? user?.name || '' : '',
-        email: isAuthenticated ? user?.email || '' : '',
+        fullName: user?.name || '',
+        email: user?.email || '',
         mobile: '',
         companyName: ''
       });
@@ -197,6 +222,7 @@ const QuotationModal = () => {
         state: '',
         pincode: ''
       });
+      setUserMessage('');
 
     } catch (error) {
       console.error('Error submitting quote:', error);
@@ -894,6 +920,33 @@ const QuotationModal = () => {
                     {addressDetails.landmark && `, ${addressDetails.landmark}`}
                     <br />
                     {addressDetails.city}, {addressDetails.state} - {addressDetails.pincode}
+                  </p>
+                </div>
+
+                {/* Custom Message */}
+                <div className={`p-6 rounded-2xl ${
+                  isDarkMode ? 'bg-gray-800/50' : 'bg-gray-50'
+                }`}>
+                  <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    <FileText className={`w-5 h-5 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                    Your Message (Optional)
+                  </h3>
+                  
+                  <textarea
+                    value={userMessage}
+                    onChange={(e) => setUserMessage(e.target.value)}
+                    placeholder="Add any special requirements, questions, or notes for our team..."
+                    rows={3}
+                    className={`w-full p-4 rounded-xl border transition-all focus:ring-2 resize-none ${
+                      isDarkMode 
+                        ? 'bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20' 
+                        : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500/20'
+                    }`}
+                  />
+                  <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    This message will be sent along with your quote request to help us understand your needs better.
                   </p>
                 </div>
 

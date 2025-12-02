@@ -698,6 +698,21 @@ const ManageQuotes = () => {
                             </div>
                           )}
 
+                          {/* User Message */}
+                          {quote.userMessage && (
+                            <div className={`mt-4 p-4 rounded-xl ${
+                              isDarkMode ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-blue-50 border border-blue-200'
+                            }`}>
+                              <h4 className={`font-semibold mb-2 flex items-center gap-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}>
+                                <MessageCircle className="w-4 h-4" />
+                                Customer's Message
+                              </h4>
+                              <p className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>
+                                {quote.userMessage}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Admin Notes for Quoted */}
                           {quote.adminNotes && quote.status !== 'pending' && (
                             <div className={`mt-4 p-4 rounded-xl ${

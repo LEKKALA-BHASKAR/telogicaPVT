@@ -13,6 +13,7 @@ export const useQuotation = () => {
 export const QuotationProvider = ({ children }) => {
   const [quotationItems, setQuotationItems] = useState([]);
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [pendingQuoteData, setPendingQuoteData] = useState(null);
 
   // Load quotation items from localStorage on mount
   useEffect(() => {
@@ -23,6 +24,17 @@ export const QuotationProvider = ({ children }) => {
       } catch (error) {
         console.error('Error parsing quotation items:', error);
         localStorage.removeItem('quotationItems');
+      }
+    }
+    
+    // Load pending quote data if exists
+    const savedPendingQuote = localStorage.getItem('pendingQuoteData');
+    if (savedPendingQuote) {
+      try {
+        setPendingQuoteData(JSON.parse(savedPendingQuote));
+      } catch (error) {
+        console.error('Error parsing pending quote data:', error);
+        localStorage.removeItem('pendingQuoteData');
       }
     }
   }, []);
@@ -89,9 +101,20 @@ export const QuotationProvider = ({ children }) => {
     return quotationItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  const savePendingQuote = (quoteData) => {
+    setPendingQuoteData(quoteData);
+    localStorage.setItem('pendingQuoteData', JSON.stringify(quoteData));
+  };
+
+  const clearPendingQuote = () => {
+    setPendingQuoteData(null);
+    localStorage.removeItem('pendingQuoteData');
+  };
+
   const value = {
     quotationItems,
     isQuotationModalOpen,
+    pendingQuoteData,
     addToQuotation,
     updateQuotationQuantity,
     removeFromQuotation,
@@ -99,7 +122,9 @@ export const QuotationProvider = ({ children }) => {
     openQuotationModal,
     closeQuotationModal,
     getQuotationTotal,
-    getQuotationCount
+    getQuotationCount,
+    savePendingQuote,
+    clearPendingQuote
   };
 
   return (

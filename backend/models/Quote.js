@@ -96,6 +96,11 @@ const quoteSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // User's custom message when submitting quote request
+  userMessage: {
+    type: String,
+    trim: true
+  },
   // Linked user (optional - for registered users)
   user: {
     type: mongoose.Schema.Types.ObjectId,

@@ -13,7 +13,7 @@ const DEFAULT_QUOTE_VALIDITY_DAYS = 7;
 /* -------------------------------------------------------------------------- */
 router.post('/', async (req, res) => {
   try {
-    const { buyer, address, products, userId } = req.body;
+    const { buyer, address, products, userId, userMessage } = req.body;
 
     // Validate required fields
     if (!buyer?.fullName || !buyer?.email || !buyer?.mobile) {
@@ -69,6 +69,7 @@ router.post('/', async (req, res) => {
       products: productDetails,
       originalTotal,
       user: userId || null,
+      userMessage: userMessage || null,
       status: 'pending'
     });
 
