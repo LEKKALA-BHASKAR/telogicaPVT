@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,13 +8,15 @@ import {
   FileText, Clock, CheckCircle, XCircle, AlertCircle,
   Package, Calendar, Mail, Phone, MapPin, Building,
   ChevronDown, ChevronUp, DollarSign, Send, Loader2,
-  User, RefreshCw, Percent, Eye, Trash2, Search, MessageCircle
+  User, RefreshCw, Percent, Eye, Trash2, Search, MessageCircle,
+  Edit2, Lock, Unlock, ShoppingCart
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 
 const ManageQuotes = () => {
   const { isDarkMode } = useTheme();
+  const messagesEndRef = useRef(null);
   
   const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,7 @@ const ManageQuotes = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [respondingQuote, setRespondingQuote] = useState(null);
+  const [updatingQuote, setUpdatingQuote] = useState(null);
   const [responseData, setResponseData] = useState({
     quotedTotal: '',
     discountPercentage: '',
@@ -33,6 +36,7 @@ const ManageQuotes = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [rejectingQuote, setRejectingQuote] = useState(null);
   const [rejectNotes, setRejectNotes] = useState('');
+  const [updatingConversation, setUpdatingConversation] = useState(null);
 
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -139,6 +143,61 @@ const ManageQuotes = () => {
     }
   };
 
+  // Handle updating quoted price on already-quoted quotes
+  const handleUpdateQuotedPrice = async (quoteId) => {
+    if (!responseData.quotedTotal && !responseData.discountPercentage) {
+      toast.error('Please enter a quoted price or discount percentage');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await axios.put(`${API_URL}/api/quotes/admin/${quoteId}/update-price`, {
+        quotedTotal: responseData.quotedTotal ? parseFloat(responseData.quotedTotal) : null,
+        discountPercentage: responseData.discountPercentage ? parseFloat(responseData.discountPercentage) : null,
+        adminNotes: responseData.adminNotes,
+        validUntil: responseData.validUntil || null
+      });
+      
+      toast.success('Quote price updated successfully!');
+      setUpdatingQuote(null);
+      setResponseData({
+        quotedTotal: '',
+        discountPercentage: '',
+        adminNotes: '',
+        validUntil: ''
+      });
+      fetchQuotes();
+    } catch (error) {
+      console.error('Error updating quote price:', error);
+      toast.error(error.response?.data?.message || 'Failed to update quote price');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Handle conversation status update
+  const handleUpdateConversationStatus = async (quoteId, newStatus) => {
+    try {
+      setUpdatingConversation(quoteId);
+      await axios.put(`${API_URL}/api/quotes/admin/${quoteId}/conversation-status`, {
+        conversationStatus: newStatus
+      });
+      toast.success(`Conversation ${newStatus === 'closed' ? 'closed' : 'reopened'} successfully`);
+      fetchQuotes();
+    } catch (error) {
+      console.error('Error updating conversation status:', error);
+      toast.error('Failed to update conversation status');
+    } finally {
+      setUpdatingConversation(null);
+    }
+  };
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case 'pending': return <Clock className="w-4 h-4" />;
@@ -146,6 +205,7 @@ const ManageQuotes = () => {
       case 'accepted': return <CheckCircle className="w-4 h-4" />;
       case 'rejected': return <XCircle className="w-4 h-4" />;
       case 'expired': return <AlertCircle className="w-4 h-4" />;
+      case 'ordered': return <ShoppingCart className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }
   };
@@ -167,6 +227,9 @@ const ManageQuotes = () => {
       case 'expired': return isDarkMode 
         ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' 
         : 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'ordered': return isDarkMode 
+        ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' 
+        : 'bg-purple-100 text-purple-700 border-purple-200';
       default: return isDarkMode 
         ? 'bg-gray-500/20 text-gray-400 border-gray-500/30' 
         : 'bg-gray-100 text-gray-700 border-gray-200';
@@ -698,6 +761,155 @@ const ManageQuotes = () => {
                             </div>
                           )}
 
+                          {/* Update Quote Price for quoted quotes (when user requests more discount) */}
+                          {quote.status === 'quoted' && (
+                            <div className={`mt-4 p-4 rounded-xl ${
+                              isDarkMode ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-200'
+                            }`}>
+                              {updatingQuote === quote._id ? (
+                                <div className="space-y-4">
+                                  <h4 className={`font-semibold ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                                    Update Quoted Price
+                                  </h4>
+                                  <p className={`text-sm ${isDarkMode ? 'text-green-300/70' : 'text-green-600'}`}>
+                                    Current quoted price: ₹{quote.quotedTotal?.toLocaleString()} ({quote.discountPercentage?.toFixed(1)}% off)
+                                  </p>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                      <label className={`text-sm font-medium mb-1 block ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                      }`}>
+                                        New Quoted Price (₹)
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        placeholder={`Original: ₹${quote.originalTotal?.toLocaleString()}`}
+                                        value={responseData.quotedTotal}
+                                        onChange={(e) => setResponseData(prev => ({ 
+                                          ...prev, 
+                                          quotedTotal: e.target.value,
+                                          discountPercentage: e.target.value 
+                                            ? ((quote.originalTotal - parseFloat(e.target.value)) / quote.originalTotal * 100).toFixed(1)
+                                            : ''
+                                        }))}
+                                        className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}
+                                      />
+                                    </div>
+                                    
+                                    <div>
+                                      <label className={`text-sm font-medium mb-1 block ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                      }`}>
+                                        Or New Discount (%)
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        placeholder="e.g., 15"
+                                        value={responseData.discountPercentage}
+                                        onChange={(e) => setResponseData(prev => ({ 
+                                          ...prev, 
+                                          discountPercentage: e.target.value,
+                                          quotedTotal: e.target.value 
+                                            ? (quote.originalTotal * (1 - parseFloat(e.target.value) / 100)).toFixed(2)
+                                            : ''
+                                        }))}
+                                        className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}
+                                      />
+                                    </div>
+                                    
+                                    <div>
+                                      <label className={`text-sm font-medium mb-1 block ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                      }`}>
+                                        Valid Until
+                                      </label>
+                                      <Input
+                                        type="date"
+                                        value={responseData.validUntil}
+                                        onChange={(e) => setResponseData(prev => ({ ...prev, validUntil: e.target.value }))}
+                                        className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}
+                                      />
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <label className={`text-sm font-medium mb-1 block ${
+                                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                                    }`}>
+                                      Updated Notes for Customer
+                                    </label>
+                                    <textarea
+                                      placeholder="Add any notes about the price update..."
+                                      value={responseData.adminNotes}
+                                      onChange={(e) => setResponseData(prev => ({ ...prev, adminNotes: e.target.value }))}
+                                      rows={2}
+                                      className={`w-full p-3 rounded-lg border ${
+                                        isDarkMode 
+                                          ? 'bg-gray-800 border-gray-700 text-white' 
+                                          : 'bg-white border-gray-200'
+                                      }`}
+                                    />
+                                  </div>
+                                  
+                                  <div className="flex gap-3">
+                                    <Button
+                                      onClick={() => handleUpdateQuotedPrice(quote._id)}
+                                      disabled={submitting}
+                                      className="bg-green-500 hover:bg-green-600 text-white"
+                                    >
+                                      {submitting ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                          Updating...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          Update Quote
+                                        </>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                        setUpdatingQuote(null);
+                                        setResponseData({
+                                          quotedTotal: '',
+                                          discountPercentage: '',
+                                          adminNotes: '',
+                                          validUntil: ''
+                                        });
+                                      }}
+                                      className={isDarkMode ? 'border-gray-700' : ''}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+                                      Quote sent: ₹{quote.quotedTotal?.toLocaleString()} ({quote.discountPercentage?.toFixed(1)}% off)
+                                    </p>
+                                    <p className={`text-xs ${isDarkMode ? 'text-green-300/70' : 'text-green-600'}`}>
+                                      User may request more discount. Click to update the price.
+                                    </p>
+                                  </div>
+                                  <Button
+                                    onClick={() => setUpdatingQuote(quote._id)}
+                                    variant="outline"
+                                    className={`${isDarkMode ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-green-300 text-green-700 hover:bg-green-50'}`}
+                                  >
+                                    <Edit2 className="w-4 h-4 mr-2" />
+                                    Update Price
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           {/* User Message */}
                           {quote.userMessage && (
                             <div className={`mt-4 p-4 rounded-xl ${
@@ -705,7 +917,7 @@ const ManageQuotes = () => {
                             }`}>
                               <h4 className={`font-semibold mb-2 flex items-center gap-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-700'}`}>
                                 <MessageCircle className="w-4 h-4" />
-                                Customer's Message
+                                Customer's Initial Message
                               </h4>
                               <p className={`text-sm ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>
                                 {quote.userMessage}
@@ -727,75 +939,153 @@ const ManageQuotes = () => {
                             </div>
                           )}
 
-                          {/* Messages Section */}
-                          <div className={`mt-4 p-4 rounded-xl ${
-                            isDarkMode ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'
+                          {/* Messages Section - Chat-like UI */}
+                          <div className={`mt-4 rounded-xl overflow-hidden ${
+                            isDarkMode ? 'bg-gray-900/50 border border-white/10' : 'bg-white border border-gray-200 shadow-sm'
                           }`}>
-                            <h4 className={`font-semibold mb-3 flex items-center gap-2 ${
-                              isDarkMode ? 'text-purple-400' : 'text-purple-700'
+                            {/* Chat Header */}
+                            <div className={`p-4 flex items-center justify-between ${
+                              isDarkMode ? 'bg-purple-500/10 border-b border-white/10' : 'bg-purple-50 border-b border-purple-100'
                             }`}>
-                              <MessageCircle className="w-4 h-4" />
-                              Negotiation Messages ({quote.messages?.length || 0})
-                            </h4>
-                            
-                            {/* Messages List */}
-                            {quote.messages && quote.messages.length > 0 && (
-                              <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
-                                {quote.messages.map((msg, idx) => (
-                                  <div 
-                                    key={idx} 
-                                    className={`p-3 rounded-lg ${
-                                      msg.sender === 'admin'
-                                        ? isDarkMode ? 'bg-blue-500/20 ml-4' : 'bg-blue-100 ml-4'
-                                        : isDarkMode ? 'bg-gray-700 mr-4' : 'bg-gray-200 mr-4'
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between mb-1">
-                                      <span className={`text-xs font-medium ${
-                                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                      }`}>
-                                        {msg.senderName || (msg.sender === 'admin' ? 'Admin' : 'User')}
-                                        {msg.sender === 'admin' && (
-                                          <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${
-                                            isDarkMode ? 'bg-blue-500/30 text-blue-300' : 'bg-blue-200 text-blue-700'
-                                          }`}>
-                                            Admin
-                                          </span>
-                                        )}
-                                      </span>
-                                      <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                        {new Date(msg.createdAt).toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <p className={`text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                                      {msg.content}
-                                    </p>
-                                  </div>
-                                ))}
+                              <div className="flex items-center gap-2">
+                                <MessageCircle className={`w-5 h-5 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                                <h4 className={`font-semibold ${isDarkMode ? 'text-purple-400' : 'text-purple-700'}`}>
+                                  Conversation ({quote.messages?.length || 0})
+                                </h4>
+                                {/* Conversation Status Badge */}
+                                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  quote.conversationStatus === 'closed'
+                                    ? isDarkMode ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
+                                    : isDarkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
+                                }`}>
+                                  {quote.conversationStatus === 'closed' ? 'Closed' : 'Open'}
+                                </span>
                               </div>
-                            )}
-                            
-                            {/* Send Message Input */}
-                            <div className="flex gap-2">
-                              <Input
-                                placeholder="Type a message to the customer..."
-                                value={messageInput}
-                                onChange={(e) => setMessageInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(quote._id)}
-                                className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
-                              />
+                              {/* Conversation Status Toggle */}
                               <Button
-                                onClick={() => handleSendMessage(quote._id)}
-                                disabled={sendingMessage || !messageInput.trim()}
-                                className="bg-purple-500 hover:bg-purple-600 text-white"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleUpdateConversationStatus(
+                                  quote._id, 
+                                  quote.conversationStatus === 'closed' ? 'open' : 'closed'
+                                )}
+                                disabled={updatingConversation === quote._id}
+                                className={`${
+                                  quote.conversationStatus === 'closed'
+                                    ? isDarkMode ? 'text-green-400 hover:bg-green-500/10' : 'text-green-700 hover:bg-green-50'
+                                    : isDarkMode ? 'text-red-400 hover:bg-red-500/10' : 'text-red-700 hover:bg-red-50'
+                                }`}
                               >
-                                {sendingMessage ? (
+                                {updatingConversation === quote._id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : quote.conversationStatus === 'closed' ? (
+                                  <>
+                                    <Unlock className="w-4 h-4 mr-1" />
+                                    Reopen
+                                  </>
                                 ) : (
-                                  <Send className="w-4 h-4" />
+                                  <>
+                                    <Lock className="w-4 h-4 mr-1" />
+                                    Close
+                                  </>
                                 )}
                               </Button>
                             </div>
+                            
+                            {/* Messages List - Chat Style */}
+                            <div className={`p-4 max-h-80 overflow-y-auto ${isDarkMode ? 'bg-gray-900/30' : 'bg-gray-50'}`}>
+                              {quote.messages && quote.messages.length > 0 ? (
+                                <div className="space-y-3">
+                                  {quote.messages.map((msg, idx) => (
+                                    <div 
+                                      key={idx} 
+                                      className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
+                                    >
+                                      <div className={`max-w-[75%] ${
+                                        msg.sender === 'admin' ? 'order-2' : 'order-1'
+                                      }`}>
+                                        {/* Sender name */}
+                                        <div className={`flex items-center gap-1 mb-1 ${
+                                          msg.sender === 'admin' ? 'justify-end' : 'justify-start'
+                                        }`}>
+                                          <span className={`text-xs font-medium ${
+                                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                                          }`}>
+                                            {msg.sender === 'admin' ? 'You' : msg.senderName || 'Customer'}
+                                          </span>
+                                          <span className={`text-xs ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}>
+                                            • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                          </span>
+                                        </div>
+                                        {/* Message bubble */}
+                                        <div className={`px-4 py-2.5 rounded-2xl ${
+                                          msg.sender === 'admin'
+                                            ? isDarkMode 
+                                              ? 'bg-purple-600 text-white rounded-br-md' 
+                                              : 'bg-purple-500 text-white rounded-br-md'
+                                            : isDarkMode 
+                                              ? 'bg-gray-700 text-gray-100 rounded-bl-md' 
+                                              : 'bg-white text-gray-900 rounded-bl-md border border-gray-200'
+                                        }`}>
+                                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                        </div>
+                                        {/* Date for messages on different days */}
+                                        {idx === 0 || new Date(msg.createdAt).toDateString() !== new Date(quote.messages[idx - 1]?.createdAt).toDateString() ? (
+                                          <div className={`text-xs text-center mt-1 ${
+                                            msg.sender === 'admin' ? 'text-right' : 'text-left'
+                                          } ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                            {new Date(msg.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    </div>
+                                  ))}
+                                  <div ref={messagesEndRef} />
+                                </div>
+                              ) : (
+                                <div className={`text-center py-8 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                  <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                                  <p className="text-sm">No messages yet</p>
+                                  <p className="text-xs">Start a conversation with the customer</p>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Send Message Input */}
+                            {quote.conversationStatus !== 'closed' && quote.status !== 'ordered' && quote.status !== 'rejected' ? (
+                              <div className={`p-3 border-t ${isDarkMode ? 'border-white/10 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Type a message..."
+                                    value={messageInput}
+                                    onChange={(e) => setMessageInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage(quote._id)}
+                                    className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-700' : ''}`}
+                                  />
+                                  <Button
+                                    onClick={() => handleSendMessage(quote._id)}
+                                    disabled={sendingMessage || !messageInput.trim()}
+                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4"
+                                  >
+                                    {sendingMessage ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Send className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className={`p-3 border-t text-center ${
+                                isDarkMode ? 'border-white/10 bg-gray-900/30' : 'border-gray-200 bg-gray-50'
+                              }`}>
+                                <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                  {quote.conversationStatus === 'closed' 
+                                    ? 'Conversation is closed. Reopen to send messages.'
+                                    : 'This conversation is no longer active.'}
+                                </p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Actions */}
