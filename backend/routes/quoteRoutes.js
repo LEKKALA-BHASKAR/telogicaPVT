@@ -233,8 +233,6 @@ router.put('/admin/:id/respond', protect, admin, async (req, res) => {
   try {
     const { quotedTotal, discountPercentage, adminNotes, validUntil } = req.body;
 
-    const messageContent = content.trim();
-
     const quote = await Quote.findById(req.params.id);
 
     if (!quote) {
@@ -608,6 +606,7 @@ router.post('/:id/message', protect, async (req, res) => {
     }
 
     const senderName = req.user.name || quote.buyer?.fullName || 'User';
+    const messageContent = content.trim();
 
     quote.messages.push({
       sender: 'user',
