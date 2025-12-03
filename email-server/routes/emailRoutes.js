@@ -17,20 +17,48 @@ import {
 
 const router = express.Router();
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'telogicaweb@gmail.com';
+const MAIL_FROM = (process.env.EMAIL_USER || '').trim();
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || MAIL_FROM || '').trim();
+
+if (!MAIL_FROM) {
+  console.error('❌ EMAIL_USER is missing. Outgoing emails will fail until it is configured.');
+}
 
 /**
  * Helper function to send email
  */
-const sendEmail = async (to, subject, html) => {
+const sendEmail = async (to, subject, html, contextLabel = 'Email dispatch') => {
+  if (!to) {
+    throw new Error(`Missing recipient email for ${contextLabel}`);
+  }
+
+  if (!MAIL_FROM) {
+    throw new Error('EMAIL_USER is not configured on the email server.');
+  }
+
   const mailOptions = {
-    from: `"Telogica" <${process.env.EMAIL_USER}>`,
+    from: `"Telogica" <${MAIL_FROM}>`,
     to,
     subject,
     html
   };
-  
-  return transporter.sendMail(mailOptions);
+
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`✉️  ${contextLabel} sent to ${to}`);
+    return result;
+  } catch (error) {
+    console.error(`❌ ${contextLabel} failed for ${to}:`, error.message);
+    throw error;
+  }
+};
+
+const sendAdminEmail = async (subject, html, context) => {
+  if (!ADMIN_EMAIL) {
+    console.warn(`⚠️  ADMIN_EMAIL is not configured. Skipping ${context || 'admin email'}.`);
+    return { skipped: true };
+  }
+  return sendEmail(ADMIN_EMAIL, subject, html, context || 'Admin email');
 };
 
 /* -------------------------------------------------------------------------- */
@@ -79,10 +107,10 @@ router.post('/quote/request', async (req, res) => {
       userMessage
     });
 
-    await sendEmail(
-      ADMIN_EMAIL,
+    await sendAdminEmail(
       `New Quote Request from ${buyer.fullName} - Telogica`,
-      adminEmailHtml
+      adminEmailHtml,
+      'Quote request notification (admin)'
     );
 
     res.json({
@@ -184,10 +212,10 @@ router.post('/quote/accept', async (req, res) => {
       quoteId
     });
 
-    await sendEmail(
-      ADMIN_EMAIL,
+    await sendAdminEmail(
       `Quote Accepted by ${buyer.fullName} - Telogica`,
-      adminEmailHtml
+      adminEmailHtml,
+      'Quote accepted notification (admin)'
     );
 
     res.json({
@@ -228,10 +256,10 @@ router.post('/quote/reject', async (req, res) => {
       originalTotal
     });
 
-    await sendEmail(
-      ADMIN_EMAIL,
+    await sendAdminEmail(
       `Quote Rejected by ${buyer.fullName} - Telogica`,
-      adminEmailHtml
+      adminEmailHtml,
+      'Quote rejected notification (admin)'
     );
 
     res.json({
@@ -295,10 +323,10 @@ router.post('/order/placed', async (req, res) => {
       shippingAddress
     });
 
-    await sendEmail(
-      ADMIN_EMAIL,
+    await sendAdminEmail(
       `New Order Received from ${user.name} - Telogica`,
-      adminEmailHtml
+      adminEmailHtml,
+      'Order placed notification (admin)'
     );
 
     res.json({
@@ -487,10 +515,10 @@ router.post('/message/to-admin', async (req, res) => {
       messageContent
     });
 
-    await sendEmail(
-      ADMIN_EMAIL,
+    await sendAdminEmail(
       `New Message from ${buyer.fullName} - Telogica`,
-      emailHtml
+      emailHtml,
+      'Quote message notification (admin)'
     );
 
     res.json({
@@ -519,7 +547,16 @@ router.post('/test', async (req, res) => {
     const { to } = req.body;
     const testEmail = to || ADMIN_EMAIL;
 
-    await sendEmail(
+    if (!testEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a recipient email or configure ADMIN_EMAIL.'
+      });
+    }
+
+    await transporter.verify();
+
+    const result = await sendEmail(
       testEmail,
       'Test Email - Telogica Email Server',
       `
@@ -528,12 +565,16 @@ router.post('/test', async (req, res) => {
           <p>This is a test email from the Telogica Email Server.</p>
           <p>Time: ${new Date().toLocaleString()}</p>
         </div>
-      `
+      `,
+      'Test email dispatch'
     );
 
     res.json({
       success: true,
-      message: `Test email sent successfully to ${testEmail}`
+      message: `Test email sent successfully to ${testEmail}`,
+      envelope: result.envelope,
+      accepted: result.accepted,
+      rejected: result.rejected
     });
   } catch (error) {
     console.error('Test email error:', error);

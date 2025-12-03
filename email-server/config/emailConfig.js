@@ -3,22 +3,42 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create transporter using Gmail SMTP
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+const sanitize = (value = '') => value.trim();
+const stripSpaces = (value = '') => value.replace(/\s+/g, '');
+
+const emailUser = sanitize(process.env.EMAIL_USER || '');
+const emailPassword = stripSpaces(process.env.EMAIL_PASSWORD || '');
+
+const requiredEnv = [
+  { key: 'EMAIL_USER', value: emailUser },
+  { key: 'EMAIL_PASSWORD', value: emailPassword }
+];
+
+requiredEnv.forEach(({ key, value }) => {
+  if (!value) {
+    console.error(`❌ Missing required environment variable: ${key}`);
   }
 });
 
-// Verify transporter connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email transporter verification failed:', error);
-  } else {
-    console.log('✅ Email server is ready to send emails');
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: Number(process.env.SMTP_PORT) || 465,
+  secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : true,
+  auth: {
+    user: emailUser,
+    pass: emailPassword
   }
 });
+
+const verifyTransporter = async () => {
+  try {
+    await transporter.verify();
+    console.log('✅ Email server is ready to send emails');
+  } catch (error) {
+    console.error('❌ Email transporter verification failed:', error.message);
+  }
+};
+
+verifyTransporter();
 
 export default transporter;
