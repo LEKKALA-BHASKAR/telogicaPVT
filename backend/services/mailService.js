@@ -6,7 +6,7 @@ const normalizeBaseUrl = (url) => {
 };
 
 const MAIL_SERVICE_BASE_URL = normalizeBaseUrl(
-  process.env.MAIL_SERVICE_BASE_URL || 'https://telogicamailservice.vercel.app'
+  process.env.MAIL_SERVICE_BASE_URL || 'https://telogica-pvt.vercel.app'
 );
 
 const buildUrl = (path) => {
