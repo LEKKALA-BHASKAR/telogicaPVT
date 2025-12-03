@@ -39,13 +39,13 @@ print_info() {
 TOTAL_CHECKS=0
 PASSED_CHECKS=0
 
-check() {
+check_pass() {
     TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
-    if [ $? -eq 0 ]; then
-        PASSED_CHECKS=$((PASSED_CHECKS + 1))
-        return 0
-    fi
-    return 1
+    PASSED_CHECKS=$((PASSED_CHECKS + 1))
+}
+
+check_fail() {
+    TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
 }
 
 # Start verification
@@ -55,30 +55,34 @@ print_header "Nodemailer Integration Verification"
 print_info "Checking email-server directory structure..."
 if [ -d "email-server" ]; then
     print_success "email-server directory exists"
-    check
+    check_pass
 else
     print_error "email-server directory not found"
+    check_fail
 fi
 
 if [ -f "email-server/package.json" ]; then
     print_success "email-server/package.json exists"
-    check
+    check_pass
 else
     print_error "email-server/package.json not found"
+    check_fail
 fi
 
 if [ -f "email-server/server.js" ]; then
     print_success "email-server/server.js exists"
-    check
+    check_pass
 else
     print_error "email-server/server.js not found"
+    check_fail
 fi
 
 if [ -f "email-server/.env" ]; then
     print_success "email-server/.env exists"
-    check
+    check_pass
 else
     print_warning "email-server/.env not found (may be expected)"
+    check_fail
 fi
 
 # 2. Check nodemailer installation
@@ -87,9 +91,10 @@ cd email-server
 if npm list nodemailer > /dev/null 2>&1; then
     VERSION=$(npm list nodemailer 2>/dev/null | grep nodemailer | head -1 | sed 's/.*nodemailer@//' | sed 's/ .*//')
     print_success "nodemailer installed (version: $VERSION)"
-    check
+    check_pass
 else
     print_error "nodemailer not installed in email-server"
+    check_fail
 fi
 cd ..
 
@@ -97,20 +102,21 @@ cd ..
 print_info "\nChecking email templates..."
 if [ -f "email-server/templates/emailTemplates.js" ]; then
     print_success "Email templates file exists"
-    check
+    check_pass
     
     # Count template functions
     TEMPLATE_COUNT=$(grep -c "export const.*Template" email-server/templates/emailTemplates.js || echo "0")
     print_info "Found $TEMPLATE_COUNT email templates"
 else
     print_error "Email templates file not found"
+    check_fail
 fi
 
 # 4. Check email routes
 print_info "\nChecking email server routes..."
 if [ -f "email-server/routes/emailRoutes.js" ]; then
     print_success "Email routes file exists"
-    check
+    check_pass
     
     # Count endpoints
     QUOTE_ENDPOINTS=$(grep -c "router.post('/quote/" email-server/routes/emailRoutes.js || echo "0")
@@ -122,35 +128,39 @@ if [ -f "email-server/routes/emailRoutes.js" ]; then
     print_info "  Message endpoints: $MESSAGE_ENDPOINTS"
 else
     print_error "Email routes file not found"
+    check_fail
 fi
 
 # 5. Check email configuration
 print_info "\nChecking email configuration..."
 if [ -f "email-server/config/emailConfig.js" ]; then
     print_success "Email config file exists"
-    check
+    check_pass
     
     if grep -q "nodemailer" email-server/config/emailConfig.js; then
         print_success "Nodemailer configured in email config"
-        check
+        check_pass
     else
         print_error "Nodemailer not found in email config"
+        check_fail
     fi
 else
     print_error "Email config file not found"
+    check_fail
 fi
 
 # 6. Check backend mail service
 print_info "\nChecking backend mail service integration..."
 if [ -f "backend/services/mailService.js" ]; then
     print_success "Backend mail service exists"
-    check
+    check_pass
     
     # Check for mail service methods
     METHODS=$(grep -c "send.*:" backend/services/mailService.js || echo "0")
     print_info "Found $METHODS mail service methods"
 else
     print_error "Backend mail service not found"
+    check_fail
 fi
 
 # 7. Check backend routes integration
@@ -161,7 +171,7 @@ for route_file in backend/routes/*.js; do
     if grep -q "MailService" "$route_file" 2>/dev/null; then
         ROUTES_WITH_MAIL=$((ROUTES_WITH_MAIL + 1))
         print_success "$(basename $route_file) uses MailService"
-        check
+        check_pass
     fi
 done
 
@@ -173,9 +183,10 @@ print_info "\nChecking environment configuration..."
 if [ -f "backend/.env" ]; then
     if grep -q "MAIL_SERVICE_BASE_URL" backend/.env; then
         print_success "MAIL_SERVICE_BASE_URL configured in backend"
-        check
+        check_pass
     else
         print_warning "MAIL_SERVICE_BASE_URL not found in backend/.env"
+        check_fail
     fi
 fi
 
@@ -184,9 +195,10 @@ if [ -f "email-server/.env" ]; then
     for var in "${REQUIRED_VARS[@]}"; do
         if grep -q "$var" email-server/.env; then
             print_success "$var configured in email-server"
-            check
+            check_pass
         else
             print_error "$var not found in email-server/.env"
+            check_fail
         fi
     done
 fi
@@ -200,7 +212,7 @@ if [ -d "frontend/src" ]; then
     if [ -f "frontend/src/components/GlobalContactForm.js" ]; then
         if grep -q "api/contact" frontend/src/components/GlobalContactForm.js; then
             print_success "Contact form integrated with API"
-            check
+            check_pass
             FRONTEND_FILES_WITH_API=$((FRONTEND_FILES_WITH_API + 1))
         fi
     fi
@@ -209,7 +221,7 @@ if [ -d "frontend/src" ]; then
     if [ -f "frontend/src/components/QuotationModal.js" ]; then
         if grep -q "api/quotes" frontend/src/components/QuotationModal.js; then
             print_success "Quotation modal integrated with API"
-            check
+            check_pass
             FRONTEND_FILES_WITH_API=$((FRONTEND_FILES_WITH_API + 1))
         fi
     fi
@@ -222,16 +234,18 @@ print_info "\nChecking documentation..."
 
 if [ -f "email-server/README.md" ]; then
     print_success "Email server README exists"
-    check
+    check_pass
 else
     print_warning "Email server README not found"
+    check_fail
 fi
 
 if [ -f "NODEMAILER_INTEGRATION.md" ]; then
     print_success "Integration documentation exists"
-    check
+    check_pass
 else
     print_warning "Integration documentation not found"
+    check_fail
 fi
 
 # Summary

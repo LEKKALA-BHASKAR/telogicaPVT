@@ -25,7 +25,7 @@ Frontend (React) → Backend API (Express) → Email Server (Nodemailer) → Gma
 #### Configuration (`.env`):
 ```env
 EMAIL_USER=telogicaweb@gmail.com
-EMAIL_PASSWORD=yuislgytqfimodti
+EMAIL_PASSWORD=your_app_password_here
 ADMIN_EMAIL=telogicaweb@gmail.com
 PORT=8002
 SMTP_HOST=smtp.gmail.com
